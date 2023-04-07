@@ -1,23 +1,23 @@
 #pragma once
-#include "types.hpp"
+#include "device_register.hpp"
 #include <memory>
 #include "simulated_peripheral.hpp"
 
-struct gpio : std::conditional<in_test_mode, simulated_peripheral<gpio>, void>
+struct rp2040_gpio : std::conditional<in_test_mode, simulated_peripheral<rp2040_gpio>, void>
 {
-    ~gpio();
+    ~rp2040_gpio();
     void operator delete(void *){};
 
 private:
-    gpio();
+    rp2040_gpio();
 
-    void *operator new(std::size_t) { return reinterpret_cast<gpio *>(GPIO_base_address); }
+    void *operator new(std::size_t) { return reinterpret_cast<rp2040_gpio *>(base_address); }
 
-    static constexpr uintptr_t GPIO_base_address = 0x40014000;
-    static std::weak_ptr<gpio> storage_handle;
+    static constexpr uintptr_t base_address = 0x40014000;
+    static std::weak_ptr<rp2040_gpio> storage_handle;
 
     // To force users to use make_shared for initialization.
-    friend std::shared_ptr<gpio> std::make_shared<gpio>();
+    friend std::shared_ptr<rp2040_gpio> std::make_shared<rp2040_gpio>();
 
     // Start of non-static member variables:
     device_register GPIO0_STATUSGPIO;   // status
@@ -124,11 +124,11 @@ private:
 };
 
 template <>
-inline std::shared_ptr<gpio> std::make_shared<gpio>()
+inline std::shared_ptr<rp2040_gpio> std::make_shared<rp2040_gpio>()
 {
-    if (const auto ptr = gpio::storage_handle.lock())
+    if (const auto ptr = rp2040_gpio::storage_handle.lock())
         return ptr;
-    const auto ptr = std::shared_ptr<gpio>(new gpio());
-    gpio::storage_handle = ptr;
+    const auto ptr = std::shared_ptr<rp2040_gpio>(new rp2040_gpio());
+    rp2040_gpio::storage_handle = ptr;
     return ptr;
 }
