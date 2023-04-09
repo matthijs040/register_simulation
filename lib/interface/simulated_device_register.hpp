@@ -5,9 +5,14 @@
 
 #include <map>
 
-struct simulated_device_register
+class simulated_device_register
 {
-    using effect_handler = std::function<void(std::uint32_t)>;
+    public:
+    using effect_handler = std::function<void(register_integral)>;
+
+    simulated_device_register();
+    simulated_device_register(const register_integral initial_value);
+    ~simulated_device_register(); 
 
     struct effect_handlers
     {
@@ -24,17 +29,19 @@ struct simulated_device_register
 
     inline void on_write() const;
 
-    operator std::uint32_t() const;
-    void operator=(uint32_t v);
+    operator register_integral() const;
+    void operator=(register_integral v);
 
-    std::uint32_t operator|=(std::uint32_t v);
+    register_integral operator|=(register_mask v);
 
-    std::uint32_t operator&=(std::uint32_t v);
+    register_integral operator&=(register_mask v);
+
+    register_integral operator&(register_mask v) const;
 
     static void set_effect_handlers(simulated_device_register const*to_assign, effect_handlers const &effects);
 
 private:
-    std::uint32_t value;
+    register_integral value;
     using handler_table = std::map<simulated_device_register const *, effect_handlers>;
     static handler_table register_effects;
 };

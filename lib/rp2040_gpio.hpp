@@ -6,7 +6,7 @@
 #include "rp2040_defs.hpp"
 #include <optional>
 
-class rp2040_gpio : std::conditional<in_test_mode, simulated_peripheral<rp2040_gpio>, void>
+class rp2040_gpio : std::conditional<USE_SIMULATED_REGISTERS, simulated_peripheral<rp2040_gpio>, void>
 {
     public:
     ~rp2040_gpio();
