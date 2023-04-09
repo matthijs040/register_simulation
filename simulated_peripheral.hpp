@@ -1,6 +1,7 @@
 #pragma once
 #include "device_register.hpp"
 #include <array>
+#include <type_traits>
 
 template <typename Peripheral>
 struct simulated_peripheral

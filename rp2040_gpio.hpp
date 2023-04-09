@@ -1,10 +1,14 @@
 #pragma once
+
+#include "simulated_peripheral.hpp"
 #include "device_register.hpp"
 #include <memory>
-#include "simulated_peripheral.hpp"
+#include "rp2040_defs.hpp"
+#include <optional>
 
-struct rp2040_gpio : std::conditional<in_test_mode, simulated_peripheral<rp2040_gpio>, void>
+class rp2040_gpio : std::conditional<in_test_mode, simulated_peripheral<rp2040_gpio>, void>
 {
+    public:
     ~rp2040_gpio();
     void operator delete(void *){};
 
@@ -20,67 +24,66 @@ private:
     friend std::shared_ptr<rp2040_gpio> std::make_shared<rp2040_gpio>();
 
     // Start of non-static member variables:
-    device_register GPIO0_STATUSGPIO;   // status
-    device_register GPIO0_CTRLGPIO;     // control including function select and overrides.
-    device_register GPIO1_STATUSGPIO;   // status
-    device_register GPIO1_CTRLGPIO;     // control including function select and overrides.
-    device_register GPIO2_STATUSGPIO;   // status
-    device_register GPIO2_CTRLGPIO;     // control including function select and overrides.
-    device_register GPIO3_STATUSGPIO;   // status
-    device_register GPIO3_CTRLGPIO;     // control including function select and overrides.
-    device_register GPIO4_STATUSGPIO;   // status
-    device_register GPIO4_CTRLGPIO;     // control including function select and overrides.
-    device_register GPIO5_STATUSGPIO;   // status
-    device_register GPIO5_CTRLGPIO;     /// control including function select and overrides.
-    device_register PIO5_CTRLGPIO;      // control including function select and overrides.
-    device_register GPIO6_STATUSGPIO;   // status
-    device_register GPIO6_CTRLGPIO;     // control including function select and overrides.
-    device_register GPIO7_STATUSGPIO;   // status
-    device_register GPIO7_CTRLGPIO;     // control including function select and overrides.
-    device_register GPIO8_STATUSGPIO;   // status
-    device_register GPIO8_CTRLGPIO;     // control including function select and overrides.
-    device_register GPIO9_STATUSGPIO;   // status
-    device_register GPIO9_CTRLGPIO;     // control including function select and overrides.
-    device_register GPIO10_STATUSGPIO;  // status
-    device_register GPIO10_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO11_STATUSGPIO;  // status
-    device_register GPIO11_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO12_STATUSGPIO;  // status
-    device_register GPIO12_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO13_STATUSGPIO;  // status
-    device_register GPIO13_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO14_STATUSGPIO;  // status
-    device_register GPIO14_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO15_STATUSGPIO;  // status
-    device_register GPIO15_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO16_STATUSGPIO;  // status
-    device_register GPIO16_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO17_STATUSGPIO;  // status
-    device_register GPIO17_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO18_STATUSGPIO;  // status
-    device_register GPIO18_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO19_STATUSGPIO;  // status
-    device_register GPIO19_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO20_STATUSGPIO;  // status
-    device_register GPIO20_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO21_STATUSGPIO;  // status
-    device_register GPIO21_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO22_STATUSGPIO;  // status
-    device_register GPIO22_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO23_STATUSGPIO;  // status
-    device_register GPIO23_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO24_STATUSGPIO;  // status
-    device_register GPIO24_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO25_STATUSGPIO;  // status
-    device_register GPIO25_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO26_STATUSGPIO;  // status
-    device_register GPIO26_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO27_STATUSGPIO;  // status
-    device_register GPIO27_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO28_STATUSGPIO;  // status
-    device_register GPIO28_CTRLGPIO;    // control including function select and overrides.
-    device_register GPIO29_STATUSGPIO;  // status
-    device_register GPIO29_CTRLGPIO;    // control including function select and overrides.
+    device_register GPIO0_STATUS;       // GPIO status
+    device_register GPIO0_CTRL;         // GPIO control including function select and overrides.
+    device_register GPIO1_STATUS;       // GPIO status
+    device_register GPIO1_CTRL;         // GPIO control including function select and overrides.
+    device_register GPIO2_STATUS;       // GPIO status
+    device_register GPIO2_CTRL;         // GPIO control including function select and overrides.
+    device_register GPIO3_STATUS;       // GPIO status
+    device_register GPIO3_CTRL;         // GPIO control including function select and overrides.
+    device_register GPIO4_STATUS;       // GPIO status
+    device_register GPIO4_CTRL;         // GPIO control including function select and overrides.
+    device_register GPIO5_STATUS;       // GPIO status
+    device_register GPIO5_CTRL;         // GPIO control including function select and overrides.
+    device_register GPIO6_STATUS;       // GPIO status
+    device_register GPIO6_CTRL;         // GPIO control including function select and overrides.
+    device_register GPIO7_STATUS;       // GPIO status
+    device_register GPIO7_CTRL;         // GPIO control including function select and overrides.
+    device_register GPIO8_STATUS;       // GPIO status
+    device_register GPIO8_CTRL;         // GPIO control including function select and overrides.
+    device_register GPIO9_STATUS;       // GPIO status
+    device_register GPIO9_CTRL;         // GPIO control including function select and overrides.
+    device_register GPIO10_STATUS;      // GPIO status
+    device_register GPIO10_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO11_STATUS;      // GPIO status
+    device_register GPIO11_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO12_STATUS;      // GPIO status
+    device_register GPIO12_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO13_STATUS;      // GPIO status
+    device_register GPIO13_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO14_STATUS;      // GPIO status
+    device_register GPIO14_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO15_STATUS;      // GPIO status
+    device_register GPIO15_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO16_STATUS;      // GPIO status
+    device_register GPIO16_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO17_STATUS;      // GPIO status
+    device_register GPIO17_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO18_STATUS;      // GPIO status
+    device_register GPIO18_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO19_STATUS;      // GPIO status
+    device_register GPIO19_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO20_STATUS;      // GPIO status
+    device_register GPIO20_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO21_STATUS;      // GPIO status
+    device_register GPIO21_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO22_STATUS;      // GPIO status
+    device_register GPIO22_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO23_STATUS;      // GPIO status
+    device_register GPIO23_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO24_STATUS;      // GPIO status
+    device_register GPIO24_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO25_STATUS;      // GPIO status
+    device_register GPIO25_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO26_STATUS;      // GPIO status
+    device_register GPIO26_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO27_STATUS;      // GPIO status
+    device_register GPIO27_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO28_STATUS;      // GPIO status
+    device_register GPIO28_CTRL;        // GPIO control including function select and overrides.
+    device_register GPIO29_STATUS;      // GPIO status
+    device_register GPIO29_CTRL;        // GPIO control including function select and overrides.
     device_register INTR0;              // Raw Interrupts
     device_register INTR1;              // Raw Interrupts
     device_register INTR2;              // Raw Interrupts
