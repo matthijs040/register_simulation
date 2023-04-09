@@ -3,11 +3,12 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "build/_deps/googletest-src/googletest/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
-            "cStandard": "c20",
+            "cStandard": "c23",
             "cppStandard": "gnu++23",
             "intelliSenseMode": "linux-gcc-x64"
         }
