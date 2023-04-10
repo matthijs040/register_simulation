@@ -1,5 +1,5 @@
-#include <HAL/simulated_device_register.hpp>
 #include <HAL/device_register.hpp>
+#include <HAL/simulated_device_register.hpp>
 
 simulated_device_register::handler_table
     simulated_device_register::register_effects;
@@ -19,12 +19,14 @@ bool simulated_device_register::simulated_device_register::operator<(
 
 inline void simulated_device_register::on_read() const {
   if (register_effects.contains(this))
-    register_effects.at(this).on_read(value);
+    if (auto func = register_effects.at(this).on_read)
+      func(value);
 }
 
 inline void simulated_device_register::on_write() const {
   if (register_effects.contains(this))
-    register_effects.at(this).on_write(value);
+    if (auto func = register_effects.at(this).on_write)
+      func(value);
 }
 
 simulated_device_register::operator register_integral() const {
@@ -59,5 +61,5 @@ register_integral simulated_device_register::operator&(register_mask v) const {
 void simulated_device_register::set_effect_handlers(
     simulated_device_register const *to_assign,
     effect_handlers const &effects) {
-  register_effects.at(to_assign) = effects;
+  register_effects[to_assign] = effects;
 }
