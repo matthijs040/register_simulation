@@ -5,6 +5,7 @@
 #include <HAL/simulated_peripheral.hpp>
 #include <memory>
 #include <optional>
+#include <new>
 
 class rp2040_gpio : std::conditional<USE_SIMULATED_REGISTERS,
                                      simulated_peripheral<rp2040_gpio>, void> {
@@ -180,6 +181,8 @@ inline std::shared_ptr<rp2040_gpio> std::make_shared<rp2040_gpio>() {
                              std::shared_ptr<simulated_peripheral<rp2040_gpio>>(
                                  new simulated_peripheral<rp2040_gpio>()))
                        : std::shared_ptr<rp2040_gpio>(new rp2040_gpio());
+
+   ::new(ptr.get()) rp2040_gpio();
   rp2040_gpio::storage_handle = ptr;
   return ptr;
 }
