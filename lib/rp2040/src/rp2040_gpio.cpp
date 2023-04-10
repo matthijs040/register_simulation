@@ -4,9 +4,29 @@
 
 #include <iostream>
 #include <utility>
+#include <new>
 
 std::weak_ptr<rp2040_gpio> rp2040_gpio::storage_handle =
     std::weak_ptr<rp2040_gpio>();
+
+template <>
+inline std::shared_ptr<rp2040_gpio> std::make_shared<rp2040_gpio>() {
+  if (const auto ptr = rp2040_gpio::storage_handle.lock())
+    return ptr;
+
+  auto ptr = std::shared_ptr<rp2040_gpio>();
+  if (USE_SIMULATED_REGISTERS) {
+    ptr = std::reinterpret_pointer_cast<rp2040_gpio>(
+        std::shared_ptr<simulated_peripheral<rp2040_gpio>>(
+            new simulated_peripheral<rp2040_gpio>()));
+  } else {
+    ptr = std::shared_ptr<rp2040_gpio>(new rp2040_gpio());
+  }
+  ::new (ptr.get()) rp2040_gpio();
+
+  rp2040_gpio::storage_handle = ptr;
+  return ptr;
+}
 
 std::size_t gpio::get_num_pins() noexcept { return 29u; }
 static const gpio::pin_number max_pin_num = gpio::get_num_pins() - 1;

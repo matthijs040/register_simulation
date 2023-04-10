@@ -12,7 +12,9 @@ public:
     return simulated_register_storage.data();
   }
 
-  void operator delete(void *) {}
+  void operator delete(void *addr) {
+    static_cast<Peripheral *>(addr)->~Peripheral();
+  }
 
 private:
   static_assert(
