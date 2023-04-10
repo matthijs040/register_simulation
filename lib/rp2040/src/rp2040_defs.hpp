@@ -1,5 +1,5 @@
 #pragma once
-#include "device_register.hpp"
+#include <HAL/device_register.hpp>
 
 enum class GPIO_FUNCSEL : register_mask {
   SPI = 1,

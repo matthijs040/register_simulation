@@ -1,7 +1,7 @@
 #pragma once
 
-#include "simulated_peripheral.hpp"
-#include "device_register.hpp"
+#include <HAL/simulated_peripheral.hpp>
+#include <HAL/device_register.hpp>
 #include <memory>
 #include "rp2040_defs.hpp"
 #include <optional>

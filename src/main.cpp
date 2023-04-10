@@ -1,5 +1,5 @@
 #include <cstdlib>
-#include "gpio.hpp"
+#include <HAL/gpio.hpp>
 
 int main(int argc, char const *argv[])
 {

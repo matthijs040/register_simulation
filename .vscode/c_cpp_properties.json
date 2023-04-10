@@ -4,9 +4,10 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "build/_deps/googletest-src/googletest/include/**"
+                "build/_deps/googletest-src/googletest/include/**",
+                "${workspaceFolder}/lib/HAL/inc"
             ],
-            "defines": [],
+            "defines": ["USE_SIMULATED_REGISTERS=true"],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c23",
             "cppStandard": "gnu++23",

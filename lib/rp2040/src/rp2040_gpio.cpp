@@ -1,5 +1,5 @@
 #include "rp2040_gpio.hpp"
-#include "gpio.hpp"
+#include <HAL/gpio.hpp>
 #include "rp2040_defs.hpp"
 
 #include <iostream>

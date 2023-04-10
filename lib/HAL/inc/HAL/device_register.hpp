@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-#define USE_SIMULATED_REGISTERS true
-
 // Device register becomes non-volatile while const evaluated as volatile types
 // cannot be interacted in in constexpr functions. Could maybe use
 // std::is_constant_evaluated() as a condition? If the simulation tests all run

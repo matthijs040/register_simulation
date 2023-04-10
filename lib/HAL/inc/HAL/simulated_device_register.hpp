@@ -2,7 +2,6 @@
 
 #include "device_register.hpp"
 #include <functional>
-
 #include <map>
 
 class simulated_device_register

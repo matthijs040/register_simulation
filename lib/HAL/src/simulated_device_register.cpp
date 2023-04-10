@@ -1,5 +1,5 @@
-#include "simulated_device_register.hpp"
-#include "device_register.hpp"
+#include <HAL/simulated_device_register.hpp>
+#include <HAL/device_register.hpp>
 
 simulated_device_register::handler_table
     simulated_device_register::register_effects;
