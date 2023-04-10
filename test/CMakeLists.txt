@@ -5,6 +5,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-add_executable(rp2040_tests tests.cpp)
+add_executable(rp2040_tests gpio_tests.cpp)
 target_link_libraries(rp2040_tests PRIVATE rp2040_impl GTest::gtest_main)
 set_target_properties(rp2040_tests PROPERTIES CXX_STANDARD 23)

@@ -8,8 +8,8 @@
 std::weak_ptr<rp2040_gpio> rp2040_gpio::storage_handle =
     std::weak_ptr<rp2040_gpio>();
 
-constexpr std::size_t gpio::get_num_pins() noexcept { return 29u; }
-constexpr gpio::pin_number max_pin_num = gpio::get_num_pins() - 1;
+std::size_t gpio::get_num_pins() noexcept { return 29u; }
+static const gpio::pin_number max_pin_num = gpio::get_num_pins() - 1;
 
 rp2040_gpio::rp2040_gpio()
     : GPIO0_STATUS(0U), GPIO0_CTRL(0X1FU), GPIO1_STATUS(0U), GPIO1_CTRL(0X1FU),

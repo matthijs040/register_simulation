@@ -27,7 +27,7 @@ class gpio
         low
     };
 
-    static constexpr std::size_t get_num_pins() noexcept;
+    static std::size_t get_num_pins() noexcept;
 
     bool is_pin_reserved(pin_number number) const noexcept;
 
