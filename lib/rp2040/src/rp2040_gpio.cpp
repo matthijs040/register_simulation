@@ -1,4 +1,5 @@
 #include "rp2040_gpio.hpp"
+#include "rp2040_pad_control.hpp"
 #include "rp2040_defs.hpp"
 #include <HAL/gpio.hpp>
 
