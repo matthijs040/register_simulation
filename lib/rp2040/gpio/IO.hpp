@@ -1,31 +1,29 @@
 #pragma once
 
-#include "rp2040_defs.hpp"
+#include "types.hpp"
 #include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
 #include <memory>
 #include <optional>
 
-class rp2040_gpio : std::conditional<USE_SIMULATED_REGISTERS,
-                                     simulated_peripheral<rp2040_gpio>, void> {
+class IO : std::conditional<USE_SIMULATED_REGISTERS, simulated_peripheral<IO>,
+                            void> {
 public:
-  ~rp2040_gpio();
-  void operator delete(void *addr) {
-    static_cast<rp2040_gpio *>(addr)->~rp2040_gpio();
-  };
+  ~IO();
+  void operator delete(void *addr) { static_cast<IO *>(addr)->~IO(); };
 
 private:
-  rp2040_gpio();
+  IO();
 
   void *operator new(std::size_t) {
-    return reinterpret_cast<rp2040_gpio *>(base_address);
+    return reinterpret_cast<IO *>(base_address);
   }
 
   static constexpr uintptr_t base_address = 0x40014000;
-  static std::weak_ptr<rp2040_gpio> storage_handle;
+  static std::weak_ptr<IO> storage_handle;
 
   // To force users to use make_shared for initialization.
-  friend std::shared_ptr<rp2040_gpio> std::make_shared<rp2040_gpio>();
+  friend std::shared_ptr<IO> std::make_shared<IO>();
 
   // Start of non-static member variables:
   device_register GPIO0_STATUS;       // GPIO status
@@ -129,3 +127,21 @@ private:
   device_register DORMANT_WAKE_INTS2; // Interrupt Status for dormant_wake
   device_register DORMANT_WAKE_INTS3; // Interrupt Status for dormant_wake
 };
+
+template <> inline std::shared_ptr<IO> std::make_shared<IO>() {
+  if (const auto ptr = IO::storage_handle.lock())
+    return ptr;
+
+  auto ptr = std::shared_ptr<IO>();
+  if (USE_SIMULATED_REGISTERS) {
+    ptr = std::reinterpret_pointer_cast<IO>(
+        std::shared_ptr<simulated_peripheral<IO>>(
+            new simulated_peripheral<IO>()));
+  } else {
+    ptr = std::shared_ptr<IO>(new IO());
+  }
+  ::new (ptr.get()) IO();
+
+  IO::storage_handle = ptr;
+  return ptr;
+}
