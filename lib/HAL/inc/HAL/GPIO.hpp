@@ -39,6 +39,5 @@ class GPIO
 
     GPIO::state get_pin_state(pin_number number);
 
-private:
     std::shared_ptr<void> impl_handle;
 };

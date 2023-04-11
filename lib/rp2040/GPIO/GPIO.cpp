@@ -1,3 +1,4 @@
+#include "GPIO_handle.hpp"
 #include "user_IO.hpp"
 #include <HAL/GPIO.hpp>
 #include <iostream>
@@ -6,21 +7,25 @@
 std::size_t GPIO::get_num_pins() noexcept { return 29u; }
 static const GPIO::pin_number max_pin_num = GPIO::get_num_pins() - 1;
 
-GPIO::GPIO() : impl_handle(std::make_shared<user_IO>()) {
+GPIO::GPIO() : impl_handle(std::make_shared<GPIO_handle>()) {
   std::cout << "constructed wrapper\n";
 }
 
 GPIO::~GPIO() { std::cout << "destructed wrapper\n"; }
 
-inline device_register &get_gpio_status_register(user_IO *registers,
+inline device_register &get_gpio_status_register(const GPIO &handle,
                                                  GPIO::pin_number pin) {
+  auto *registers =
+      static_cast<GPIO_handle *>(handle.impl_handle.get())->gpio.get();
   const auto register_spacing = 2;
   auto *register_block = reinterpret_cast<device_register *>(registers);
   return *(register_block + (pin * register_spacing));
 }
 
-inline device_register &get_gpio_control_register(user_IO *registers,
+inline device_register &get_gpio_control_register(const GPIO &handle,
                                                   GPIO::pin_number pin) {
+  auto *registers =
+      static_cast<GPIO_handle *>(handle.impl_handle.get())->gpio.get();
   const auto first_offset = 1;
   const auto register_spacing = 2;
 
@@ -32,8 +37,7 @@ bool GPIO::is_pin_reserved(pin_number number) const noexcept {
   if (number > max_pin_num)
     return true;
 
-  const auto &reg = get_gpio_control_register(
-      static_cast<user_IO *>(impl_handle.get()), number);
+  const auto &reg = get_gpio_control_register(*this, number);
 
   return reg != std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::Disabled) &&
          reg != std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::SIO);
@@ -43,8 +47,7 @@ void GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
   if (is_pin_reserved(number))
     return;
 
-  auto &ctrl_reg = get_gpio_control_register(
-      static_cast<user_IO *>(impl_handle.get()), number);
+  auto &ctrl_reg = get_gpio_control_register(*this, number);
 
   switch (mode) {
   case GPIO::mode::reserved: {
@@ -74,8 +77,7 @@ GPIO::mode GPIO::get_pin_mode(pin_number number) {
   if (is_pin_reserved(number))
     return GPIO::mode::disabled;
 
-  auto &status_reg = get_gpio_status_register(
-      static_cast<user_IO *>(impl_handle.get()), number);
+  auto &status_reg = get_gpio_status_register(*this, number);
 
   return status_reg & static_cast<register_mask>(0x3 << 12)
              ? GPIO::mode::input_and_output
@@ -90,8 +92,7 @@ void GPIO::set_pin_state(pin_number number, GPIO::state state) {
   if (mode == GPIO::mode::input_only || mode == GPIO::mode::disabled)
     return;
 
-  auto &ctrl_reg =
-      get_gpio_control_register(static_cast<user_IO *>(impl_handle.get()), number);
+  auto &ctrl_reg = get_gpio_control_register(*this, number);
 
   if (state == GPIO::state::floating)
     return;
@@ -105,8 +106,7 @@ void GPIO::set_pin_state(pin_number number, GPIO::state state) {
 
 GPIO::state GPIO::get_pin_state(pin_number number) {
 
-  const auto &reg = get_gpio_status_register(
-      static_cast<user_IO *>(impl_handle.get()), number);
+  const auto &reg = get_gpio_status_register(*this, number);
 
   return reg & static_cast<register_mask>(0x1 << 17) ? GPIO::state::high
                                                      : GPIO::state::low;

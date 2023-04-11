@@ -11,17 +11,13 @@ public:
   static constexpr uintptr_t base_address = 0x4001c000;
 
   ~pad_control() {};
-  void operator delete(void *addr) {
-    static_cast<pad_control *>(addr)->~pad_control();
-  };
+  void operator delete(void *addr);
 
 private:
-  pad_control();
-  void *operator new(std::size_t) {
-    return reinterpret_cast<pad_control *>(base_address);
-  }
+  pad_control() {};
+  void *operator new(std::size_t);
 
-  static std::weak_ptr<pad_control> storage_handle;
+  static inline std::weak_ptr<pad_control> storage_handle;
   friend std::shared_ptr<pad_control> std::make_shared<pad_control>();
 
   device_register VOLTAGE_SELECT; // Voltage select. Per bank control
@@ -58,3 +54,21 @@ private:
   device_register SWCLK;          // Pad control register
   device_register SWD;            // Pad control register
 };
+
+template <> inline std::shared_ptr<pad_control> std::make_shared<pad_control>() {
+  if (const auto ptr = pad_control::storage_handle.lock())
+    return ptr;
+
+  auto ptr = std::shared_ptr<pad_control>();
+  if (USE_SIMULATED_REGISTERS) {
+    ptr = std::reinterpret_pointer_cast<pad_control>(
+        std::shared_ptr<simulated_peripheral<pad_control>>(
+            new simulated_peripheral<pad_control>()));
+  } else {
+    ptr = std::shared_ptr<pad_control>(new pad_control());
+  }
+  ::new (ptr.get()) pad_control();
+
+  pad_control::storage_handle = ptr;
+  return ptr;
+}
