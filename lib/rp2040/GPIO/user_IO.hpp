@@ -6,24 +6,24 @@
 #include <memory>
 #include <optional>
 
-class IO : std::conditional<USE_SIMULATED_REGISTERS, simulated_peripheral<IO>,
+class user_IO : std::conditional<USE_SIMULATED_REGISTERS, simulated_peripheral<user_IO>,
                             void> {
 public:
-  ~IO();
-  void operator delete(void *addr) { static_cast<IO *>(addr)->~IO(); };
+  ~user_IO();
+  void operator delete(void *addr) { static_cast<user_IO *>(addr)->~user_IO(); };
 
 private:
-  IO();
+  user_IO();
 
   void *operator new(std::size_t) {
-    return reinterpret_cast<IO *>(base_address);
+    return reinterpret_cast<user_IO *>(base_address);
   }
 
   static constexpr uintptr_t base_address = 0x40014000;
-  static std::weak_ptr<IO> storage_handle;
+  static std::weak_ptr<user_IO> storage_handle;
 
   // To force users to use make_shared for initialization.
-  friend std::shared_ptr<IO> std::make_shared<IO>();
+  friend std::shared_ptr<user_IO> std::make_shared<user_IO>();
 
   // Start of non-static member variables:
   device_register GPIO0_STATUS;       // GPIO status
@@ -128,20 +128,20 @@ private:
   device_register DORMANT_WAKE_INTS3; // Interrupt Status for dormant_wake
 };
 
-template <> inline std::shared_ptr<IO> std::make_shared<IO>() {
-  if (const auto ptr = IO::storage_handle.lock())
+template <> inline std::shared_ptr<user_IO> std::make_shared<user_IO>() {
+  if (const auto ptr = user_IO::storage_handle.lock())
     return ptr;
 
-  auto ptr = std::shared_ptr<IO>();
+  auto ptr = std::shared_ptr<user_IO>();
   if (USE_SIMULATED_REGISTERS) {
-    ptr = std::reinterpret_pointer_cast<IO>(
-        std::shared_ptr<simulated_peripheral<IO>>(
-            new simulated_peripheral<IO>()));
+    ptr = std::reinterpret_pointer_cast<user_IO>(
+        std::shared_ptr<simulated_peripheral<user_IO>>(
+            new simulated_peripheral<user_IO>()));
   } else {
-    ptr = std::shared_ptr<IO>(new IO());
+    ptr = std::shared_ptr<user_IO>(new user_IO());
   }
-  ::new (ptr.get()) IO();
+  ::new (ptr.get()) user_IO();
 
-  IO::storage_handle = ptr;
+  user_IO::storage_handle = ptr;
   return ptr;
 }

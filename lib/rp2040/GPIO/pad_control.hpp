@@ -10,7 +10,7 @@ class pad_control : std::conditional<USE_SIMULATED_REGISTERS,
 public:
   static constexpr uintptr_t base_address = 0x4001c000;
 
-  ~pad_control();
+  ~pad_control() {};
   void operator delete(void *addr) {
     static_cast<pad_control *>(addr)->~pad_control();
   };

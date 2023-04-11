@@ -1,9 +1,9 @@
 #include <cstdlib>
-#include <HAL/gpio.hpp>
+#include <HAL/GPIO.hpp>
 
 int main(int argc, char const *argv[])
 {
-    auto instance = gpio();
+    auto instance = GPIO();
 
     return EXIT_SUCCESS;
 }

@@ -4,11 +4,11 @@
 #include <cstdint>
 #include <array>
 
-class gpio
+class GPIO
 {
     public:
-    gpio();
-    ~gpio();
+    GPIO();
+    ~GPIO();
 
     using pin_number = std::size_t;
     enum class mode
@@ -31,13 +31,13 @@ class gpio
 
     bool is_pin_reserved(pin_number number) const noexcept;
 
-    void set_pin_mode(pin_number number, gpio::mode mode);
+    void set_pin_mode(pin_number number, GPIO::mode mode);
 
-    gpio::mode get_pin_mode(pin_number number);
+    GPIO::mode get_pin_mode(pin_number number);
 
-    void set_pin_state(pin_number number, gpio::state state);
+    void set_pin_state(pin_number number, GPIO::state state);
 
-    gpio::state get_pin_state(pin_number number);
+    GPIO::state get_pin_state(pin_number number);
 
 private:
     std::shared_ptr<void> impl_handle;

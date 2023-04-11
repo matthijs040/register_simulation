@@ -1,13 +1,13 @@
-#include <HAL/gpio.hpp>
+#include <HAL/GPIO.hpp>
 #include <gtest/gtest.h>
 
-TEST(gpio_tests, linked_gpio_impl_has_pins) {
-  EXPECT_GT(gpio::get_num_pins(), 0);
+TEST(GPIO_tests, linked_GPIO_impl_has_pins) {
+  EXPECT_GT(GPIO::get_num_pins(), 0);
 }
 
-TEST(gpio_tests, gpio_pin_is_initially_disabled) {
-    auto handle = gpio();
-    EXPECT_EQ(handle.get_pin_mode(0), gpio::mode::disabled);
+TEST(GPIO_tests, GPIO_pin_is_initially_disabled) {
+    auto handle = GPIO();
+    EXPECT_EQ(handle.get_pin_mode(0), GPIO::mode::disabled);
 
 }
 

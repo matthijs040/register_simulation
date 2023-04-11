@@ -1,14 +1,14 @@
-#include "IO.hpp"
+#include "user_IO.hpp"
 #include "pad_control.hpp"
 #include "types.hpp"
-#include <HAL/gpio.hpp>
+#include <HAL/GPIO.hpp>
 
 #include <iostream>
 #include <new>
 
-std::weak_ptr<IO> IO::storage_handle = std::weak_ptr<IO>();
+std::weak_ptr<user_IO> user_IO::storage_handle = std::weak_ptr<user_IO>();
 
-IO::IO()
+user_IO::user_IO()
     : GPIO0_STATUS(0U), GPIO0_CTRL(0X1FU), GPIO1_STATUS(0U), GPIO1_CTRL(0X1FU),
       GPIO2_STATUS(0U), GPIO2_CTRL(0X1FU), GPIO3_STATUS(0U), GPIO3_CTRL(0X1FU),
       GPIO4_STATUS(0U), GPIO4_CTRL(0X1FU), GPIO5_STATUS(0U), GPIO5_CTRL(0X1FU),
@@ -32,7 +32,7 @@ IO::IO()
   std::cout << "constructed impl\n";
 }
 
-IO::~IO() {
+user_IO::~user_IO() {
   // TODO: Set gpio to lowest power state.
   std::cout << "destructed impl\n";
 }
