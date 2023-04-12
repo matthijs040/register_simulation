@@ -7,16 +7,13 @@
 std::size_t GPIO::get_num_pins() noexcept { return 29u; }
 static const GPIO::pin_number max_pin_num = GPIO::get_num_pins() - 1;
 
-GPIO::GPIO() : impl_handle(std::make_shared<GPIO_handle>()) {
-  std::cout << "constructed wrapper\n";
-}
+GPIO::GPIO() : impl_handle(std::make_shared<GPIO_handle>()) {}
 
-GPIO::~GPIO() { std::cout << "destructed wrapper\n"; }
+GPIO::~GPIO() {}
 
 inline device_register &get_gpio_status_register(const GPIO &handle,
                                                  GPIO::pin_number pin) {
-  auto *registers =
-      static_cast<GPIO_handle *>(handle.impl_handle.get())->gpio.get();
+  auto *registers = handle.impl_handle.get()->gpio.get();
   const auto register_spacing = 2;
   auto *register_block = reinterpret_cast<device_register *>(registers);
   return *(register_block + (pin * register_spacing));
@@ -24,7 +21,7 @@ inline device_register &get_gpio_status_register(const GPIO &handle,
 
 inline device_register &get_gpio_control_register(const GPIO &handle,
                                                   GPIO::pin_number pin) {
-  auto *reg = static_cast<GPIO_handle *>(handle.impl_handle.get())->gpio.get();
+  auto *reg = handle.impl_handle.get()->gpio.get();
   const auto first_offset = 1;
   const auto register_spacing = 2;
 
@@ -34,7 +31,7 @@ inline device_register &get_gpio_control_register(const GPIO &handle,
 
 inline device_register &get_pad_register(const GPIO &handle,
                                          GPIO::pin_number pin) {
-  auto *reg = static_cast<GPIO_handle *>(handle.impl_handle.get())->pads.get();
+  auto *reg = handle.impl_handle.get()->pads.get();
   const auto first_offset = 1;
   const auto register_spacing = 1;
 

@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <array>
 
+class GPIO_handle;
+
 class GPIO
 {
     public:
@@ -39,5 +41,5 @@ class GPIO
 
     GPIO::state get_pin_state(pin_number number);
 
-    std::shared_ptr<void> impl_handle;
+    std::shared_ptr<GPIO_handle> impl_handle;
 };
