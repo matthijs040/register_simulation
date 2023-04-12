@@ -24,12 +24,21 @@ inline device_register &get_gpio_status_register(const GPIO &handle,
 
 inline device_register &get_gpio_control_register(const GPIO &handle,
                                                   GPIO::pin_number pin) {
-  auto *registers =
-      static_cast<GPIO_handle *>(handle.impl_handle.get())->gpio.get();
+  auto *reg = static_cast<GPIO_handle *>(handle.impl_handle.get())->gpio.get();
   const auto first_offset = 1;
   const auto register_spacing = 2;
 
-  auto *register_block = reinterpret_cast<device_register *>(registers);
+  auto *register_block = reinterpret_cast<device_register *>(reg);
+  return *((register_block + first_offset) + (pin * register_spacing));
+}
+
+inline device_register &get_pad_register(const GPIO &handle,
+                                         GPIO::pin_number pin) {
+  auto *reg = static_cast<GPIO_handle *>(handle.impl_handle.get())->pads.get();
+  const auto first_offset = 1;
+  const auto register_spacing = 1;
+
+  auto *register_block = reinterpret_cast<device_register *>(reg);
   return *((register_block + first_offset) + (pin * register_spacing));
 }
 
@@ -39,7 +48,7 @@ bool GPIO::is_pin_reserved(pin_number number) const noexcept {
 
   const auto &reg = get_gpio_control_register(*this, number);
 
-  return reg != std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::Disabled) &&
+  return reg != std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::disabled) &&
          reg != std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::SIO);
 }
 
@@ -48,34 +57,44 @@ void GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
     return;
 
   auto &ctrl_reg = get_gpio_control_register(*this, number);
+  auto &pad_reg = get_pad_register(*this, number);
 
   switch (mode) {
+  case GPIO::mode::disabled: {
+    apply_mask<std::to_underlying(GPIO_FUNCSEL::disabled), 0, 7>(ctrl_reg); // reset "FUNCSEL"-bits
+    apply_mask<0b10, 12, 2>(ctrl_reg); // disable "output override"
+    apply_mask<0b1, 7, 1>(pad_reg);    // set the "output disable"-bit
+    apply_mask<0b0, 6, 1>(pad_reg);    // clear the "input enable"-bit
+    break;
+  }
   case GPIO::mode::reserved: {
-    const auto mask = 0b11 << 12;
-    ctrl_reg &= ~mask;
-    return;
+    // Setting to reserved is not to be done through this public interface.
+    break;
   }
-  case GPIO::mode::disabled:
-  // No way to disable pad sensing.
+  apply_mask<std::to_underlying(GPIO_FUNCSEL::SIO), 0, 7>(ctrl_reg); // set "FUNCSEL" for pin to SIO (Software Input Output)
   case GPIO::mode::input_only: {
-    auto mask = 0b1 << 12;
-    ctrl_reg &= ~mask;
-    mask << 1;
-    ctrl_reg |= mask;
-    return;
+    apply_mask<0b11, 12, 2>(ctrl_reg); // enable "output override"
+    apply_mask<0b0, 7, 1>(pad_reg);    // clear the "output disable"-bit
+    apply_mask<0b1, 6, 1>(pad_reg);    // set the "input enable"-bit
+    break;
   }
-  case GPIO::mode::output_only:
-  // No way to disable pad sensing.
+  case GPIO::mode::output_only: {
+    apply_mask<0b11, 12, 2>(ctrl_reg); // enable "output override"
+    apply_mask<0b0, 7, 1>(pad_reg);    // clear the "output disable"-bit
+    apply_mask<0b0, 6, 1>(pad_reg);    // clear the "input enable"-bit
+  }
+
   case GPIO::mode::input_and_output: {
-    const auto mask = 0b11 << 12;
-    ctrl_reg |= mask;
+    apply_mask<0b11, 12, 2>(ctrl_reg); // enable "output override"
+    apply_mask<0b0, 7, 1>(pad_reg);    // clear the "output disable"-bit
+    apply_mask<0b1, 6, 1>(pad_reg);    // set the "input enable"-bit
   }
   }
 }
 
 GPIO::mode GPIO::get_pin_mode(pin_number number) {
   if (is_pin_reserved(number))
-    return GPIO::mode::disabled;
+    return GPIO::mode::reserved;
 
   auto &status_reg = get_gpio_status_register(*this, number);
 

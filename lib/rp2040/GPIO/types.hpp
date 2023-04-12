@@ -11,5 +11,5 @@ enum class GPIO_FUNCSEL : register_mask {
   PIO1 = 7,
   Clock_GPIO = 8,
   USB = 9,
-  Disabled = 0x1F
+  disabled = 0x1F
 };

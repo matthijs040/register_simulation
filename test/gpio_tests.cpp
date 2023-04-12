@@ -8,7 +8,6 @@ TEST(GPIO_tests, linked_GPIO_impl_has_pins) {
 TEST(GPIO_tests, GPIO_pin_is_initially_disabled) {
     auto handle = GPIO();
     EXPECT_EQ(handle.get_pin_mode(0), GPIO::mode::disabled);
-
 }
 
 int main(int argc, char *argv[]) {
