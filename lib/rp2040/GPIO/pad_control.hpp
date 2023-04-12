@@ -10,11 +10,11 @@ class pad_control : std::conditional<USE_SIMULATED_REGISTERS,
 public:
   static constexpr uintptr_t base_address = 0x4001c000;
 
-  ~pad_control() {};
+  ~pad_control();
   void operator delete(void *addr);
 
 private:
-  pad_control() {};
+  pad_control();
   void *operator new(std::size_t);
 
   static inline std::weak_ptr<pad_control> storage_handle;

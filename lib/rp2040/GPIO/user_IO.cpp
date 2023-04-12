@@ -29,10 +29,10 @@ user_IO::user_IO()
       GPIO28_STATUS(0U), GPIO28_CTRL(0X1FU), GPIO29_STATUS(0U),
       GPIO29_CTRL(0X1FU) {
   // TODO: reset registers to enabled but cleared state.
-  std::cout << "constructed impl\n";
+  std::cout << "initialized user IO registers\n";
 }
 
 user_IO::~user_IO() {
   // TODO: Set gpio to lowest power state.
-  std::cout << "destructed impl\n";
+  std::cout << "de-initialized user IO registers.\n";
 }

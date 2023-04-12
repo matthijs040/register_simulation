@@ -1,4 +1,5 @@
 #include "pad_control.hpp"
+#include <iostream>
 
 pad_control::pad_control()
     : VOLTAGE_SELECT(0), GPIO0(0b110110), GPIO1(0b110110), GPIO2(0b110110),
@@ -9,9 +10,13 @@ pad_control::pad_control()
       GPIO19(0b110110), GPIO20(0b110110), GPIO21(0b110110), GPIO22(0b110110),
       GPIO23(0b110110), GPIO24(0b110110), GPIO25(0b110110), GPIO26(0b110110),
       GPIO27(0b110110), GPIO28(0b110110), GPIO29(0b110110), SWCLK(0b1111010),
-      SWD(0b111010) {}
+      SWD(0b111010) {
+  std::clog << "initialized pad registers.\n";
+}
 
-pad_control::~pad_control() {}
+pad_control::~pad_control() {
+  std::clog << "de-initialized pad registers.\n";
+}
 
 void pad_control::operator delete(void *addr) {
   static_cast<pad_control *>(addr)->~pad_control();
