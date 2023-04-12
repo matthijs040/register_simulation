@@ -18,10 +18,11 @@ using device_register =
     std::conditional<USE_SIMULATED_REGISTERS, class simulated_device_register,
                      volatile register_integral>::type;
 
+constexpr auto all_ones = std::numeric_limits<register_mask>::max();
+constexpr auto all_zeros = std::numeric_limits<register_mask>::min();
+
 template <register_mask mask, std::size_t shift, std::size_t length>
 void apply_mask(device_register &reg) {
-  constexpr auto all_ones = std::numeric_limits<register_mask>::max();
-  constexpr auto all_zeros = std::numeric_limits<register_mask>::min();
 
   // If nothing changes, we don't need to AND.
   if constexpr (all_ones & mask != all_ones) {
@@ -46,4 +47,20 @@ void apply_mask(device_register &reg) {
     constexpr auto or_mask = mask << shift;
     reg |= mask;
   }
+}
+
+template <register_mask mask, std::size_t shift, std::size_t length>
+bool mask_matches(device_register reg) {
+
+  // We have some most-significant-bits that are not part of the mask.
+  // Shift them out-left.
+  if constexpr (constexpr auto msb = length + shift < sizeof(register_mask)) {
+    reg << msb;
+    reg >> msb;
+  }
+
+  if constexpr (shift > 0)
+    reg >> shift;
+
+  return reg == mask;
 }

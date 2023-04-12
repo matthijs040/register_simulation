@@ -61,7 +61,8 @@ void GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
 
   switch (mode) {
   case GPIO::mode::disabled: {
-    apply_mask<std::to_underlying(GPIO_FUNCSEL::disabled), 0, 7>(ctrl_reg); // reset "FUNCSEL"-bits
+    apply_mask<std::to_underlying(GPIO_FUNCSEL::disabled), 0, 7>(
+        ctrl_reg);                     // reset "FUNCSEL"-bits
     apply_mask<0b10, 12, 2>(ctrl_reg); // disable "output override"
     apply_mask<0b1, 7, 1>(pad_reg);    // set the "output disable"-bit
     apply_mask<0b0, 6, 1>(pad_reg);    // clear the "input enable"-bit
@@ -71,7 +72,8 @@ void GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
     // Setting to reserved is not to be done through this public interface.
     break;
   }
-  apply_mask<std::to_underlying(GPIO_FUNCSEL::SIO), 0, 7>(ctrl_reg); // set "FUNCSEL" for pin to SIO (Software Input Output)
+    apply_mask<std::to_underlying(GPIO_FUNCSEL::SIO), 0, 7>(
+        ctrl_reg); // set "FUNCSEL" for pin to SIO (Software Input Output)
   case GPIO::mode::input_only: {
     apply_mask<0b11, 12, 2>(ctrl_reg); // enable "output override"
     apply_mask<0b0, 7, 1>(pad_reg);    // clear the "output disable"-bit
@@ -96,11 +98,20 @@ GPIO::mode GPIO::get_pin_mode(pin_number number) {
   if (is_pin_reserved(number))
     return GPIO::mode::reserved;
 
-  auto &status_reg = get_gpio_status_register(*this, number);
+  auto &ctrl = get_gpio_status_register(*this, number);
+  auto &pad = get_pad_register(*this, number);
 
-  return status_reg & static_cast<register_mask>(0x3 << 12)
-             ? GPIO::mode::input_and_output
-             : GPIO::mode::input_only;
+  const bool input_enabled = mask_matches<0b1, 6, 1>(pad);
+  const bool output_enabled =
+      mask_matches<0b11, 12, 2>(ctrl) && mask_matches<0b0, 7, 1>(pad);
+
+  if (input_enabled && output_enabled)
+    return GPIO::mode::input_and_output;
+  if (input_enabled)
+    return GPIO::mode::input_only;
+  if (output_enabled)
+    return GPIO::mode::output_only;
+  return GPIO::mode::disabled;
 }
 
 void GPIO::set_pin_state(pin_number number, GPIO::state state) {
@@ -113,20 +124,17 @@ void GPIO::set_pin_state(pin_number number, GPIO::state state) {
 
   auto &ctrl_reg = get_gpio_control_register(*this, number);
 
-  if (state == GPIO::state::floating)
+  switch (state) {
+  case GPIO::state::floating:
     return;
-
-  register_mask mask = 0x1 << 8;
-  if (state == GPIO::state::high)
-    ctrl_reg |= mask;
-  mask << 1;
-  ctrl_reg |= mask;
+  case GPIO::state::high:
+    return apply_mask<0b11, 8, 2>(ctrl_reg); // Drive output high
+  case GPIO::state::low:
+    return apply_mask<0b10, 8, 2>(ctrl_reg); // Drive output low
+  }
 }
 
 GPIO::state GPIO::get_pin_state(pin_number number) {
-
   const auto &reg = get_gpio_status_register(*this, number);
-
-  return reg & static_cast<register_mask>(0x1 << 17) ? GPIO::state::high
-                                                     : GPIO::state::low;
+  return mask_matches<0b11, 8, 2>(reg) ? GPIO::state::high : GPIO::state::low;
 }
