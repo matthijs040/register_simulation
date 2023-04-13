@@ -81,12 +81,14 @@ void GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
     apply_mask<0b11, 12, 2>(ctrl_reg); // enable "output override"
     apply_mask<0b0, 7, 1>(pad_reg);    // clear the "output disable"-bit
     apply_mask<0b0, 6, 1>(pad_reg);    // clear the "input enable"-bit
+    break;
   }
 
   case GPIO::mode::input_and_output: {
     apply_mask<0b11, 12, 2>(ctrl_reg); // enable "output override"
     apply_mask<0b0, 7, 1>(pad_reg);    // clear the "output disable"-bit
     apply_mask<0b1, 6, 1>(pad_reg);    // set the "input enable"-bit
+    break;
   }
   }
 }
