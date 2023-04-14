@@ -1,46 +1,61 @@
 #pragma once
 
 #include "device_register.hpp"
+#include <any>
 #include <functional>
 #include <map>
 
-class simulated_device_register
-{
-    public:
-    using effect_handler = std::function<void(register_integral)>;
+template <class Underlying> class simulated_device_register {
+public:
+  using read_handler = std::function<void(register_integral)>;
+  using write_handler =
+      std::function<void(register_integral, register_integral)>;
 
-    simulated_device_register();
-    simulated_device_register(const register_integral initial_value);
-    ~simulated_device_register(); 
+  simulated_device_register() {}
+  ~simulated_device_register() {}
 
-    struct effect_handlers
-    {
-        effect_handler on_read;
-        effect_handler on_write;
+  struct effect_handlers {
+    read_handler on_read;
+    write_handler on_write;
 
-        // To directly write to private "value" without triggering effects.
-        friend simulated_device_register;
-    };
+    // To directly write to private "value" without triggering effects.
+    friend simulated_device_register;
+  };
 
-    bool operator<(const simulated_device_register &other) const;
+  inline register_integral simulated_device_register::value() const {
+    const auto val = reinterpret_cast<const register_integral *>(this);
+    return val;
+  }
 
-    inline void on_read() const;
+  inline void on_read() const {
+    if (register_effects.contains(this))
+      if (auto func = register_effects.at(this).on_read)
+        func(value());
+  }
 
-    inline void on_write() const;
+  inline void on_write() const {
+    if (register_effects.contains(this))
+      if (auto func = register_effects.at(this).on_write)
+        func(value());
+  }
 
-    operator register_integral() const;
-    void operator=(register_integral v);
+  operator register_integral() const {
+    on_read(value());
+    return value();
+  }
 
-    register_integral operator|=(register_mask v);
+  void operator=(register_integral v) {
+    on_read(value());
+    const auto old_value = value();
+    static_cast<Underlying *>(this)->operator=(v);
+    on_write(old_value, value());
+  }
 
-    register_integral operator&=(register_mask v);
-
-    register_integral operator&(register_mask v) const;
-
-    static void set_effect_handlers(simulated_device_register const*to_assign, effect_handlers const &effects);
+  void set_effect_handlers(void *to_assign, effect_handlers const &effects) {
+    register_effects[to_assign] = effects;
+  }
 
 private:
-    register_integral value;
-    using handler_table = std::map<simulated_device_register const *, effect_handlers>;
-    static handler_table register_effects;
+  using handler_table = std::map<void *, effect_handlers>;
+  static inline handler_table register_effects;
 };
