@@ -1,17 +1,18 @@
 #pragma once
+#include "shared_types.hpp"
 #include <HAL/bitfield.hpp>
 
 namespace reg {
 union STATUS {
   STATUS() {}
-  bitfield<26, 1> IRQTOPROC;
-  bitfield<24, 1> IRQFROMPAD;
-  bitfield<19, 1> INTOPERI;
-  bitfield<17, 1> INFROMPAD;
-  bitfield<13, 1> OETOPAD;
-  bitfield<12, 1> OEFROMPERI;
-  bitfield<9, 1> OUTTOPAD;
-  bitfield<8, 1> OUTFROMPERI;
+  bitfield<reg::state, 26, 1> IRQTOPROC;
+  bitfield<reg::state, 24, 1> IRQFROMPAD;
+  bitfield<reg::state, 19, 1> INTOPERI;
+  bitfield<reg::state, 17, 1> INFROMPAD;
+  bitfield<reg::state, 13, 1> OETOPAD;
+  bitfield<reg::state, 12, 1> OEFROMPERI;
+  bitfield<reg::state, 9, 1> OUTTOPAD;
+  bitfield<reg::state, 8, 1> OUTFROMPERI;
 };
 
 union CTRL {
@@ -23,7 +24,7 @@ union CTRL {
     driven_low,
     driven_high
   };
-  bitfield<28, 2> IRQOVER;
+  bitfield<IRQOVER_states, 28, 2> IRQOVER;
 
   enum class INOVER_states : register_integral {
     unaffected,
@@ -31,7 +32,7 @@ union CTRL {
     driven_low,
     driven_high
   };
-  bitfield<16, 2> INOVER;
+  bitfield<INOVER_states, 16, 2> INOVER;
 
   enum class OEOVER_states : register_integral {
     FUNCSEL_defined,
@@ -39,7 +40,7 @@ union CTRL {
     disabled,
     enabled,
   };
-  bitfield<12, 2> OEOVER;
+  bitfield<OEOVER_states, 12, 2> OEOVER;
 
   enum class OUTOVER_states : register_integral {
     FUNCSEL_defined,
@@ -47,7 +48,7 @@ union CTRL {
     driven_low,
     driven_high,
   };
-  bitfield<8, 2> OUTOVER;
+  bitfield<OUTOVER_states, 8, 2> OUTOVER;
 
   enum class FUNCSEL_states : register_integral {
     SPI,
@@ -61,6 +62,6 @@ union CTRL {
     USB,
     disabled = 0x1F
   };
-  bitfield<0, 5> FUNCSEL;
+  bitfield<FUNCSEL_states, 0, 5> FUNCSEL;
 };
 } // namespace reg

@@ -1,16 +1,17 @@
 #pragma once
 #include <HAL/bitfield.hpp>
+#include "shared_types.hpp"
 
 namespace reg {
 union GPIO {
   GPIO() {}
-  bitfield<7, 1> OD;
-  bitfield<6, 1> IE;
-  bitfield<4, 2> DRIVE;
-  bitfield<3, 1> PUE;
-  bitfield<2, 1> PDE;
-  bitfield<1, 1> SCHMITT;
-  bitfield<0, 1> SLEWFAST;
+  bitfield<reg::state, 7, 1> OD;
+  bitfield<reg::state, 6, 1> IE;
+  bitfield<reg::state, 4, 2> DRIVE;
+  bitfield<reg::state, 3, 1> PUE;
+  bitfield<reg::state, 2, 1> PDE;
+  bitfield<reg::state, 1, 1> SCHMITT;
+  bitfield<reg::state, 0, 1> SLEWFAST;
 };
 
 } // namespace reg
