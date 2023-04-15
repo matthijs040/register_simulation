@@ -2,6 +2,8 @@
 #include <HAL/bitfield.hpp>
 namespace reg {
 union INTR3 {
+  INTR3() : GPIO29_EDGE_HIGH() {}
+
   bitfield<23, 1> GPIO29_EDGE_HIGH;
   bitfield<22, 1> GPIO29_EDGE_LOW;
   const bitfield<21, 1> GPIO29_LEVEL_HIGH;
@@ -29,6 +31,8 @@ union INTR3 {
 };
 
 union INTR2 {
+  INTR2() : GPIO23_EDGE_HIGH() {}
+
   bitfield<31, 1> GPIO23_EDGE_HIGH;
   bitfield<30, 1> GPIO23_EDGE_LOW;
   const bitfield<29, 1> GPIO23_LEVEL_HIGH;
@@ -64,6 +68,8 @@ union INTR2 {
 };
 
 union INTR1 {
+  INTR1() : GPIO15_EDGE_HIGH() {}
+
   bitfield<31, 1> GPIO15_EDGE_HIGH;
   bitfield<30, 1> GPIO15_EDGE_LOW;
   const bitfield<29, 1> GPIO15_LEVEL_HIGH;
@@ -99,6 +105,8 @@ union INTR1 {
 };
 
 union INTR0 {
+  INTR0() : GPIO7_EDGE_HIGH() {}
+
   bitfield<31, 1> GPIO7_EDGE_HIGH;
   bitfield<30, 1> GPIO7_EDGE_LOW;
   const bitfield<29, 1> GPIO7_LEVEL_HIGH;

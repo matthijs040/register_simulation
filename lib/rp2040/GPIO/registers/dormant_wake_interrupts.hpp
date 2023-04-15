@@ -3,6 +3,8 @@
 
 namespace reg {
 union DORMANT_WAKE_INTS3 {
+  DORMANT_WAKE_INTS3() {}
+
   bitfield<23, 1> GPIO29_EDGE_HIGH;
   bitfield<22, 1> GPIO29_EDGE_LOW;
   bitfield<21, 1> GPIO29_LEVEL_HIGH;
@@ -30,6 +32,8 @@ union DORMANT_WAKE_INTS3 {
 };
 
 union DORMANT_WAKE_INTS2 {
+  DORMANT_WAKE_INTS2() {}
+
   bitfield<31, 1> GPIO23_EDGE_HIGH;
   bitfield<30, 1> GPIO23_EDGE_LOW;
   bitfield<29, 1> GPIO23_LEVEL_HIGH;
@@ -65,6 +69,8 @@ union DORMANT_WAKE_INTS2 {
 };
 
 union DORMANT_WAKE_INTS1 {
+  DORMANT_WAKE_INTS1() {}
+
   bitfield<31, 1> GPIO15_EDGE_HIGH;
   bitfield<30, 1> GPIO15_EDGE_LOW;
   bitfield<29, 1> GPIO15_LEVEL_HIGH;
@@ -100,6 +106,8 @@ union DORMANT_WAKE_INTS1 {
 };
 
 union DORMANT_WAKE_INTS0 {
+  DORMANT_WAKE_INTS0() {}
+
   bitfield<31, 1> GPIO7_EDGE_HIGH;
   bitfield<30, 1> GPIO7_EDGE_LOW;
   bitfield<29, 1> GPIO7_LEVEL_HIGH;
@@ -135,6 +143,7 @@ union DORMANT_WAKE_INTS0 {
 };
 
 union DORMANT_WAKE_INTF3 {
+  DORMANT_WAKE_INTF3() {}
   bitfield<23, 1> GPIO29_EDGE_HIGH;
   bitfield<22, 1> GPIO29_EDGE_LOW;
   bitfield<21, 1> GPIO29_LEVEL_HIGH;
@@ -162,6 +171,7 @@ union DORMANT_WAKE_INTF3 {
 };
 
 union DORMANT_WAKE_INTF2 {
+  DORMANT_WAKE_INTF2() {}
   bitfield<31, 1> GPIO23_EDGE_HIGH;
   bitfield<30, 1> GPIO23_EDGE_LOW;
   bitfield<29, 1> GPIO23_LEVEL_HIGH;
@@ -197,6 +207,7 @@ union DORMANT_WAKE_INTF2 {
 };
 
 union DORMANT_WAKE_INTF1 {
+  DORMANT_WAKE_INTF1() {}
   bitfield<31, 1> GPIO15_EDGE_HIGH;
   bitfield<30, 1> GPIO15_EDGE_LOW;
   bitfield<29, 1> GPIO15_LEVEL_HIGH;
@@ -232,6 +243,7 @@ union DORMANT_WAKE_INTF1 {
 };
 
 union DORMANT_WAKE_INTF0 {
+  DORMANT_WAKE_INTF0() {}
   bitfield<31, 1> GPIO7_EDGE_HIGH;
   bitfield<30, 1> GPIO7_EDGE_LOW;
   bitfield<29, 1> GPIO7_LEVEL_HIGH;
@@ -267,6 +279,7 @@ union DORMANT_WAKE_INTF0 {
 };
 
 union DORMANT_WAKE_INTE3 {
+  DORMANT_WAKE_INTE3() {}
   bitfield<23, 1> GPIO29_EDGE_HIGH;
   bitfield<22, 1> GPIO29_EDGE_LOW;
   bitfield<21, 1> GPIO29_LEVEL_HIGH;
@@ -294,6 +307,7 @@ union DORMANT_WAKE_INTE3 {
 };
 
 union DORMANT_WAKE_INTE2 {
+  DORMANT_WAKE_INTE2() {}
   bitfield<31, 1> GPIO23_EDGE_HIGH;
   bitfield<30, 1> GPIO23_EDGE_LOW;
   bitfield<29, 1> GPIO23_LEVEL_HIGH;
@@ -329,6 +343,7 @@ union DORMANT_WAKE_INTE2 {
 };
 
 union DORMANT_WAKE_INTE1 {
+  DORMANT_WAKE_INTE1() {}
   bitfield<31, 1> GPIO15_EDGE_HIGH;
   bitfield<30, 1> GPIO15_EDGE_LOW;
   bitfield<29, 1> GPIO15_LEVEL_HIGH;
@@ -364,6 +379,7 @@ union DORMANT_WAKE_INTE1 {
 };
 
 union DORMANT_WAKE_INTE0 {
+  DORMANT_WAKE_INTE0() {}
   bitfield<31, 1> GPIO7_EDGE_HIGH;
   bitfield<30, 1> GPIO7_EDGE_LOW;
   bitfield<29, 1> GPIO7_LEVEL_HIGH;

@@ -3,6 +3,7 @@
 
 namespace reg {
 union PROC0_INTS3 {
+  PROC0_INTS3() {}
   bitfield<23, 1> GPIO29_EDGE_HIGH;
   bitfield<22, 1> GPIO29_EDGE_LOW;
   bitfield<21, 1> GPIO29_LEVEL_HIGH;
@@ -30,6 +31,7 @@ union PROC0_INTS3 {
 };
 
 union PROC0_INTS2 {
+  PROC0_INTS2() {}
   bitfield<31, 1> GPIO23_EDGE_HIGH;
   bitfield<30, 1> GPIO23_EDGE_LOW;
   bitfield<29, 1> GPIO23_LEVEL_HIGH;
@@ -65,6 +67,7 @@ union PROC0_INTS2 {
 };
 
 union PROC0_INTS1 {
+  PROC0_INTS1() {}
   bitfield<31, 1> GPIO15_EDGE_HIGH;
   bitfield<30, 1> GPIO15_EDGE_LOW;
   bitfield<29, 1> GPIO15_LEVEL_HIGH;
@@ -100,6 +103,7 @@ union PROC0_INTS1 {
 };
 
 union PROC0_INTS0 {
+  PROC0_INTS0() {}
   bitfield<31, 1> GPIO7_EDGE_HIGH;
   bitfield<30, 1> GPIO7_EDGE_LOW;
   bitfield<29, 1> GPIO7_LEVEL_HIGH;
@@ -135,6 +139,7 @@ union PROC0_INTS0 {
 };
 
 union PROC0_INTF3 {
+  PROC0_INTF3() {}
   bitfield<23, 1> GPIO29_EDGE_HIGH;
   bitfield<22, 1> GPIO29_EDGE_LOW;
   bitfield<21, 1> GPIO29_LEVEL_HIGH;
@@ -162,6 +167,7 @@ union PROC0_INTF3 {
 };
 
 union PROC0_INTF2 {
+  PROC0_INTF2() {}
   bitfield<31, 1> GPIO23_EDGE_HIGH;
   bitfield<30, 1> GPIO23_EDGE_LOW;
   bitfield<29, 1> GPIO23_LEVEL_HIGH;
@@ -197,6 +203,7 @@ union PROC0_INTF2 {
 };
 
 union PROC0_INTF1 {
+  PROC0_INTF1() {}
   bitfield<31, 1> GPIO15_EDGE_HIGH;
   bitfield<30, 1> GPIO15_EDGE_LOW;
   bitfield<29, 1> GPIO15_LEVEL_HIGH;
@@ -232,6 +239,7 @@ union PROC0_INTF1 {
 };
 
 union PROC0_INTF0 {
+  PROC0_INTF0() {}
   bitfield<31, 1> GPIO7_EDGE_HIGH;
   bitfield<30, 1> GPIO7_EDGE_LOW;
   bitfield<29, 1> GPIO7_LEVEL_HIGH;
@@ -267,6 +275,7 @@ union PROC0_INTF0 {
 };
 
 union PROC0_INTE3 {
+  PROC0_INTE3() {}
   bitfield<23, 1> GPIO29_EDGE_HIGH;
   bitfield<22, 1> GPIO29_EDGE_LOW;
   bitfield<21, 1> GPIO29_LEVEL_HIGH;
@@ -294,6 +303,7 @@ union PROC0_INTE3 {
 };
 
 union PROC0_INTE2 {
+  PROC0_INTE2() {}
   bitfield<31, 1> GPIO23_EDGE_HIGH;
   bitfield<30, 1> GPIO23_EDGE_LOW;
   bitfield<29, 1> GPIO23_LEVEL_HIGH;
@@ -329,6 +339,7 @@ union PROC0_INTE2 {
 };
 
 union PROC0_INTE1 {
+  PROC0_INTE1() {}
   bitfield<31, 1> GPIO15_EDGE_HIGH;
   bitfield<30, 1> GPIO15_EDGE_LOW;
   bitfield<29, 1> GPIO15_LEVEL_HIGH;
@@ -364,6 +375,7 @@ union PROC0_INTE1 {
 };
 
 union PROC0_INTE0 {
+  PROC0_INTE0() {}
   bitfield<31, 1> GPIO7_EDGE_HIGH;
   bitfield<30, 1> GPIO7_EDGE_LOW;
   bitfield<29, 1> GPIO7_LEVEL_HIGH;

@@ -4,7 +4,8 @@ add_library(HAL
     inc/HAL/bitfield.hpp 
     inc/HAL/GPIO.hpp 
     inc/HAL/simulated_device_register.hpp 
-    inc/HAL/simulated_peripheral.hpp )
+    inc/HAL/simulated_peripheral.hpp
+    src/simulated_device_register.cpp )
 
 target_include_directories(HAL PUBLIC inc)
 set_target_properties(HAL PROPERTIES LINKER_LANGUAGE CXX)

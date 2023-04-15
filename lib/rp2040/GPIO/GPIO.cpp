@@ -11,31 +11,30 @@ GPIO::GPIO() : impl_handle(std::make_shared<GPIO_handle>()) {}
 
 GPIO::~GPIO() {}
 
-inline device_register &get_gpio_status_register(const GPIO &handle,
-                                                 GPIO::pin_number pin) {
+inline reg::STATUS &get_gpio_status_register(const GPIO &handle,
+                                             GPIO::pin_number pin) {
   auto *registers = handle.impl_handle.get()->gpio.get();
   const auto register_spacing = 2;
-  auto *register_block = reinterpret_cast<device_register *>(registers);
+  auto *register_block = reinterpret_cast<reg::STATUS *>(registers);
   return *(register_block + (pin * register_spacing));
 }
 
-inline device_register &get_gpio_control_register(const GPIO &handle,
-                                                  GPIO::pin_number pin) {
+inline reg::CTRL &get_gpio_control_register(const GPIO &handle,
+                                            GPIO::pin_number pin) {
   auto *reg = handle.impl_handle.get()->gpio.get();
   const auto first_offset = 1;
   const auto register_spacing = 2;
 
-  auto *register_block = reinterpret_cast<device_register *>(reg);
+  auto *register_block = reinterpret_cast<reg::CTRL *>(reg);
   return *((register_block + first_offset) + (pin * register_spacing));
 }
 
-inline device_register &get_pad_register(const GPIO &handle,
-                                         GPIO::pin_number pin) {
+inline reg::GPIO &get_pad_register(const GPIO &handle, GPIO::pin_number pin) {
   auto *reg = handle.impl_handle.get()->pads.get();
   const auto first_offset = 1;
   const auto register_spacing = 1;
 
-  auto *register_block = reinterpret_cast<device_register *>(reg);
+  auto *register_block = reinterpret_cast<reg::GPIO *>(reg);
   return *((register_block + first_offset) + (pin * register_spacing));
 }
 
@@ -44,9 +43,12 @@ bool GPIO::is_pin_reserved(pin_number number) const noexcept {
     return true;
 
   const auto &reg = get_gpio_control_register(*this, number);
+  const auto current_function = reg.FUNCSEL;
 
-  return reg != std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::disabled) &&
-         reg != std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::SIO);
+  return current_function !=
+             std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::disabled) &&
+         current_function !=
+             std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::SIO);
 }
 
 void GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
@@ -56,38 +58,35 @@ void GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
   auto &ctrl_reg = get_gpio_control_register(*this, number);
   auto &pad_reg = get_pad_register(*this, number);
 
+  ctrl_reg.FUNCSEL = std::to_underlying(GPIO_FUNCSEL::SIO);
   switch (mode) {
+  case GPIO::mode::input_only: {
+    ctrl_reg.OEOVER = true;
+    pad_reg.OD = false;
+    pad_reg.IE = true;
+    break;
+  }
+  case GPIO::mode::output_only: {
+    ctrl_reg.OEOVER = true;
+    ctrl_reg.OUTOVER = true;
+    pad_reg.IE = false;
+    break;
+  }
+  case GPIO::mode::input_and_output: {
+    ctrl_reg.OUTOVER = 0b11;
+    pad_reg.OD = false;
+    pad_reg.IE = true;
+    break;
+  }
   case GPIO::mode::disabled: {
-    apply_mask<std::to_underlying(GPIO_FUNCSEL::disabled), 0, 7>(
-        ctrl_reg);                     // reset "FUNCSEL"-bits
-    apply_mask<0b10, 12, 2>(ctrl_reg); // disable "output override"
-    apply_mask<0b1, 7, 1>(pad_reg);    // set the "output disable"-bit
-    apply_mask<0b0, 6, 1>(pad_reg);    // clear the "input enable"-bit
+    ctrl_reg.FUNCSEL = std::to_underlying(GPIO_FUNCSEL::disabled);
+    ctrl_reg.OEOVER = false;
+    pad_reg.OD = true;
+    pad_reg.IE = false;
     break;
   }
   case GPIO::mode::reserved: {
     // Setting to reserved is not to be done through this public interface.
-    break;
-  }
-    apply_mask<std::to_underlying(GPIO_FUNCSEL::SIO), 0, 7>(
-        ctrl_reg); // set "FUNCSEL" for pin to SIO (Software Input Output)
-  case GPIO::mode::input_only: {
-    apply_mask<0b11, 12, 2>(ctrl_reg); // enable "output override"
-    apply_mask<0b0, 7, 1>(pad_reg);    // clear the "output disable"-bit
-    apply_mask<0b1, 6, 1>(pad_reg);    // set the "input enable"-bit
-    break;
-  }
-  case GPIO::mode::output_only: {
-    apply_mask<0b11, 12, 2>(ctrl_reg); // enable "output override"
-    apply_mask<0b0, 7, 1>(pad_reg);    // clear the "output disable"-bit
-    apply_mask<0b0, 6, 1>(pad_reg);    // clear the "input enable"-bit
-    break;
-  }
-
-  case GPIO::mode::input_and_output: {
-    apply_mask<0b11, 12, 2>(ctrl_reg); // enable "output override"
-    apply_mask<0b0, 7, 1>(pad_reg);    // clear the "output disable"-bit
-    apply_mask<0b1, 6, 1>(pad_reg);    // set the "input enable"-bit
     break;
   }
   }
@@ -97,12 +96,11 @@ GPIO::mode GPIO::get_pin_mode(pin_number number) {
   if (is_pin_reserved(number))
     return GPIO::mode::reserved;
 
-  auto &ctrl = get_gpio_status_register(*this, number);
+  auto &status = get_gpio_status_register(*this, number);
   auto &pad = get_pad_register(*this, number);
 
-  const bool input_enabled = mask_matches<0b1, 6, 1>(pad);
-  const bool output_enabled =
-      mask_matches<0b11, 12, 2>(ctrl) && mask_matches<0b0, 7, 1>(pad);
+  const bool input_enabled = pad.IE;
+  const bool output_enabled = !pad.OD && status.OETOPAD;
 
   if (input_enabled && output_enabled)
     return GPIO::mode::input_and_output;
@@ -124,16 +122,21 @@ void GPIO::set_pin_state(pin_number number, GPIO::state state) {
   auto &ctrl_reg = get_gpio_control_register(*this, number);
 
   switch (state) {
-  case GPIO::state::floating:
+  case GPIO::state::floating: {
     return;
-  case GPIO::state::high:
-    return apply_mask<0b11, 8, 2>(ctrl_reg); // Drive output high
-  case GPIO::state::low:
-    return apply_mask<0b10, 8, 2>(ctrl_reg); // Drive output low
+  }
+  case GPIO::state::high: {
+    ctrl_reg.OUTOVER = 0b11;
+    break;
+  }
+  case GPIO::state::low: {
+    ctrl_reg.OUTOVER = 0b10;
+    break;
+  }
   }
 }
 
 GPIO::state GPIO::get_pin_state(pin_number number) {
   const auto &reg = get_gpio_status_register(*this, number);
-  return mask_matches<0b11, 8, 2>(reg) ? GPIO::state::high : GPIO::state::low;
+  return reg.OUTTOPAD ? GPIO::state::high : GPIO::state::low;
 }

@@ -5,3 +5,4 @@
 #include "registers/proc0_interrupts.hpp"
 #include "registers/proc1_interrupts.hpp"
 #include "registers/dormant_wake_interrupts.hpp"
+#include "registers/pad_GPIO.hpp"

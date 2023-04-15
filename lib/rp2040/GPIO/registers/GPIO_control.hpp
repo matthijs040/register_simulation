@@ -3,6 +3,7 @@
 
 namespace reg {
 union STATUS {
+  STATUS() {}
   bitfield<26, 1> IRQTOPROC;
   bitfield<24, 1> IRQFROMPAD;
   bitfield<19, 1> INTOPERI;
@@ -14,6 +15,7 @@ union STATUS {
 };
 
 union CTRL {
+  CTRL() : FUNCSEL(0x1F) {}
   bitfield<28, 2> IRQOVER;
   bitfield<16, 2> INOVER;
   bitfield<12, 2> OEOVER;
