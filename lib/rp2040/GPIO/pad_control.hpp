@@ -20,39 +20,39 @@ private:
   static inline std::weak_ptr<pad_control> storage_handle;
   friend std::shared_ptr<pad_control> std::make_shared<pad_control>();
 
-  device_register VOLTAGE_SELECT; // Voltage select. Per bank control
-  device_register GPIO0;          // Pad control register
-  device_register GPIO1;          // Pad control register
-  device_register GPIO2;          // Pad control register
-  device_register GPIO3;          // Pad control register
-  device_register GPIO4;          // Pad control register
-  device_register GPIO5;          // Pad control register
-  device_register GPIO6;          // Pad control register
-  device_register GPIO7;          // Pad control register
-  device_register GPIO8;          // Pad control register
-  device_register GPIO9;          // Pad control register
-  device_register GPIO10;         // Pad control register
-  device_register GPIO11;         // Pad control register
-  device_register GPIO12;         // Pad control register
-  device_register GPIO13;         // Pad control register
-  device_register GPIO14;         // Pad control register
-  device_register GPIO15;         // Pad control register
-  device_register GPIO16;         // Pad control register
-  device_register GPIO17;         // Pad control register
-  device_register GPIO18;         // Pad control register
-  device_register GPIO19;         // Pad control register
-  device_register GPIO20;         // Pad control register
-  device_register GPIO21;         // Pad control register
-  device_register GPIO22;         // Pad control register
-  device_register GPIO23;         // Pad control register
-  device_register GPIO24;         // Pad control register
-  device_register GPIO25;         // Pad control register
-  device_register GPIO26;         // Pad control register
-  device_register GPIO27;         // Pad control register
-  device_register GPIO28;         // Pad control register
-  device_register GPIO29;         // Pad control register
-  device_register SWCLK;          // Pad control register
-  device_register SWD;            // Pad control register
+  register_integral VOLTAGE_SELECT; // Voltage select. Per bank control
+  register_integral GPIO0;          // Pad control register
+  register_integral GPIO1;          // Pad control register
+  register_integral GPIO2;          // Pad control register
+  register_integral GPIO3;          // Pad control register
+  register_integral GPIO4;          // Pad control register
+  register_integral GPIO5;          // Pad control register
+  register_integral GPIO6;          // Pad control register
+  register_integral GPIO7;          // Pad control register
+  register_integral GPIO8;          // Pad control register
+  register_integral GPIO9;          // Pad control register
+  register_integral GPIO10;         // Pad control register
+  register_integral GPIO11;         // Pad control register
+  register_integral GPIO12;         // Pad control register
+  register_integral GPIO13;         // Pad control register
+  register_integral GPIO14;         // Pad control register
+  register_integral GPIO15;         // Pad control register
+  register_integral GPIO16;         // Pad control register
+  register_integral GPIO17;         // Pad control register
+  register_integral GPIO18;         // Pad control register
+  register_integral GPIO19;         // Pad control register
+  register_integral GPIO20;         // Pad control register
+  register_integral GPIO21;         // Pad control register
+  register_integral GPIO22;         // Pad control register
+  register_integral GPIO23;         // Pad control register
+  register_integral GPIO24;         // Pad control register
+  register_integral GPIO25;         // Pad control register
+  register_integral GPIO26;         // Pad control register
+  register_integral GPIO27;         // Pad control register
+  register_integral GPIO28;         // Pad control register
+  register_integral GPIO29;         // Pad control register
+  register_integral SWCLK;          // Pad control register
+  register_integral SWD;            // Pad control register
 };
 
 template <> inline std::shared_ptr<pad_control> std::make_shared<pad_control>() {

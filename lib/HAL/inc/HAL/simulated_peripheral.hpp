@@ -17,11 +17,11 @@ public:
   }
 
 private:
-  static_assert( std::is_layout_compatible_v<device_register, simulated_device_register>);
+  static_assert(std::is_layout_compatible_v<device_register, simulated_device_register>);
   static_assert(sizeof(device_register) == sizeof(simulated_device_register));
 
-  static const auto register_count = sizeof(Peripheral) / sizeof(device_register);
+  static inline const auto register_count = sizeof(Peripheral) / sizeof(device_register);
   static inline std::array<simulated_device_register, register_count> simulated_register_storage;
   static inline std::array<simulated_device_register::effect_handlers, register_count> register_effects_storage;
-  static constexpr auto base_address = simulated_register_storage.data();
+  static inline constexpr auto base_address = simulated_register_storage.data();
 };

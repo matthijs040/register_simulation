@@ -1,5 +1,5 @@
 #pragma once
-#include "device_register.hpp"
+#include "simulated_device_register.hpp"
 #include <cassert>
 #include <type_traits>
 
@@ -13,9 +13,9 @@ struct bitfield : std::conditional<USE_SIMULATED_REGISTERS,
   bitfield() {}
   ~bitfield() {}
 
-  operator register_integral() const { return (value >> offset) & max; }
+    operator register_integral() const noexcept{ return (value >> offset) & max; }
 
-  bitfield &operator=(register_integral v) {
+    bitfield &operator=(register_integral v) noexcept {
     assert(v < max);
     value = (value & ~mask) | (v << offset);
     return *this;

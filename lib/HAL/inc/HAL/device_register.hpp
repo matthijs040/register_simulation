@@ -7,6 +7,7 @@
 // std::is_constant_evaluated() as a condition? If the simulation tests all run
 // consteval?
 using register_integral = std::uint32_t;
+using register_mask = register_integral;
 
 union stub_register {
   register_integral storage;
