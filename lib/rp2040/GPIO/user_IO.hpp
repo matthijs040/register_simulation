@@ -1,8 +1,9 @@
 #pragma once
 
-#include "user_IO_registers.hpp"
 #include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
+
+#include "registers.hpp"
 #include <memory>
 #include <optional>
 
