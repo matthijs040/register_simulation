@@ -20,6 +20,6 @@ union CTRL {
   bitfield<16, 2> INOVER;
   bitfield<12, 2> OEOVER;
   bitfield<8, 2> OUTOVER;
-  bitfield<0, 4> FUNCSEL;
+  bitfield<0, 5> FUNCSEL;
 };
 } // namespace reg

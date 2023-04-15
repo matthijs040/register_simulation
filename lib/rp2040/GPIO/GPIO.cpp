@@ -45,11 +45,10 @@ bool GPIO::is_pin_reserved(pin_number number) const noexcept {
   const auto &reg = get_gpio_control_register(*this, number);
   const auto current_function = reg.FUNCSEL;
 
-  return current_function !=
-             std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::disabled) &&
-         current_function !=
-             std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::SIO);
-}
+  const bool is_disabled = current_function == std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::disabled);
+  const bool is_software_controlled = current_function == std::to_underlying<GPIO_FUNCSEL>(GPIO_FUNCSEL::SIO);
+  return !is_disabled && !is_software_controlled;
+}        
 
 void GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
   if (is_pin_reserved(number))
