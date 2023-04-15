@@ -70,7 +70,7 @@ void GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
   case GPIO::mode::output_only: {
     ctrl_reg.OEOVER = reg::CTRL::OEOVER_states::enabled;
     pad_reg.OD = reg::state::disabled;
-    pad_reg.IE = reg::state::enabled;
+    pad_reg.IE = reg::state::disabled;
     break;
   }
   case GPIO::mode::input_and_output: {
@@ -102,7 +102,7 @@ GPIO::mode GPIO::get_pin_mode(pin_number number) {
 
   const bool input_enabled = pad.IE == reg::state::set;
   const bool output_enabled =
-      pad.OD == reg::state::cleared && status.OETOPAD == reg::state::cleared;
+      pad.OD == reg::state::cleared && status.OETOPAD == reg::state::set;
 
   if (input_enabled && output_enabled)
     return GPIO::mode::input_and_output;
