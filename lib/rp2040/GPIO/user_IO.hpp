@@ -1,16 +1,19 @@
 #pragma once
 
 #include "types.hpp"
+#include "user_IO_registers.hpp"
 #include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
 #include <memory>
 #include <optional>
 
-class user_IO : std::conditional<USE_SIMULATED_REGISTERS, simulated_peripheral<user_IO>,
-                            void> {
+class user_IO : std::conditional<USE_SIMULATED_REGISTERS,
+                                 simulated_peripheral<user_IO>, void> {
 public:
   ~user_IO();
-  void operator delete(void *addr) { static_cast<user_IO *>(addr)->~user_IO(); };
+  void operator delete(void *addr) {
+    static_cast<user_IO *>(addr)->~user_IO();
+  };
 
 private:
   user_IO();
@@ -26,106 +29,106 @@ private:
   friend std::shared_ptr<user_IO> std::make_shared<user_IO>();
 
   // Start of non-static member variables:
-  stub_register GPIO0_STATUS;       // GPIO status
-  stub_register GPIO0_CTRL;         // GPIO control
-  stub_register GPIO1_STATUS;       // GPIO status
-  stub_register GPIO1_CTRL;         // GPIO control
-  stub_register GPIO2_STATUS;       // GPIO status
-  stub_register GPIO2_CTRL;         // GPIO control
-  stub_register GPIO3_STATUS;       // GPIO status
-  stub_register GPIO3_CTRL;         // GPIO control
-  stub_register GPIO4_STATUS;       // GPIO status
-  stub_register GPIO4_CTRL;         // GPIO control
-  stub_register GPIO5_STATUS;       // GPIO status
-  stub_register GPIO5_CTRL;         // GPIO control
-  stub_register GPIO6_STATUS;       // GPIO status
-  stub_register GPIO6_CTRL;         // GPIO control
-  stub_register GPIO7_STATUS;       // GPIO status
-  stub_register GPIO7_CTRL;         // GPIO control
-  stub_register GPIO8_STATUS;       // GPIO status
-  stub_register GPIO8_CTRL;         // GPIO control
-  stub_register GPIO9_STATUS;       // GPIO status
-  stub_register GPIO9_CTRL;         // GPIO control
-  stub_register GPIO10_STATUS;      // GPIO status
-  stub_register GPIO10_CTRL;        // GPIO control
-  stub_register GPIO11_STATUS;      // GPIO status
-  stub_register GPIO11_CTRL;        // GPIO control
-  stub_register GPIO12_STATUS;      // GPIO status
-  stub_register GPIO12_CTRL;        // GPIO control
-  stub_register GPIO13_STATUS;      // GPIO status
-  stub_register GPIO13_CTRL;        // GPIO control
-  stub_register GPIO14_STATUS;      // GPIO status
-  stub_register GPIO14_CTRL;        // GPIO control
-  stub_register GPIO15_STATUS;      // GPIO status
-  stub_register GPIO15_CTRL;        // GPIO control
-  stub_register GPIO16_STATUS;      // GPIO status
-  stub_register GPIO16_CTRL;        // GPIO control
-  stub_register GPIO17_STATUS;      // GPIO status
-  stub_register GPIO17_CTRL;        // GPIO control
-  stub_register GPIO18_STATUS;      // GPIO status
-  stub_register GPIO18_CTRL;        // GPIO control
-  stub_register GPIO19_STATUS;      // GPIO status
-  stub_register GPIO19_CTRL;        // GPIO control
-  stub_register GPIO20_STATUS;      // GPIO status
-  stub_register GPIO20_CTRL;        // GPIO control
-  stub_register GPIO21_STATUS;      // GPIO status
-  stub_register GPIO21_CTRL;        // GPIO control
-  stub_register GPIO22_STATUS;      // GPIO status
-  stub_register GPIO22_CTRL;        // GPIO control
-  stub_register GPIO23_STATUS;      // GPIO status
-  stub_register GPIO23_CTRL;        // GPIO control
-  stub_register GPIO24_STATUS;      // GPIO status
-  stub_register GPIO24_CTRL;        // GPIO control
-  stub_register GPIO25_STATUS;      // GPIO status
-  stub_register GPIO25_CTRL;        // GPIO control
-  stub_register GPIO26_STATUS;      // GPIO status
-  stub_register GPIO26_CTRL;        // GPIO control
-  stub_register GPIO27_STATUS;      // GPIO status
-  stub_register GPIO27_CTRL;        // GPIO control
-  stub_register GPIO28_STATUS;      // GPIO status
-  stub_register GPIO28_CTRL;        // GPIO control
-  stub_register GPIO29_STATUS;      // GPIO status
-  stub_register GPIO29_CTRL;        // GPIO control
-  stub_register INTR0;              // Raw Interrupts
-  stub_register INTR1;              // Raw Interrupts
-  stub_register INTR2;              // Raw Interrupts
-  stub_register INTR3;              // Raw Interrupts
-  stub_register PROC0_INTE0;        // Interrupt Enable for proc0
-  stub_register PROC0_INTE1;        // Interrupt Enable for proc0
-  stub_register PROC0_INTE2;        // Interrupt Enable for proc0
-  stub_register PROC0_INTE3;        // Interrupt Enable for proc0
-  stub_register PROC0_INTF0;        // Interrupt Force for proc0
-  stub_register PROC0_INTF1;        // Interrupt Force for proc0
-  stub_register PROC0_INTF2;        // Interrupt Force for proc0
-  stub_register PROC0_INTF3;        // Interrupt Force for proc0
-  stub_register PROC0_INTS0;        // Interrupt status for proc0
-  stub_register PROC0_INTS1;        // Interrupt status for proc0
-  stub_register PROC0_INTS2;        // Interrupt status for proc0
-  stub_register PROC0_INTS3;        // Interrupt status for proc0
-  stub_register PROC1_INTE0;        // Interrupt Enable for proc1
-  stub_register PROC1_INTE1;        // Interrupt Enable for proc1
-  stub_register PROC1_INTE2;        // Interrupt Enable for proc1
-  stub_register PROC1_INTE3;        // Interrupt Enable for proc1
-  stub_register PROC1_INTF0;        // Interrupt Force for proc1
-  stub_register PROC1_INTF1;        // Interrupt Force for proc1
-  stub_register PROC1_INTF2;        // Interrupt Force for proc1
-  stub_register PROC1_INTF3;        // Interrupt Force for proc1
-  stub_register PROC1_INTS0;        // Interrupt status for proc1
-  stub_register PROC1_INTS1;        // Interrupt status for proc1
-  stub_register PROC1_INTS2;        // Interrupt status for proc1
-  stub_register PROC1_INTS3;        // Interrupt status for proc1
-  stub_register DORMANT_WAKE_INTE0; // Interrupt Enable for dormant_wake
-  stub_register DORMANT_WAKE_INTE1; // Interrupt Enable for dormant_wake
-  stub_register DORMANT_WAKE_INTE2; // Interrupt Enable for dormant_wake
-  stub_register DORMANT_WAKE_INTE3; // Interrupt Enable for dormant_wake
-  stub_register DORMANT_WAKE_INTF0; // Interrupt Force for dormant_wake
-  stub_register DORMANT_WAKE_INTF1; // Interrupt Force for dormant_wake
-  stub_register DORMANT_WAKE_INTF2; // Interrupt Force for dormant_wake
-  stub_register DORMANT_WAKE_INTF3; // Interrupt Force for dormant_wake
-  stub_register DORMANT_WAKE_INTS0; // Interrupt Status for dormant_wake
-  stub_register DORMANT_WAKE_INTS1; // Interrupt Status for dormant_wake
-  stub_register DORMANT_WAKE_INTS2; // Interrupt Status for dormant_wake
-  stub_register DORMANT_WAKE_INTS3; // Interrupt Status for dormant_wake
+  reg::STATUS GPIO0_STATUS;
+  reg::CTRL GPIO0_CTRL;
+  reg::STATUS GPIO1_STATUS;
+  reg::CTRL GPIO1_CTRL;
+  reg::STATUS GPIO2_STATUS;
+  reg::CTRL GPIO2_CTRL;
+  reg::STATUS GPIO3_STATUS;
+  reg::CTRL GPIO3_CTRL;
+  reg::STATUS GPIO4_STATUS;
+  reg::CTRL GPIO4_CTRL;
+  reg::STATUS GPIO5_STATUS;
+  reg::CTRL GPIO5_CTRL;
+  reg::STATUS GPIO6_STATUS;
+  reg::CTRL GPIO6_CTRL;
+  reg::STATUS GPIO7_STATUS;
+  reg::CTRL GPIO7_CTRL;
+  reg::STATUS GPIO8_STATUS;
+  reg::CTRL GPIO8_CTRL;
+  reg::STATUS GPIO9_STATUS;
+  reg::CTRL GPIO9_CTRL;
+  reg::STATUS GPIO10_STATUS;
+  reg::CTRL GPIO10_CTRL;
+  reg::STATUS GPIO11_STATUS;
+  reg::CTRL GPIO11_CTRL;
+  reg::STATUS GPIO12_STATUS;
+  reg::CTRL GPIO12_CTRL;
+  reg::STATUS GPIO13_STATUS;
+  reg::CTRL GPIO13_CTRL;
+  reg::STATUS GPIO14_STATUS;
+  reg::CTRL GPIO14_CTRL;
+  reg::STATUS GPIO15_STATUS;
+  reg::CTRL GPIO15_CTRL;
+  reg::STATUS GPIO16_STATUS;
+  reg::CTRL GPIO16_CTRL;
+  reg::STATUS GPIO17_STATUS;
+  reg::CTRL GPIO17_CTRL;
+  reg::STATUS GPIO18_STATUS;
+  reg::CTRL GPIO18_CTRL;
+  reg::STATUS GPIO19_STATUS;
+  reg::CTRL GPIO19_CTRL;
+  reg::STATUS GPIO20_STATUS;
+  reg::CTRL GPIO20_CTRL;
+  reg::STATUS GPIO21_STATUS;
+  reg::CTRL GPIO21_CTRL;
+  reg::STATUS GPIO22_STATUS;
+  reg::CTRL GPIO22_CTRL;
+  reg::STATUS GPIO23_STATUS;
+  reg::CTRL GPIO23_CTRL;
+  reg::STATUS GPIO24_STATUS;
+  reg::CTRL GPIO24_CTRL;
+  reg::STATUS GPIO25_STATUS;
+  reg::CTRL GPIO25_CTRL;
+  reg::STATUS GPIO26_STATUS;
+  reg::CTRL GPIO26_CTRL;
+  reg::STATUS GPIO27_STATUS;
+  reg::CTRL GPIO27_CTRL;
+  reg::STATUS GPIO28_STATUS;
+  reg::CTRL GPIO28_CTRL;
+  reg::STATUS GPIO29_STATUS;
+  reg::CTRL GPIO29_CTRL;
+  reg::INTR0 INTR0;
+  reg::INTR1 INTR1;
+  reg::INTR2 INTR2;
+  reg::INTR3 INTR3;
+  reg::PROC0_INTE0 PROC0_INTE0;
+  reg::PROC0_INTE1 PROC0_INTE1;
+  reg::PROC0_INTE2 PROC0_INTE2;
+  reg::PROC0_INTE3 PROC0_INTE3;
+  reg::PROC0_INTF0 PROC0_INTF0;
+  reg::PROC0_INTF1 PROC0_INTF1;
+  reg::PROC0_INTF2 PROC0_INTF2;
+  reg::PROC0_INTF3 PROC0_INTF3;
+  reg::PROC0_INTS0 PROC0_INTS0;
+  reg::PROC0_INTS1 PROC0_INTS1;
+  reg::PROC0_INTS2 PROC0_INTS2;
+  reg::PROC0_INTS3 PROC0_INTS3;
+  reg::PROC1_INTE0 PROC1_INTE0;
+  reg::PROC1_INTE1 PROC1_INTE1;
+  reg::PROC1_INTE2 PROC1_INTE2;
+  reg::PROC1_INTE3 PROC1_INTE3;
+  reg::PROC1_INTF0 PROC1_INTF0;
+  reg::PROC1_INTF1 PROC1_INTF1;
+  reg::PROC1_INTF2 PROC1_INTF2;
+  reg::PROC1_INTF3 PROC1_INTF3;
+  reg::PROC1_INTS0 PROC1_INTS0;
+  reg::PROC1_INTS1 PROC1_INTS1;
+  reg::PROC1_INTS2 PROC1_INTS2;
+  reg::PROC1_INTS3 PROC1_INTS3;
+  reg::DORMANT_WAKE_INTE0 DORMANT_WAKE_INTE0;
+  reg::DORMANT_WAKE_INTE1 DORMANT_WAKE_INTE1;
+  reg::DORMANT_WAKE_INTE2 DORMANT_WAKE_INTE2;
+  reg::DORMANT_WAKE_INTE3 DORMANT_WAKE_INTE3;
+  reg::DORMANT_WAKE_INTF0 DORMANT_WAKE_INTF0;
+  reg::DORMANT_WAKE_INTF1 DORMANT_WAKE_INTF1;
+  reg::DORMANT_WAKE_INTF2 DORMANT_WAKE_INTF2;
+  reg::DORMANT_WAKE_INTF3 DORMANT_WAKE_INTF3;
+  reg::DORMANT_WAKE_INTS0 DORMANT_WAKE_INTS0;
+  reg::DORMANT_WAKE_INTS1 DORMANT_WAKE_INTS1;
+  reg::DORMANT_WAKE_INTS2 DORMANT_WAKE_INTS2;
+  reg::DORMANT_WAKE_INTS3 DORMANT_WAKE_INTS3;
 };
 
 template <> inline std::shared_ptr<user_IO> std::make_shared<user_IO>() {

@@ -1,6 +1,7 @@
 #pragma once
 #include <HAL/bitfield.hpp>
 
+namespace reg {
 union STATUS {
   bitfield<26, 1> IRQTOPROC;
   bitfield<24, 1> IRQFROMPAD;
@@ -19,4 +20,4 @@ union CTRL {
   bitfield<8, 2> OUTOVER;
   bitfield<0, 4> FUNCSEL;
 };
-
+} // namespace reg

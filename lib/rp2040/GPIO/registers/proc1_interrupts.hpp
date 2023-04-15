@@ -1,6 +1,6 @@
 #pragma once
 #include <HAL/bitfield.hpp>
-
+namespace reg {
 union PROC1_INTS3 {
   bitfield<23, 1> GPIO29_EDGE_HIGH;
   bitfield<22, 1> GPIO29_EDGE_LOW;
@@ -396,3 +396,4 @@ union PROC1_INTE0 {
   bitfield<1, 1> GPIO0_LEVEL_HIGH;
   bitfield<0, 1> GPIO0_LEVEL_LOW;
 };
+} // namespace reg

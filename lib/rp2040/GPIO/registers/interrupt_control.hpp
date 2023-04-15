@@ -1,6 +1,6 @@
 #pragma once
 #include <HAL/bitfield.hpp>
-
+namespace reg {
 union INTR3 {
   bitfield<23, 1> GPIO29_EDGE_HIGH;
   bitfield<22, 1> GPIO29_EDGE_LOW;
@@ -132,3 +132,4 @@ union INTR0 {
   const bitfield<1, 1> GPIO0_LEVEL_HIGH;
   const bitfield<0, 1> GPIO0_LEVEL_LOW;
 };
+} // namespace reg

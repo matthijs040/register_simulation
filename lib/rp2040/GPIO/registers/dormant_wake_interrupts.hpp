@@ -1,6 +1,7 @@
 #pragma once
 #include <HAL/bitfield.hpp>
 
+namespace reg {
 union DORMANT_WAKE_INTS3 {
   bitfield<23, 1> GPIO29_EDGE_HIGH;
   bitfield<22, 1> GPIO29_EDGE_LOW;
@@ -363,3 +364,37 @@ union DORMANT_WAKE_INTE1 {
 };
 
 union DORMANT_WAKE_INTE0 {
+  bitfield<31, 1> GPIO7_EDGE_HIGH;
+  bitfield<30, 1> GPIO7_EDGE_LOW;
+  bitfield<29, 1> GPIO7_LEVEL_HIGH;
+  bitfield<28, 1> GPIO7_LEVEL_LOW;
+  bitfield<27, 1> GPIO6_EDGE_HIGH;
+  bitfield<26, 1> GPIO6_EDGE_LOW;
+  bitfield<25, 1> GPIO6_LEVEL_HIGH;
+  bitfield<24, 1> GPIO6_LEVEL_LOW;
+  bitfield<23, 1> GPIO5_EDGE_HIGH;
+  bitfield<22, 1> GPIO5_EDGE_LOW;
+  bitfield<21, 1> GPIO5_LEVEL_HIGH;
+  bitfield<20, 1> GPIO5_LEVEL_LOW;
+  bitfield<19, 1> GPIO4_EDGE_HIGH;
+  bitfield<18, 1> GPIO4_EDGE_LOW;
+  bitfield<17, 1> GPIO4_LEVEL_HIGH;
+  bitfield<16, 1> GPIO4_LEVEL_LOW;
+  bitfield<15, 1> GPIO3_EDGE_HIGH;
+  bitfield<14, 1> GPIO3_EDGE_LOW;
+  bitfield<13, 1> GPIO3_LEVEL_HIGH;
+  bitfield<12, 1> GPIO3_LEVEL_LOW;
+  bitfield<11, 1> GPIO2_EDGE_HIGH;
+  bitfield<10, 1> GPIO2_EDGE_LOW;
+  bitfield<9, 1> GPIO2_LEVEL_HIGH;
+  bitfield<8, 1> GPIO2_LEVEL_LOW;
+  bitfield<7, 1> GPIO1_EDGE_HIGH;
+  bitfield<6, 1> GPIO1_EDGE_LOW;
+  bitfield<5, 1> GPIO1_LEVEL_HIGH;
+  bitfield<4, 1> GPIO1_LEVEL_LOW;
+  bitfield<3, 1> GPIO0_EDGE_HIGH;
+  bitfield<2, 1> GPIO0_EDGE_LOW;
+  bitfield<1, 1> GPIO0_LEVEL_HIGH;
+  bitfield<0, 1> GPIO0_LEVEL_LOW;
+};
+} // namespace reg
