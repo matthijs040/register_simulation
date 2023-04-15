@@ -3,7 +3,7 @@
 using handler_table = std::map<const void *const, effect_handlers>;
 static handler_table register_effects = handler_table();
 
-void set_effect_handlersset_effect_handlers(const void *const to_assign,
+void set_effect_handlers(const void *const to_assign,
                                             effect_handlers const &effects) {
   register_effects[to_assign] = effects;
 }
