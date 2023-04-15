@@ -1,6 +1,5 @@
 #pragma once
 
-#include "types.hpp"
 #include "user_IO_registers.hpp"
 #include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>

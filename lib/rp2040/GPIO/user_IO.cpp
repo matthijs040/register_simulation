@@ -1,6 +1,5 @@
 #include "user_IO.hpp"
 #include "pad_control.hpp"
-#include "types.hpp"
 #include <HAL/GPIO.hpp>
 
 #include <iostream>
