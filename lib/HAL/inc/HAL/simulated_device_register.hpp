@@ -1,8 +1,9 @@
 #pragma once
 
 #include "device_register.hpp"
-#include <any>
+
 #include <functional>
+#include <iostream>
 #include <map>
 
 template <class Underlying> class simulated_device_register {
@@ -25,13 +26,13 @@ public:
 
   // ---------------- Effect handler coupling ----------------
   inline void on_read() const {
-    const auto& read_value = *reinterpret_cast<const Underlying *>(this);
+    const auto &read_value = *reinterpret_cast<const Underlying *>(this);
     if (auto func = get_read_handler(&read_value))
       func(read_value);
   }
 
   inline void on_write(Underlying before_write) const {
-    const auto& after_write = *reinterpret_cast<const Underlying *>(this);
+    const auto &after_write = *reinterpret_cast<const Underlying *>(this);
     if (auto func = get_write_handler(&after_write))
       func(before_write, after_write);
   }
@@ -53,13 +54,16 @@ public:
   }
 
   read_handler get_read_handler(const Underlying *register_location) const {
+    std::clog << "checking for read-handler at: " << register_location << '\n';
     if (register_effects.contains(register_location))
       if (auto func = register_effects.at(register_location).on_read)
         return func;
     return nullptr;
   }
 
-  write_handler get_write_handler(const Underlying *const register_location) const {
+  write_handler
+  get_write_handler(const Underlying *const register_location) const {
+    std::clog << "checking for write-handler at: " << register_location << '\n';
     if (register_effects.contains(register_location))
       if (auto func = register_effects.at(register_location).on_write)
         return func;

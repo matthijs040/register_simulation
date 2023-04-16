@@ -9,7 +9,8 @@ void on_CTRL_register_read(const reg::CTRL &read_value) {
   std::clog << "CTRL register is read from.\n";
 }
 
-void on_CTRL_register_write(reg::CTRL before_write, const reg::CTRL &after_write) {
+void on_CTRL_register_write(reg::CTRL before_write,
+                            const reg::CTRL &after_write) {
   std::clog << "CTRL register is written to.\n";
 }
 
@@ -22,8 +23,9 @@ std::weak_ptr<user_IO> initialize() {
                                           // But It's fine I think.
 
   // Guarantee the map is initialized.
-  simulated_device_register<reg::CTRL>::register_effects = simulated_device_register<reg::CTRL>::handler_table();
-  
+  simulated_device_register<reg::CTRL>::register_effects =
+      simulated_device_register<reg::CTRL>::handler_table();
+
   // Set handlers for every CTRL reg in the block.
   for (GPIO::pin_number pin = 0; pin < GPIO::get_num_pins(); pin++) {
     reg::CTRL &ctrl = get_control_register(*handle, pin);
@@ -32,6 +34,7 @@ std::weak_ptr<user_IO> initialize() {
     handlers.on_read = std::bind(on_CTRL_register_read, _1);
     handlers.on_write = std::bind(on_CTRL_register_write, _1, _2);
     simulated_device_register<reg::CTRL>::set_effect_handlers(&ctrl, handlers);
+    std::clog << "registered handlers at: " << &ctrl << '\n';
   }
 
   return std::weak_ptr<user_IO>();
