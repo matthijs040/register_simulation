@@ -28,11 +28,10 @@ struct bitfield {
 
   static_assert(std::is_scoped_enum_v<bitstate>);
 
-  using storage_type = std::conditional<
-      uses_simulated_registers,
-      simulated_device_register<
-          bitfield<bitstate, offset, num_bits, uses_simulated_registers>>,
-      register_integral>::type;
+  using sim_bitfield = simulated_device_register<bitfield<bitstate, offset, num_bits, false>>;
+  using storage_type = std::conditional<uses_simulated_registers, sim_bitfield, register_integral>::type;
 
+private:
+  friend std::conditional<uses_simulated_registers, sim_bitfield, void>::type;
   storage_type value;
 };

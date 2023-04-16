@@ -1,7 +1,7 @@
+#include <HAL/GPIO.hpp>
+#include <rp2040/GPIO/GPIO.hpp>
 #include <rp2040/GPIO/GPIO_handle.hpp>
 #include <rp2040/GPIO/user_IO.hpp>
-#include <rp2040/GPIO/GPIO.hpp>
-#include <HAL/GPIO.hpp>
 
 std::size_t GPIO::get_num_pins() noexcept { return 29u; }
 static const GPIO::pin_number max_pin_num = GPIO::get_num_pins() - 1;
@@ -42,13 +42,10 @@ bool GPIO::is_pin_reserved(pin_number number) const noexcept {
     return true;
 
   const auto &reg = get_control_register(*this, number);
-  const auto current_function = reg.FUNCSEL;
 
-  const bool is_disabled =
-      current_function == reg::CTRL::FUNCSEL_states::disabled;
-  const bool is_software_controlled =
-      current_function == reg::CTRL::FUNCSEL_states::SIO;
-  return !is_disabled && !is_software_controlled;
+  const bool is_disabled = reg.FUNCSEL == reg::CTRL::FUNCSEL_states::disabled;
+  const bool is_used_here = reg.FUNCSEL == reg::CTRL::FUNCSEL_states::SIO;
+  return !is_disabled && !is_used_here;
 }
 
 void GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {

@@ -12,24 +12,26 @@ public:
   // ---------------- Accessors ----------------
 
   operator register_integral() const {
-    on_read(value);
+    on_read();
     return static_cast<register_integral>(value);
   }
 
   void operator=(register_integral v) {
-    on_read(value);
+    on_read();
     const auto old_value = value;
     static_cast<Underlying>(value) = v;
-    on_write(old_value, reinterpret_cast<Underlying &>(value));
+    on_write(old_value);
   }
 
   // ---------------- Effect handler coupling ----------------
-  inline void on_read(const Underlying &read_value) const {
-    if (auto func = get_read_handler(reinterpret_cast<const Underlying *>(&read_value)))
+  inline void on_read() const {
+    const auto& read_value = *reinterpret_cast<const Underlying *>(this);
+    if (auto func = get_read_handler(&read_value))
       func(read_value);
   }
 
-  inline void on_write(Underlying before_write, const Underlying &after_write) const {
+  inline void on_write(Underlying before_write) const {
+    const auto& after_write = *reinterpret_cast<const Underlying *>(this);
     if (auto func = get_write_handler(&after_write))
       func(before_write, after_write);
   }
