@@ -39,7 +39,7 @@ public:
     write_handler on_write;
   };
   using handler_table = std::map<const void *const, effect_handlers>;
-  static inline handler_table register_effects = handler_table();
+  static inline handler_table register_effects;
 
   static void set_effect_handlers(const Underlying *const to_assign,
                                   effect_handlers const &effects) {
