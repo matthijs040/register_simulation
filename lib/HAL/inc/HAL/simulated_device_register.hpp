@@ -5,43 +5,39 @@
 #include <functional>
 #include <map>
 
-template <class Underlying> 
-class simulated_device_register {
+template <class Underlying> class simulated_device_register {
 public:
-  simulated_device_register(register_integral initial_value)
+  simulated_device_register(register_integral initial_value = 0)
       : value(initial_value) {}
-  simulated_device_register() : value(0) {}
-  ~simulated_device_register() {}
-
   // ---------------- Accessors ----------------
 
   operator register_integral() const {
     on_read(value);
-    return value;
+    return static_cast<register_integral>(value);
   }
 
   void operator=(register_integral v) {
     on_read(value);
     const auto old_value = value;
-    static_cast<Underlying *>(this)->operator=(v);
-    on_write(old_value, value);
+    static_cast<Underlying>(value) = v;
+    on_write(old_value, reinterpret_cast<Underlying &>(value));
   }
 
   // ---------------- Effect handler coupling ----------------
-  inline void on_read(Underlying &read_value) const {
-    if (auto func = get_read_handler(this))
+  inline void on_read(const Underlying &read_value) const {
+    if (auto func = get_read_handler(reinterpret_cast<const Underlying *>(&read_value)))
       func(read_value);
   }
 
-  inline void on_write(Underlying before_write, Underlying &after_write) const {
-    if (auto func = get_write_handler(this))
+  inline void on_write(Underlying before_write, const Underlying &after_write) const {
+    if (auto func = get_write_handler(&after_write))
       func(before_write, after_write);
   }
 
   // ---------------- Effect handler logic ----------------
 
-  using read_handler = std::function<void(Underlying &)>;
-  using write_handler = std::function<void(Underlying, Underlying &)>;
+  using read_handler = std::function<void(const Underlying &)>;
+  using write_handler = std::function<void(Underlying, const Underlying &)>;
   struct effect_handlers {
     read_handler on_read;
     write_handler on_write;
@@ -54,14 +50,14 @@ public:
     register_effects[to_assign] = effects;
   }
 
-  read_handler get_read_handler(const Underlying *const register_location) {
+  read_handler get_read_handler(const Underlying *register_location) const {
     if (register_effects.contains(register_location))
       if (auto func = register_effects.at(register_location).on_read)
         return func;
     return nullptr;
   }
 
-  write_handler get_write_handler(const Underlying *const register_location) {
+  write_handler get_write_handler(const Underlying *const register_location) const {
     if (register_effects.contains(register_location))
       if (auto func = register_effects.at(register_location).on_write)
         return func;

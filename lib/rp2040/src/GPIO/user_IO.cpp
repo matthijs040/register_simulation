@@ -5,11 +5,11 @@
 #include <iostream>
 #include <new>
 
-void on_CTRL_register_read(reg::CTRL &read_value) {
+void on_CTRL_register_read(const reg::CTRL &read_value) {
   std::clog << "CTRL register is read from.\n";
 }
 
-void on_CTRL_register_write(reg::CTRL before_write, reg::CTRL &after_write) {
+void on_CTRL_register_write(reg::CTRL before_write, const reg::CTRL &after_write) {
   std::clog << "CTRL register is written to.\n";
 }
 
