@@ -1,15 +1,14 @@
 #include <HAL/simulated_device_register.hpp>
 
-#include "GPIO.hpp"
+#include <rp2040/GPIO/GPIO.hpp>
 
 #include <iostream>
 
 class initializer {
+  public:
   initializer();
-  volatile static initializer instance;
+  ~initializer();
 };
-
-volatile initializer initializer::instance = initializer();
 
 void on_CTRL_register_write() {
   // If any of the <functionality>OVER(ride) registers are changed from 0;
@@ -22,4 +21,9 @@ void on_CTRL_register_read(register_integral read_value) {
   // Nothing implicitly happens when a CTRL register is read.
 }
 
-initializer::initializer() { std::clog << "effect handler is initialized.\n"; }
+initializer::initializer() { 
+  std::ios_base::Init();
+  std::clog << "effect handler is initialized.\n"; 
+}
+
+initializer instance = initializer();

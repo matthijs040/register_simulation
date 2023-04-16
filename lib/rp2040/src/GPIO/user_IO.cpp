@@ -1,5 +1,4 @@
-#include "user_IO.hpp"
-#include "pad_control.hpp"
+#include <rp2040/GPIO/user_IO.hpp>
 #include <HAL/GPIO.hpp>
 
 #include <iostream>

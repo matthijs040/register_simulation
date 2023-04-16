@@ -1,4 +1,4 @@
-#include "pad_control.hpp"
+#include <rp2040/GPIO/pad_control.hpp>
 #include <iostream>
 
 pad_control::pad_control()
