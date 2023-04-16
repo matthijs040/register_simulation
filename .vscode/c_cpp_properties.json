@@ -5,9 +5,12 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "build/_deps/googletest-src/googletest/include/**",
-                "${workspaceFolder}/lib/HAL/inc"
+                "${workspaceFolder}/lib/HAL/inc",
+                "${workspaceFolder}/lib/rp2040/inc"
             ],
-            "defines": ["USE_SIMULATED_REGISTERS=true"],
+            "defines": [
+                "USE_SIMULATED_REGISTERS=true"
+            ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c23",
             "cppStandard": "gnu++23",
