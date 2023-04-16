@@ -34,7 +34,9 @@ std::weak_ptr<user_IO> initialize() {
     handlers.on_read = std::bind(on_CTRL_register_read, _1);
     handlers.on_write = std::bind(on_CTRL_register_write, _1, _2);
     simulated_device_register<reg::CTRL>::set_effect_handlers(&ctrl, handlers);
-    std::clog << "registered handlers at: " << &ctrl << '\n';
+    std::clog << "registered handlers in map: "
+              << &simulated_device_register<reg::CTRL>::register_effects
+              << " at: " << &ctrl << '\n';
   }
 
   return std::weak_ptr<user_IO>();

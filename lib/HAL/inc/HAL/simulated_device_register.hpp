@@ -54,7 +54,7 @@ public:
   }
 
   read_handler get_read_handler(const Underlying *register_location) const {
-    std::clog << "checking for read-handler at: " << register_location << '\n';
+    std::clog << "checking for read-handler in map: " << &register_effects << " at: " << register_location << '\n';
     if (register_effects.contains(register_location))
       if (auto func = register_effects.at(register_location).on_read)
         return func;
