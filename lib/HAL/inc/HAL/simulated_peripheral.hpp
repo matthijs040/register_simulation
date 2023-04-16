@@ -14,10 +14,14 @@ public:
 
 private:
   enum class stub : register_integral {};
-  static_assert(sizeof(register_integral) == sizeof(bitfield<stub, 2, 2, true>));
-  // static_assert(  std::is_layout_compatible_v< register_integral, simulated_device_register<register_integral>>);
+  static_assert(sizeof(register_integral) == sizeof(bitfield<stub, 2, 2>));
+  // static_assert(std::is_layout_compatible_v< register_integral,
+  // simulated_device_register<register_integral>>);
 
-  static inline const std::size_t register_count = sizeof(Peripheral) / sizeof(register_integral);
-  static inline std::array<simulated_device_register<register_integral>, register_count> simulated_register_storage;
+  static inline const std::size_t register_count =
+      sizeof(Peripheral) / sizeof(register_integral);
+  static inline std::array<simulated_device_register<register_integral>,
+                           register_count>
+      simulated_register_storage;
   static inline constexpr auto base_address = simulated_register_storage.data();
 };

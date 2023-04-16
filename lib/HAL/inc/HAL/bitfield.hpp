@@ -6,20 +6,15 @@
 
 template <typename bitstate, std::size_t offset, std::size_t num_bits,
           bool uses_simulated_registers = USE_SIMULATED_REGISTERS>
-struct bitfield
-    : std::conditional<
-          uses_simulated_registers,
-          simulated_device_register<bitfield<bitstate, offset, num_bits>>,
-          void> {
+struct bitfield {
 
-  bitfield(register_integral initial_value = 0b0) : value(initial_value) {}
+  bitfield(register_integral initial_value = 0b0) : storage(storage_type(initial_value)) {}
 
-  register_integral value;
   static constexpr register_integral max = (0b1 << num_bits) - 1;
   static constexpr register_integral mask = max << offset;
 
   operator bitstate() const noexcept {
-    return static_cast<bitstate>((value >> offset) & max);
+    return static_cast<bitstate>((storage >> offset) & max);
   }
 
   bitfield &operator=(bitstate v) noexcept {
@@ -27,9 +22,15 @@ struct bitfield
     // class value.
     assert(std::to_underlying(v) <= max);
 
-    value = (value & ~mask) | (std::to_underlying(v) << offset);
+    storage = (storage & ~mask) | (std::to_underlying(v) << offset);
     return *this;
   }
 
   static_assert(std::is_scoped_enum_v<bitstate>);
+
+  using storage_type = std::conditional< uses_simulated_registers,
+      simulated_device_register<bitfield<bitstate, offset, num_bits, uses_simulated_registers>>,
+      register_integral>::type;
+
+  storage_type storage;
 };

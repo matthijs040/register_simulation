@@ -5,20 +5,15 @@
 #include <functional>
 #include <map>
 
-template <class Underlying> class simulated_device_register {
+template <class Underlying> 
+class simulated_device_register {
 public:
-  simulated_device_register() {}
+  simulated_device_register(register_integral initial_value)
+      : value(initial_value) {}
+  simulated_device_register() : value(0) {}
   ~simulated_device_register() {}
 
-  inline void on_read(Underlying &read_value) const {
-    if (auto func = get_read_handler(this))
-      func(read_value);
-  }
-
-  inline void on_write(Underlying before_write, Underlying &after_write) const {
-    if (auto func = get_write_handler(this))
-      func(before_write, after_write);
-  }
+  // ---------------- Accessors ----------------
 
   operator register_integral() const {
     on_read(value);
@@ -31,6 +26,19 @@ public:
     static_cast<Underlying *>(this)->operator=(v);
     on_write(old_value, value);
   }
+
+  // ---------------- Effect handler coupling ----------------
+  inline void on_read(Underlying &read_value) const {
+    if (auto func = get_read_handler(this))
+      func(read_value);
+  }
+
+  inline void on_write(Underlying before_write, Underlying &after_write) const {
+    if (auto func = get_write_handler(this))
+      func(before_write, after_write);
+  }
+
+  // ---------------- Effect handler logic ----------------
 
   using read_handler = std::function<void(Underlying &)>;
   using write_handler = std::function<void(Underlying, Underlying &)>;
@@ -61,6 +69,6 @@ public:
   }
 
 private:
-  Underlying value;
+  register_integral value;
   friend effect_handlers;
 };
