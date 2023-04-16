@@ -5,31 +5,17 @@
 #include <functional>
 #include <map>
 
-using read_handler = std::function<void(register_integral)>;
-using write_handler = std::function<void(register_integral, register_integral)>;
-
-struct effect_handlers {
-  read_handler on_read;
-  write_handler on_write;
-};
-
-extern void set_effect_handlers(const void *const to_assign,
-                                effect_handlers const &effects);
-extern read_handler get_read_handler(const void *const register_location);
-extern write_handler get_write_handler(const void *const register_location);
-
 template <class Underlying> class simulated_device_register {
 public:
   simulated_device_register() {}
   ~simulated_device_register() {}
 
-  inline void on_read(register_integral read_value) const {
+  inline void on_read(Underlying &read_value) const {
     if (auto func = get_read_handler(this))
       func(read_value);
   }
 
-  inline void on_write(register_integral before_write,
-                       register_integral after_write) const {
+  inline void on_write(Underlying before_write, Underlying &after_write) const {
     if (auto func = get_write_handler(this))
       func(before_write, after_write);
   }
@@ -46,7 +32,35 @@ public:
     on_write(old_value, value);
   }
 
+  using read_handler = std::function<void(Underlying &)>;
+  using write_handler = std::function<void(Underlying, Underlying &)>;
+  struct effect_handlers {
+    read_handler on_read;
+    write_handler on_write;
+  };
+  using handler_table = std::map<const void *const, effect_handlers>;
+  static inline handler_table register_effects = handler_table();
+
+  static void set_effect_handlers(const Underlying *const to_assign,
+                                  effect_handlers const &effects) {
+    register_effects[to_assign] = effects;
+  }
+
+  read_handler get_read_handler(const Underlying *const register_location) {
+    if (register_effects.contains(register_location))
+      if (auto func = register_effects.at(register_location).on_read)
+        return func;
+    return nullptr;
+  }
+
+  write_handler get_write_handler(const Underlying *const register_location) {
+    if (register_effects.contains(register_location))
+      if (auto func = register_effects.at(register_location).on_write)
+        return func;
+    return nullptr;
+  }
+
 private:
-  register_integral value;
+  Underlying value;
   friend effect_handlers;
 };

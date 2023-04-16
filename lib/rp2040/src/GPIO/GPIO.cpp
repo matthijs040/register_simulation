@@ -1,5 +1,6 @@
 #include <rp2040/GPIO/GPIO_handle.hpp>
 #include <rp2040/GPIO/user_IO.hpp>
+#include <rp2040/GPIO/GPIO.hpp>
 #include <HAL/GPIO.hpp>
 
 std::size_t GPIO::get_num_pins() noexcept { return 29u; }

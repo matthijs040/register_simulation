@@ -4,10 +4,11 @@
 #include <type_traits>
 #include <utility>
 
-template <typename bitstate, std::size_t offset, std::size_t num_bits>
+template <typename bitstate, std::size_t offset, std::size_t num_bits,
+          bool uses_simulated_registers = USE_SIMULATED_REGISTERS>
 struct bitfield
     : std::conditional<
-          USE_SIMULATED_REGISTERS,
+          uses_simulated_registers,
           simulated_device_register<bitfield<bitstate, offset, num_bits>>,
           void> {
 
@@ -22,8 +23,9 @@ struct bitfield
   }
 
   bitfield &operator=(bitstate v) noexcept {
-    // Cannot static assert this without a constexpr way of getting largest enum class value.
-    assert(std::to_underlying(v) <= max); 
+    // Cannot static assert this without a constexpr way of getting largest enum
+    // class value.
+    assert(std::to_underlying(v) <= max);
 
     value = (value & ~mask) | (std::to_underlying(v) << offset);
     return *this;
