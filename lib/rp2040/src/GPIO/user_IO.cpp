@@ -36,8 +36,8 @@ std::weak_ptr<user_IO> initialize() {
                                                                  handlers);
     std::clog << "registered handlers in map: "
               << &FUNCSEL_bits::register_effects()
-              << " of type: " << typeid(FUNCSEL_bits::register_effects()).name() << " at: " << &ctrl
-              << '\n';
+              << " of type: " << typeid(FUNCSEL_bits::register_effects()).name()
+              << " at: " << &ctrl << '\n';
   }
 
   return std::weak_ptr<user_IO>();

@@ -62,7 +62,9 @@ public:
               << typeid(
                      simulated_device_register<Underlying>::register_effects())
                      .name()
-              << " at: " << register_location << '\n';
+              << "\n"
+              << "at register: " << register_location
+              << " with type: " << typeid(*this).name() << '\n';
     if (register_effects().contains(register_location))
       if (auto func = register_effects().at(register_location).on_read)
         return func;
@@ -70,9 +72,10 @@ public:
   }
 
   write_handler get_write_handler(const void *const register_location) const {
-    std::clog << "checking for write-handler in map: " << &register_effects()
-              << " with type: " << typeid(*this).name()
-              << " at: " << register_location << '\n';
+    std::clog << "checking for write-handler in map: "
+              << &simulated_device_register<Underlying>::register_effects()
+              << " with type: " << typeid(simulated_device_register<Underlying>::register_effects()).name() << "\n"
+              << "at register: " << register_location << " with type: " << typeid(*this).name() << '\n';
     if (register_effects().contains(register_location))
       if (auto func = register_effects().at(register_location).on_write)
         return func;
