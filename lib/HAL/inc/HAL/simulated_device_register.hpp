@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <typeinfo>
 
 template <class Underlying> class simulated_device_register {
 public:
@@ -26,15 +27,13 @@ public:
 
   // ---------------- Effect handler coupling ----------------
   inline void on_read() const {
-    const auto &read_value = *reinterpret_cast<const Underlying *>(this);
-    if (auto func = get_read_handler(&read_value))
-      func(read_value);
+    if (auto func = get_read_handler(this))
+      func(reinterpret_cast<const Underlying &>(*this));
   }
 
   inline void on_write(Underlying before_write) const {
-    const auto &after_write = *reinterpret_cast<const Underlying *>(this);
-    if (auto func = get_write_handler(&after_write))
-      func(before_write, after_write);
+    if (auto func = get_write_handler(this))
+      func(before_write, reinterpret_cast<const Underlying &>(*this));
   }
 
   // ---------------- Effect handler logic ----------------
@@ -48,22 +47,25 @@ public:
   using handler_table = std::map<const void *const, effect_handlers>;
   static inline handler_table register_effects;
 
-  static void set_effect_handlers(const Underlying *const to_assign,
+  static void set_effect_handlers(const void *const to_assign,
                                   effect_handlers const &effects) {
     register_effects[to_assign] = effects;
   }
 
-  read_handler get_read_handler(const Underlying *register_location) const {
-    std::clog << "checking for read-handler in map: " << &register_effects << " at: " << register_location << '\n';
+  read_handler get_read_handler(const void *register_location) const {
+    std::clog << "checking for read-handler in map: " << &simulated_device_register<Underlying>::register_effects
+              << " with type: " << typeid(simulated_device_register<Underlying>::register_effects).name()
+              << " at: " << register_location << '\n';
     if (register_effects.contains(register_location))
       if (auto func = register_effects.at(register_location).on_read)
         return func;
     return nullptr;
   }
 
-  write_handler
-  get_write_handler(const Underlying *const register_location) const {
-    std::clog << "checking for write-handler at: " << register_location << '\n';
+  write_handler get_write_handler(const void *const register_location) const {
+    std::clog << "checking for write-handler in map: " << &register_effects
+              << " with type: " << typeid(*this).name()
+              << " at: " << register_location << '\n';
     if (register_effects.contains(register_location))
       if (auto func = register_effects.at(register_location).on_write)
         return func;
