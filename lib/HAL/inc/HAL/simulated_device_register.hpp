@@ -45,29 +45,36 @@ public:
     write_handler on_write;
   };
   using handler_table = std::map<const void *const, effect_handlers>;
-  static inline handler_table register_effects;
+  static handler_table &register_effects() {
+    static handler_table table;
+    return table;
+  };
 
   static void set_effect_handlers(const void *const to_assign,
                                   effect_handlers const &effects) {
-    register_effects[to_assign] = effects;
+    register_effects()[to_assign] = effects;
   }
 
   read_handler get_read_handler(const void *register_location) const {
-    std::clog << "checking for read-handler in map: " << &simulated_device_register<Underlying>::register_effects
-              << " with type: " << typeid(simulated_device_register<Underlying>::register_effects).name()
+    std::clog << "checking for read-handler in map: "
+              << &simulated_device_register<Underlying>::register_effects()
+              << " with type: "
+              << typeid(
+                     simulated_device_register<Underlying>::register_effects())
+                     .name()
               << " at: " << register_location << '\n';
-    if (register_effects.contains(register_location))
-      if (auto func = register_effects.at(register_location).on_read)
+    if (register_effects().contains(register_location))
+      if (auto func = register_effects().at(register_location).on_read)
         return func;
     return nullptr;
   }
 
   write_handler get_write_handler(const void *const register_location) const {
-    std::clog << "checking for write-handler in map: " << &register_effects
+    std::clog << "checking for write-handler in map: " << &register_effects()
               << " with type: " << typeid(*this).name()
               << " at: " << register_location << '\n';
-    if (register_effects.contains(register_location))
-      if (auto func = register_effects.at(register_location).on_write)
+    if (register_effects().contains(register_location))
+      if (auto func = register_effects().at(register_location).on_write)
         return func;
     return nullptr;
   }

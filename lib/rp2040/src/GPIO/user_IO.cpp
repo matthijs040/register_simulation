@@ -35,8 +35,8 @@ std::weak_ptr<user_IO> initialize() {
     simulated_device_register<FUNCSEL_bits>::set_effect_handlers(&ctrl,
                                                                  handlers);
     std::clog << "registered handlers in map: "
-              << &FUNCSEL_bits::register_effects
-              << " of type: " << typeid(FUNCSEL_bits::register_effects).name() << " at: " << &ctrl
+              << &FUNCSEL_bits::register_effects()
+              << " of type: " << typeid(FUNCSEL_bits::register_effects()).name() << " at: " << &ctrl
               << '\n';
   }
 
