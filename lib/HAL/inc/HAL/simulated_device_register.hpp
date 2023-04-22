@@ -45,14 +45,19 @@ public:
     write_handler on_write;
   };
   using handler_table = std::map<const void *const, effect_handlers>;
+
   static handler_table &register_effects() {
     static handler_table table;
     return table;
   };
 
   static void set_effect_handlers(const void *const to_assign,
-                                  effect_handlers const &effects) {
+                                  effect_handlers const effects) {
     register_effects()[to_assign] = effects;
+
+    std::clog << "registered handlers in map: " << &register_effects()
+              << " of type: " << typeid(register_effects()).name()
+              << " at: " << &to_assign << '\n';
   }
 
   read_handler get_read_handler(const void *register_location) const {
@@ -74,8 +79,13 @@ public:
   write_handler get_write_handler(const void *const register_location) const {
     std::clog << "checking for write-handler in map: "
               << &simulated_device_register<Underlying>::register_effects()
-              << " with type: " << typeid(simulated_device_register<Underlying>::register_effects()).name() << "\n"
-              << "at register: " << register_location << " with type: " << typeid(*this).name() << '\n';
+              << " with type: "
+              << typeid(
+                     simulated_device_register<Underlying>::register_effects())
+                     .name()
+              << "\n"
+              << "at register: " << register_location
+              << " with type: " << typeid(*this).name() << '\n';
     if (register_effects().contains(register_location))
       if (auto func = register_effects().at(register_location).on_write)
         return func;
