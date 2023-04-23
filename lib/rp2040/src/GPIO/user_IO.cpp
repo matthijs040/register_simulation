@@ -43,7 +43,7 @@ std::weak_ptr<user_IO> initialize() {
     };
     FUNCSEL_handlers.on_write = [pin](FUNCSEL::stored_bits,
                                       const FUNCSEL::stored_bits &after_write) {
-      std::cout << "Function for pin: " << pin << "is set to: "
+      std::cout << "Function for pin: " << pin << " is set to: "
                 << std::to_underlying<reg::CTRL::FUNCSEL_states>(after_write)
                 << " .\n";
     };
@@ -52,10 +52,16 @@ std::weak_ptr<user_IO> initialize() {
     // Setup handlers for OEOVER. These must - on write - update a status
     // register bit.
     auto OEOVER_handlers = OEOVER::sim_storage::effect_handlers();
+    OEOVER_handlers.on_read = [pin](const OEOVER::stored_bits &read_value) {
+      std::cout << "OEOVER for pin: " << pin << " was read as: "
+                << std::to_underlying<reg::CTRL::OEOVER_states>(read_value)
+                << ".\n";
+    };
+
     OEOVER_handlers.on_write = [pin, status, ctrl](
                                    OEOVER::stored_bits before,
                                    const OEOVER::stored_bits &after) mutable {
-      std::clog << "OEOVER was set to: "
+      std::cout << "OEOVER was set to: "
                 << std::to_underlying<reg::CTRL::OEOVER_states>(after) << ".\n";
       if (before != after) {
         auto peripheral_enabled = is_peripheral_enabled(pin, ctrl.FUNCSEL);
@@ -82,6 +88,7 @@ std::weak_ptr<user_IO> initialize() {
         }
       }
     };
+    OEOVER::storage_type::set_effect_handlers(&ctrl, OEOVER_handlers);
   }
 
   return std::weak_ptr<user_IO>();

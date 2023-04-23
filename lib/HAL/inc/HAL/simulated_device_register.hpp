@@ -15,25 +15,25 @@ public:
 
   operator register_integral() const {
     on_read();
-    return static_cast<register_integral>(value);
+    return value;
   }
 
   void operator=(register_integral v) {
     on_read();
     const auto old_value = value;
-    static_cast<Underlying>(value) = v;
+    value = v;
     on_write(old_value);
   }
 
   // ---------------- Effect handler coupling ----------------
   inline void on_read() const {
     if (auto func = get_read_handler(this))
-      func(reinterpret_cast<const Underlying &>(*this));
+      func(value);
   }
 
   inline void on_write(Underlying before_write) const {
     if (auto func = get_write_handler(this))
-      func(before_write, reinterpret_cast<const Underlying &>(*this));
+      func(before_write, value);
   }
 
   // ---------------- Effect handler logic ----------------
