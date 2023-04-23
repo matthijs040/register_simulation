@@ -6,7 +6,19 @@
 #include <new>
 #include <typeinfo>
 
-using FUNCSEL_bits = decltype(reg::CTRL::FUNCSEL)::storage_type;
+reg::state is_peripheral_enabled(GPIO::pin_number pin,
+                                 reg::CTRL::FUNCSEL_states function) {
+  if (function == reg::CTRL::FUNCSEL_states::disabled)
+    return reg::state::disabled;
+
+  // TODO! implement.
+  // Have to find the peripheral block with the given pin and check an
+  // is-enabled-register/bitstate.
+  return reg::state::disabled;
+}
+
+using FUNCSEL = decltype(reg::CTRL::FUNCSEL);
+using OEOVER = decltype(reg::CTRL::OEOVER);
 
 std::weak_ptr<user_IO> initialize() {
   std::clog.rdbuf(nullptr);
@@ -20,11 +32,56 @@ std::weak_ptr<user_IO> initialize() {
   // Set handlers for every CTRL reg in the block.
   for (GPIO::pin_number pin = 0; pin < GPIO::get_num_pins(); pin++) {
     reg::CTRL &ctrl = get_control_register(*handle, pin);
+    reg::STATUS &status = get_status_register(*handle, pin);
 
-    auto handlers = FUNCSEL_bits::effect_handlers();
-    handlers.on_read = [](auto read_value) { std::cout << "CTRL register is read from.\n";};
-    handlers.on_write = [](auto , const auto&) { std::cout << "CTRL reg written to.\n"; };
-    FUNCSEL_bits::set_effect_handlers(&ctrl, handlers);
+    // Setup handlers for FUNCSEL. Just for diagnostics.
+    auto FUNCSEL_handlers = FUNCSEL::sim_storage::effect_handlers();
+    FUNCSEL_handlers.on_read = [pin](const FUNCSEL::stored_bits &read_value) {
+      std::cout << "Function of pin: " << pin << " was read as: "
+                << std::to_underlying<reg::CTRL::FUNCSEL_states>(read_value)
+                << "\n";
+    };
+    FUNCSEL_handlers.on_write = [pin](FUNCSEL::stored_bits,
+                                      const FUNCSEL::stored_bits &after_write) {
+      std::cout << "Function for pin: " << pin << "is set to: "
+                << std::to_underlying<reg::CTRL::FUNCSEL_states>(after_write)
+                << " .\n";
+    };
+    FUNCSEL::sim_storage::set_effect_handlers(&ctrl, FUNCSEL_handlers);
+
+    // Setup handlers for OEOVER. These must - on write - update a status
+    // register bit.
+    auto OEOVER_handlers = OEOVER::sim_storage::effect_handlers();
+    OEOVER_handlers.on_write = [pin, status, ctrl](
+                                   OEOVER::stored_bits before,
+                                   const OEOVER::stored_bits &after) mutable {
+      std::clog << "OEOVER was set to: "
+                << std::to_underlying<reg::CTRL::OEOVER_states>(after) << ".\n";
+      if (before != after) {
+        auto peripheral_enabled = is_peripheral_enabled(pin, ctrl.FUNCSEL);
+        switch (after) {
+        case reg::CTRL::OEOVER_states::disabled:
+          status.OETOPAD = reg::state::disabled;
+          status.OEFROMPERI = peripheral_enabled;
+          break;
+        case reg::CTRL::OEOVER_states::enabled:
+          status.OEFROMPERI = peripheral_enabled;
+          status.OETOPAD = reg::state::enabled;
+          break;
+        case reg::CTRL::OEOVER_states::FUNCSEL_defined:
+          status.OEFROMPERI = peripheral_enabled;
+          status.OETOPAD = peripheral_enabled;
+          break;
+        case reg::CTRL::OEOVER_states::inverse_FUNCSEL_defined:
+          const auto inverse = peripheral_enabled == reg::state::enabled
+                                   ? reg::state::disabled
+                                   : reg::state::enabled;
+          status.OEFROMPERI = inverse;
+          status.OETOPAD = inverse;
+          break;
+        }
+      }
+    };
   }
 
   return std::weak_ptr<user_IO>();
