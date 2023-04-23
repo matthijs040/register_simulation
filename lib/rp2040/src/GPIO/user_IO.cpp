@@ -21,7 +21,6 @@ using FUNCSEL = decltype(reg::CTRL::FUNCSEL);
 using OEOVER = decltype(reg::CTRL::OEOVER);
 
 std::weak_ptr<user_IO> initialize() {
-  std::clog.rdbuf(nullptr);
   std::clog << "initialize called.\n";
   using namespace std::placeholders;
 
