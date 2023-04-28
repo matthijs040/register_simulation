@@ -13,14 +13,21 @@ TEST(GPIO_tests, GPIO_pins_are_initially_not_reserved) {
   EXPECT_NE(handle.get_pin_mode(pin++), GPIO::mode::reserved);
 }
 
-TEST(GPIO_tests, setting_pins_as_output_reads_them_back_as_such) {
+TEST(GPIO_tests, correct_mode_is_returned_when_set) {
   auto handle = GPIO();
 
   GPIO::pin_number pin = 0;
   handle.set_pin_mode(pin, GPIO::mode::output_only);
-  const GPIO::mode mode = handle.get_pin_mode(pin);
-  EXPECT_EQ(mode, GPIO::mode::output_only);
+  EXPECT_EQ(handle.get_pin_mode(pin), GPIO::mode::output_only);
+  handle.set_pin_mode(pin, GPIO::mode::input_only);
+  EXPECT_EQ(handle.get_pin_mode(pin), GPIO::mode::input_only);
+  handle.set_pin_mode(pin, GPIO::mode::input_and_output);
+  EXPECT_EQ(handle.get_pin_mode(pin), GPIO::mode::input_and_output);
+  handle.set_pin_mode(pin, GPIO::mode::disabled);
+  EXPECT_EQ(handle.get_pin_mode(pin), GPIO::mode::disabled);
 }
+
+TEST(GPIO_tests, setting_state_with_wrong_mode_is_rejected) {}
 
 int main(int argc, char *argv[]) {
   testing::InitGoogleTest(&argc, argv);

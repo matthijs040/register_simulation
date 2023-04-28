@@ -3,6 +3,8 @@
 #include <rp2040/GPIO/GPIO_handle.hpp>
 #include <rp2040/GPIO/user_IO.hpp>
 
+#include <system_error>
+
 std::size_t GPIO::get_num_pins() noexcept { return 29u; }
 static const GPIO::pin_number max_pin_num = GPIO::get_num_pins() - 1;
 
@@ -48,9 +50,9 @@ bool GPIO::is_pin_reserved(pin_number number) const noexcept {
   return !is_disabled && !is_used_here;
 }
 
-void GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
+std::error_code GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
   if (is_pin_reserved(number))
-    return;
+    return std::make_error_code(std::errc::operation_not_permitted);
 
   auto &ctrl_reg = get_control_register(*this, number);
   auto &pad_reg = get_pad_register(*this, number);
@@ -84,9 +86,10 @@ void GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
   }
   case GPIO::mode::reserved: {
     // Setting to reserved is not to be done through this public interface.
-    break;
+    return std::make_error_code(std::errc::operation_not_permitted);
   }
   }
+  return std::error_code();
 }
 
 GPIO::mode GPIO::get_pin_mode(pin_number number) {
@@ -99,7 +102,6 @@ GPIO::mode GPIO::get_pin_mode(pin_number number) {
   const bool input_enabled = pad.IE == reg::state::set;
   const bool output_enabled =
       pad.OD == reg::state::cleared && status.OETOPAD == reg::state::set;
-  std::clog << "reading &STATUS: " << &status << " with OETOPAD: " << std::to_underlying<reg::state>(status.OETOPAD) << "\n"; 
 
   if (input_enabled && output_enabled)
     return GPIO::mode::input_and_output;
@@ -110,19 +112,19 @@ GPIO::mode GPIO::get_pin_mode(pin_number number) {
   return GPIO::mode::disabled;
 }
 
-void GPIO::set_pin_state(pin_number number, GPIO::state state) {
+std::error_code GPIO::set_pin_state(pin_number number, GPIO::state state) {
   if (is_pin_reserved(number))
-    return;
+    return std::make_error_code(std::errc::operation_not_permitted);
 
   const auto mode = get_pin_mode(number);
   if (mode == GPIO::mode::input_only || mode == GPIO::mode::disabled)
-    return;
+    return std::make_error_code(std::errc::resource_unavailable_try_again);
 
   auto &ctrl_reg = get_control_register(*this, number);
 
   switch (state) {
   case GPIO::state::floating: {
-    return;
+    return std::make_error_code(std::errc::operation_not_supported);
   }
   case GPIO::state::high: {
     ctrl_reg.OUTOVER = reg::CTRL::OUTOVER_states::driven_high;
@@ -133,6 +135,7 @@ void GPIO::set_pin_state(pin_number number, GPIO::state state) {
     break;
   }
   }
+  return std::error_code();
 }
 
 GPIO::state GPIO::get_pin_state(pin_number number) {
