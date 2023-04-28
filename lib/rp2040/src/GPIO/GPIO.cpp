@@ -99,6 +99,7 @@ GPIO::mode GPIO::get_pin_mode(pin_number number) {
   const bool input_enabled = pad.IE == reg::state::set;
   const bool output_enabled =
       pad.OD == reg::state::cleared && status.OETOPAD == reg::state::set;
+  std::clog << "reading &STATUS: " << &status << " with value: " << reinterpret_cast<register_integral&>(status) << "\n"; 
 
   if (input_enabled && output_enabled)
     return GPIO::mode::input_and_output;
@@ -124,11 +125,11 @@ void GPIO::set_pin_state(pin_number number, GPIO::state state) {
     return;
   }
   case GPIO::state::high: {
-    ctrl_reg.OUTOVER = 0b11;
+    ctrl_reg.OUTOVER = reg::CTRL::OUTOVER_states::driven_high;
     break;
   }
   case GPIO::state::low: {
-    ctrl_reg.OUTOVER = 0b10;
+    ctrl_reg.OUTOVER = reg::CTRL::OUTOVER_states::driven_low;
     break;
   }
   }

@@ -6,7 +6,7 @@
 #include <new>
 #include <typeinfo>
 
-reg::state is_peripheral_enabled(GPIO::pin_number pin,
+reg::state is_peripheral_enabled(GPIO::pin_number,
                                  reg::CTRL::FUNCSEL_states function) {
   if (function == reg::CTRL::FUNCSEL_states::disabled)
     return reg::state::disabled;
@@ -52,7 +52,8 @@ std::weak_ptr<user_IO> initialize() {
     // register bit.
     auto OEOVER_handlers = OEOVER::sim_storage::effect_handlers();
     OEOVER_handlers.on_read = [pin](const OEOVER::stored_bits &read_value) {
-      std::cout << "OEOVER for pin: " << pin << " was read as: "
+      std::cout << "OEOVER for pin: " << pin << " at: " << &read_value
+                << " was read as: "
                 << std::to_underlying<reg::CTRL::OEOVER_states>(read_value)
                 << ".\n";
     };
@@ -72,6 +73,7 @@ std::weak_ptr<user_IO> initialize() {
         case reg::CTRL::OEOVER_states::enabled:
           status.OEFROMPERI = peripheral_enabled;
           status.OETOPAD = reg::state::enabled;
+          std::clog << "set &STATUS " << &status << " to enabled.\n";
           break;
         case reg::CTRL::OEOVER_states::FUNCSEL_defined:
           status.OEFROMPERI = peripheral_enabled;

@@ -24,8 +24,8 @@ public:
 };
 
 template <> std::shared_ptr<GPIO_handle> std::make_shared<GPIO_handle>() {
-  auto ptr = std::shared_ptr<GPIO_handle>();
-  if (ptr = GPIO_handle::handle.lock())
+  auto ptr = GPIO_handle::handle.lock();
+  if (ptr)
     return ptr;
   ptr = std::shared_ptr<GPIO_handle>(new GPIO_handle());
   ::new (ptr.get()) GPIO_handle();

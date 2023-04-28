@@ -20,8 +20,6 @@ struct bitfield {
   bitfield &operator=(bitstate v) noexcept {
     // Cannot static assert this without a constexpr way of getting largest enum
     // class value.
-    assert(std::to_underlying(v) <= max);
-
     value = (value & ~mask) | (std::to_underlying(v) << offset);
     return *this;
   }
