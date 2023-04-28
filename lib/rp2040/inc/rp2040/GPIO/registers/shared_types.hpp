@@ -7,4 +7,7 @@ enum class state : bool {
   enabled = true,
   set = true,
 };
-};
+
+static_assert(reg::state::enabled == reg::state::set &&
+              reg::state::disabled == reg::state::cleared);
+}; // namespace reg

@@ -27,7 +27,36 @@ TEST(GPIO_tests, correct_mode_is_returned_when_set) {
   EXPECT_EQ(handle.get_pin_mode(pin), GPIO::mode::disabled);
 }
 
-TEST(GPIO_tests, setting_state_with_wrong_mode_is_rejected) {}
+TEST(GPIO_tests, setting_state_with_wrong_modes_is_rejected) {
+  auto handle = GPIO();
+  GPIO::pin_number pin = 0;
+
+  handle.set_pin_mode(pin, GPIO::mode::input_only);
+  EXPECT_EQ(handle.set_pin_state(pin, GPIO::state::high),
+            std::errc::resource_unavailable_try_again);
+  EXPECT_EQ(handle.set_pin_state(pin, GPIO::state::low),
+            std::errc::resource_unavailable_try_again);
+
+  handle.set_pin_mode(pin, GPIO::mode::disabled);
+  EXPECT_EQ(handle.set_pin_state(pin, GPIO::state::high),
+            std::errc::resource_unavailable_try_again);
+  EXPECT_EQ(handle.set_pin_state(pin, GPIO::state::low),
+            std::errc::resource_unavailable_try_again);
+}
+
+TEST(GPIO_tests, setting_state_with_correct_modes_is_accepted) {
+  auto handle = GPIO();
+  GPIO::pin_number pin = 0;
+
+  handle.set_pin_mode(pin, GPIO::mode::output_only);
+  EXPECT_EQ(handle.set_pin_state(pin, GPIO::state::high), std::error_code());
+  EXPECT_EQ(handle.get_pin_state(pin), GPIO::state::high);
+  EXPECT_EQ(handle.set_pin_state(pin, GPIO::state::low), std::error_code());
+  EXPECT_EQ(handle.get_pin_state(pin), GPIO::state::low);
+
+  if (handle.set_pin_state(pin, GPIO::state::floating) == std::error_code())
+    EXPECT_EQ(handle.get_pin_state(pin), GPIO::state::floating);
+}
 
 int main(int argc, char *argv[]) {
   testing::InitGoogleTest(&argc, argv);
