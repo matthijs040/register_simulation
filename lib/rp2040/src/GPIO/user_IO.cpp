@@ -58,10 +58,10 @@ std::weak_ptr<user_IO> initialize() {
                 << ".\n";
     };
 
-    OEOVER_handlers.on_write = [pin, status, ctrl](
+    OEOVER_handlers.on_write = [pin, &status, ctrl](
                                    OEOVER::stored_bits before,
                                    const OEOVER::stored_bits &after) mutable {
-      std::cout << "OEOVER was set to: "
+      std::cout << "OEOVER for pin: " << pin << " at: " << &after << " was set to: "
                 << std::to_underlying<reg::CTRL::OEOVER_states>(after) << ".\n";
       if (before != after) {
         auto peripheral_enabled = is_peripheral_enabled(pin, ctrl.FUNCSEL);
