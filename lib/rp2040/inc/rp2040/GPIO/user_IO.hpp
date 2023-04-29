@@ -120,8 +120,10 @@ public:
 private:
   user_IO();
 
-  void *operator new(std::size_t) {
-    return reinterpret_cast<user_IO *>(base_address);
+  void *operator new(std::size_t size) {
+    return USE_SIMULATED_REGISTERS
+               ? simulated_peripheral<user_IO>::operator new(size)
+               : reinterpret_cast<user_IO *>(base_address);
   }
 
   static constexpr uintptr_t base_address = 0x40014000;
@@ -129,22 +131,12 @@ private:
 
   // To force users to use make_shared for initialization.
   friend std::shared_ptr<user_IO> std::make_shared<user_IO>();
-
-
 };
 
 template <> inline std::shared_ptr<user_IO> std::make_shared<user_IO>() {
   if (const auto ptr = user_IO::storage_handle.lock())
     return ptr;
-
-  auto ptr = std::shared_ptr<user_IO>();
-  if (USE_SIMULATED_REGISTERS) {
-    ptr = std::reinterpret_pointer_cast<user_IO>(
-        std::shared_ptr<simulated_peripheral<user_IO>>(
-            new simulated_peripheral<user_IO>()));
-  } else {
-    ptr = std::shared_ptr<user_IO>(new user_IO());
-  }
+  auto ptr = std::shared_ptr<user_IO>(new user_IO());
   ::new (ptr.get()) user_IO();
 
   user_IO::storage_handle = ptr;

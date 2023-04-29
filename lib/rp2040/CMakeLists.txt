@@ -2,6 +2,7 @@ project(lib)
 
 add_library(rp2040_impl STATIC 
     src/GPIO/GPIO.cpp 
+    src/GPIO/GPIO_handle.cpp    
     src/GPIO/user_IO.cpp 
     src/GPIO/pad_control.cpp )
 

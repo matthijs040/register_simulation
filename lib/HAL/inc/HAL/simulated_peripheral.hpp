@@ -9,7 +9,7 @@ public:
   void *operator new(std::size_t) { return base_address; }
 
   void operator delete(void *addr) {
-    static_cast<Peripheral *>(addr)->~Peripheral();
+    static_cast<Peripheral *>(addr)->operator delete(addr);
   }
 
 private:

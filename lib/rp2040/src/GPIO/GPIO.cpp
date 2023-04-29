@@ -8,7 +8,7 @@
 std::size_t GPIO::get_num_pins() noexcept { return 29u; }
 static const GPIO::pin_number max_pin_num = GPIO::get_num_pins() - 1;
 
-inline reg::CTRL &get_control_register(const GPIO &handle,
+reg::CTRL &get_control_register(const GPIO &handle,
                                        GPIO::pin_number pin) {
   auto *reg = handle.impl_handle.get()->gpio.get();
   const auto first_offset = 1;
@@ -18,7 +18,7 @@ inline reg::CTRL &get_control_register(const GPIO &handle,
   return *((register_block + first_offset) + (pin * register_spacing));
 }
 
-inline reg::STATUS &get_status_register(const GPIO &handle,
+reg::STATUS &get_status_register(const GPIO &handle,
                                         GPIO::pin_number pin) {
   auto *registers = handle.impl_handle.get()->gpio.get();
   const auto register_spacing = 2;
@@ -26,7 +26,7 @@ inline reg::STATUS &get_status_register(const GPIO &handle,
   return *(register_block + (pin * register_spacing));
 }
 
-inline reg::GPIO &get_pad_register(const GPIO &handle, GPIO::pin_number pin) {
+reg::GPIO &get_pad_register(const GPIO &handle, GPIO::pin_number pin) {
   auto *reg = handle.impl_handle.get()->pads.get();
   const auto first_offset = 1;
   const auto register_spacing = 1;
