@@ -16,7 +16,7 @@ union STATUS {
 };
 
 union CTRL {
-  CTRL() : FUNCSEL(0x1F) {}
+  CTRL() : FUNCSEL(FUNCSEL_states::disabled) {}
 
   enum class IRQOVER_states : register_integral {
     unaffected,

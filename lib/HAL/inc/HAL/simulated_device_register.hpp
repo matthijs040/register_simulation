@@ -5,22 +5,23 @@
 #include <functional>
 #include <iostream>
 #include <map>
-#include <typeinfo>
 
 template <class Underlying> class simulated_device_register {
 public:
-  simulated_device_register(register_integral initial_value = 0)
+  simulated_device_register() {}
+
+  simulated_device_register(Underlying initial_value)
       : value(initial_value) {}
   // ---------------- Accessors ----------------
 
-  operator register_integral() const {
+  operator Underlying() const {
     on_read();
     return value;
   }
 
-  void operator=(register_integral v) {
+  void operator=(Underlying v) {
     on_read();
-    const auto old_value = value;
+    const auto old_value = static_cast<Underlying>(value);
     value = v;
     on_write(old_value);
   }
@@ -71,6 +72,6 @@ public:
   }
 
 private:
-  register_integral value;
+  Underlying value;
   friend effect_handlers;
 };

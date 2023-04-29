@@ -4,7 +4,7 @@
 
 namespace reg {
 union INTR3 {
-  INTR3() : GPIO29_EDGE_HIGH() {}
+  INTR3() {}
 
   bitfield<reg::state, 23, 1> GPIO29_EDGE_HIGH;
   bitfield<reg::state, 22, 1> GPIO29_EDGE_LOW;
@@ -33,7 +33,7 @@ union INTR3 {
 };
 
 union INTR2 {
-  INTR2() : GPIO23_EDGE_HIGH() {}
+  INTR2() {}
 
   bitfield<reg::state, 31, 1> GPIO23_EDGE_HIGH;
   bitfield<reg::state, 30, 1> GPIO23_EDGE_LOW;
@@ -70,7 +70,7 @@ union INTR2 {
 };
 
 union INTR1 {
-  INTR1() : GPIO15_EDGE_HIGH() {}
+  INTR1() {}
 
   bitfield<reg::state, 31, 1> GPIO15_EDGE_HIGH;
   bitfield<reg::state, 30, 1> GPIO15_EDGE_LOW;
@@ -107,7 +107,7 @@ union INTR1 {
 };
 
 union INTR0 {
-  INTR0() : GPIO7_EDGE_HIGH() {}
+  INTR0() {}
 
   bitfield<reg::state, 31, 1> GPIO7_EDGE_HIGH;
   bitfield<reg::state, 30, 1> GPIO7_EDGE_LOW;

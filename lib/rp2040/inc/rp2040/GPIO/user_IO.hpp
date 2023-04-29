@@ -15,19 +15,6 @@ public:
     static_cast<user_IO *>(addr)->~user_IO();
   };
 
-private:
-  user_IO();
-
-  void *operator new(std::size_t) {
-    return reinterpret_cast<user_IO *>(base_address);
-  }
-
-  static constexpr uintptr_t base_address = 0x40014000;
-  static std::weak_ptr<user_IO> storage_handle;
-
-  // To force users to use make_shared for initialization.
-  friend std::shared_ptr<user_IO> std::make_shared<user_IO>();
-
   // Start of non-static member variables:
   reg::STATUS GPIO0_STATUS;
   reg::CTRL GPIO0_CTRL;
@@ -129,6 +116,21 @@ private:
   reg::DORMANT_WAKE_INTS1 DORMANT_WAKE_INTS1;
   reg::DORMANT_WAKE_INTS2 DORMANT_WAKE_INTS2;
   reg::DORMANT_WAKE_INTS3 DORMANT_WAKE_INTS3;
+
+private:
+  user_IO();
+
+  void *operator new(std::size_t) {
+    return reinterpret_cast<user_IO *>(base_address);
+  }
+
+  static constexpr uintptr_t base_address = 0x40014000;
+  static std::weak_ptr<user_IO> storage_handle;
+
+  // To force users to use make_shared for initialization.
+  friend std::shared_ptr<user_IO> std::make_shared<user_IO>();
+
+
 };
 
 template <> inline std::shared_ptr<user_IO> std::make_shared<user_IO>() {
