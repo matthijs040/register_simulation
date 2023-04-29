@@ -9,7 +9,7 @@ private:
 
   void *operator new(std::size_t);
   static inline std::array<std::shared_ptr<void>, 2> storage;
-  static inline std::weak_ptr<GPIO_handle> handle;
+  static std::weak_ptr<GPIO_handle> handle;
 
 public:
   std::shared_ptr<user_IO> gpio;
