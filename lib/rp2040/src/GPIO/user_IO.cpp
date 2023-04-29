@@ -1,5 +1,6 @@
 #include <HAL/GPIO.hpp>
 #include <rp2040/GPIO/GPIO.hpp>
+#include <rp2040/GPIO/GPIO_handle.hpp>
 #include <rp2040/GPIO/user_IO.hpp>
 
 #include <iostream>
@@ -144,21 +145,21 @@ std::weak_ptr<user_IO> initialize() {
   logging_handle << "initialize called.\n";
   using namespace std::placeholders;
 
-  auto handle = std::make_shared<GPIO>(); // This will allocate the pointer that
-                                          // we are assigning our weak ptr to.
-                                          // But It's fine I think.
+  auto handle = GPIO(); // This will allocate the pointer that
+                        // we are assigning our weak ptr to.
+                        // But It's fine I think.
 
   // Set handlers for every CTRL reg in the block.
   for (GPIO::pin_number pin = 0; pin < GPIO::get_num_pins(); pin++) {
-    reg::CTRL &ctrl = get_control_register(*handle, pin);
-    reg::STATUS &status = get_status_register(*handle, pin);
+    reg::CTRL &ctrl = get_control_register(handle, pin);
+    reg::STATUS &status = get_status_register(handle, pin);
 
     init_FUNCSEL_handlers(pin, ctrl, status, logging_handle);
     init_OEOVER_handlers(pin, ctrl, status, logging_handle);
     init_OUTOVER_handlers(pin, ctrl, status, logging_handle);
   }
 
-  return std::weak_ptr<user_IO>();
+  return handle.impl_handle->gpio;
 }
 
 std::weak_ptr<user_IO> user_IO::storage_handle =
