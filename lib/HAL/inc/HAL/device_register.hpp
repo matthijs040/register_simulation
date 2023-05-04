@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <type_traits>
+#include "simulated_device_register.hpp"
 
 // Device register becomes non-volatile while const evaluated as volatile types
 // cannot be interacted in in constexpr functions. Could maybe use
@@ -9,6 +11,10 @@
 using register_integral = std::uint32_t;
 using register_mask = register_integral;
 
-union stub_register {
-  register_integral storage;
-};
+template<typename Underlying>
+class simulated_device_register;
+
+using register_storage =
+    std::conditional_t<USE_SIMULATED_REGISTERS,
+                       simulated_device_register<register_integral>,
+                       register_integral>;

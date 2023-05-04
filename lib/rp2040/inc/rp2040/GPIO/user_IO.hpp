@@ -11,9 +11,7 @@ class user_IO : std::conditional<USE_SIMULATED_REGISTERS,
                                  simulated_peripheral<user_IO>, void> {
 public:
   ~user_IO();
-  void operator delete(void *addr) {
-    static_cast<user_IO *>(addr)->~user_IO();
-  };
+  void operator delete(void *addr);
 
   // Start of non-static member variables:
   reg::STATUS GPIO0_STATUS;
@@ -120,11 +118,7 @@ public:
 private:
   user_IO();
 
-  void *operator new(std::size_t size) {
-    return USE_SIMULATED_REGISTERS
-               ? simulated_peripheral<user_IO>::operator new(size)
-               : reinterpret_cast<user_IO *>(base_address);
-  }
+  void *operator new(std::size_t size);
 
   static constexpr uintptr_t base_address = 0x40014000;
   static std::weak_ptr<user_IO> storage_handle;
