@@ -7,17 +7,43 @@
 #include <new>
 #include <typeinfo>
 
-
-reg::state get_peripheral_pin_state(GPIO::pin_number,
-                                    reg::CTRL::FUNCSEL_states function) {
-  if (function == reg::CTRL::FUNCSEL_states::disabled)
-    return reg::state::disabled;
-
-  // TODO! implement.
-  // Once additional peripheral interfaces are implemented. Make this function
-  // access an internal function on that interface that checks a pin-state it
-  // uses by pin-number.
-  return reg::state::disabled;
+std::expected<reg::state, std::error_code>
+get_peripheral_pin_state(GPIO::pin_number pin_number,
+                         reg::CTRL::FUNCSEL_states function) {
+  auto result = std::expected<reg::state, std::error_code>();
+  switch (function) {
+  case reg::CTRL::FUNCSEL_states::SPI:
+    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    break;
+  case reg::CTRL::FUNCSEL_states::UART:
+    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    break;
+  case reg::CTRL::FUNCSEL_states::I2C:
+    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    break;
+  case reg::CTRL::FUNCSEL_states::PWM:
+    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    break;
+  case reg::CTRL::FUNCSEL_states::SIO:
+    result = GPIO().impl_handle->SIO_handle->get_pin_OE(pin_number);
+    break;
+  case reg::CTRL::FUNCSEL_states::PIO0:
+    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    break;
+  case reg::CTRL::FUNCSEL_states::PIO1:
+    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    break;
+  case reg::CTRL::FUNCSEL_states::Clock_GPIO:
+    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    break;
+  case reg::CTRL::FUNCSEL_states::USB:
+    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    break;
+  case reg::CTRL::FUNCSEL_states::disabled:
+  default:
+    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+  }
+  return result;
 }
 
 reg::state is_peripheral_enabled(GPIO::pin_number,
@@ -120,7 +146,7 @@ void init_OUTOVER_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
 
     switch (after_write) {
     case reg::CTRL::OUTOVER_states::FUNCSEL_defined:
-      status.OUTTOPAD = get_peripheral_pin_state(pin, ctrl.FUNCSEL);
+      status.OUTTOPAD = get_peripheral_pin_state(pin, ctrl.FUNCSEL).value();
       break;
     case reg::CTRL::OUTOVER_states::inverse_FUNCSEL_defined:
       status.OUTTOPAD =
@@ -166,8 +192,8 @@ std::weak_ptr<GPIO_handle> initialize() {
 std::weak_ptr<GPIO_handle> GPIO_handle::handle = USE_SIMULATED_REGISTERS ? initialize() : std::weak_ptr<GPIO_handle>();
 
 GPIO_handle::GPIO_handle()
-    : gpio(std::make_shared<user_IO>()), pads(std::make_shared<pad_control>()) {
-}
+    : gpio(std::make_shared<user_IO>()), pads(std::make_shared<pad_control>()),
+      SIO_handle(std::make_shared<SIO>()) {}
 
 void *GPIO_handle::operator new(std::size_t) { return storage.data(); }
 

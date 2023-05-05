@@ -5,6 +5,9 @@
 #include <HAL/simulated_peripheral.hpp>
 #include <memory>
 #include <type_traits>
+#include <HAL/GPIO.hpp>
+#include <expected>
+#include <system_error>
 
 class SIO : std::conditional<USE_SIMULATED_REGISTERS, simulated_peripheral<SIO>,
                              void> {
@@ -13,6 +16,8 @@ public:
 
   ~SIO();
   void operator delete(void *addr);
+
+  std::expected<reg::state, std::error_code> get_pin_OE(GPIO::pin_number number) const noexcept;
 
   reg::CPUID CPUID;
   reg::GPIO_IN GPIO_IN;

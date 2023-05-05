@@ -12,7 +12,7 @@ union CPUID {
 
 union GPIO_IN {
   GPIO_IN() {}
-  const bitfield<reg::state, 1, 1> GPIO_0;
+  const bitfield<reg::state, 0, 1> GPIO_0;
   const bitfield<reg::state, 1, 1> GPIO_1;
   const bitfield<reg::state, 2, 1> GPIO_2;
   const bitfield<reg::state, 3, 1> GPIO_3;
@@ -47,7 +47,7 @@ union GPIO_IN {
 union GPIO_HI_IN {
   GPIO_HI_IN() {}
 
-  const bitfield<reg::state, 1, 1> QSPI_0;
+  const bitfield<reg::state, 0, 1> QSPI_0;
   const bitfield<reg::state, 1, 1> QSPI_1;
   const bitfield<reg::state, 2, 1> QSPI_2;
   const bitfield<reg::state, 3, 1> QSPI_3;
@@ -57,7 +57,7 @@ union GPIO_HI_IN {
 
 union GPIO_OUT {
   GPIO_OUT() {}
-  bitfield<reg::state, 1, 1> GPIO_0;
+  bitfield<reg::state, 0, 1> GPIO_0;
   bitfield<reg::state, 1, 1> GPIO_1;
   bitfield<reg::state, 2, 1> GPIO_2;
   bitfield<reg::state, 3, 1> GPIO_3;
@@ -91,7 +91,7 @@ union GPIO_OUT {
 
 union GPIO_OUT_SET {
   GPIO_OUT_SET() {}
-  bitfield<reg::state, 1, 1> GPIO_0;
+  bitfield<reg::state, 0, 1> GPIO_0;
   bitfield<reg::state, 1, 1> GPIO_1;
   bitfield<reg::state, 2, 1> GPIO_2;
   bitfield<reg::state, 3, 1> GPIO_3;
@@ -125,7 +125,7 @@ union GPIO_OUT_SET {
 
 union GPIO_OUT_CLR {
   GPIO_OUT_CLR() {}
-  bitfield<reg::state, 1, 1> GPIO_0;
+  bitfield<reg::state, 0, 1> GPIO_0;
   bitfield<reg::state, 1, 1> GPIO_1;
   bitfield<reg::state, 2, 1> GPIO_2;
   bitfield<reg::state, 3, 1> GPIO_3;
@@ -159,7 +159,7 @@ union GPIO_OUT_CLR {
 
 union GPIO_OUT_XOR {
   GPIO_OUT_XOR() {}
-  bitfield<reg::state, 1, 1> GPIO_0;
+  bitfield<reg::state, 0, 1> GPIO_0;
   bitfield<reg::state, 1, 1> GPIO_1;
   bitfield<reg::state, 2, 1> GPIO_2;
   bitfield<reg::state, 3, 1> GPIO_3;
@@ -193,7 +193,7 @@ union GPIO_OUT_XOR {
 
 union GPIO_OE {
   GPIO_OE() {}
-  bitfield<reg::state, 1, 1> GPIO_0;
+  bitfield<reg::state, 0, 1> GPIO_0;
   bitfield<reg::state, 1, 1> GPIO_1;
   bitfield<reg::state, 2, 1> GPIO_2;
   bitfield<reg::state, 3, 1> GPIO_3;
@@ -227,7 +227,7 @@ union GPIO_OE {
 
 union GPIO_OE_SET {
   GPIO_OE_SET() {}
-  bitfield<reg::state, 1, 1> GPIO_0;
+  bitfield<reg::state, 0, 1> GPIO_0;
   bitfield<reg::state, 1, 1> GPIO_1;
   bitfield<reg::state, 2, 1> GPIO_2;
   bitfield<reg::state, 3, 1> GPIO_3;
@@ -261,7 +261,7 @@ union GPIO_OE_SET {
 
 union GPIO_OE_CLR {
   GPIO_OE_CLR() {}
-  bitfield<reg::state, 1, 1> GPIO_0;
+  bitfield<reg::state, 0, 1> GPIO_0;
   bitfield<reg::state, 1, 1> GPIO_1;
   bitfield<reg::state, 2, 1> GPIO_2;
   bitfield<reg::state, 3, 1> GPIO_3;
@@ -295,7 +295,7 @@ union GPIO_OE_CLR {
 
 union GPIO_OE_XOR {
   GPIO_OE_XOR() {}
-  bitfield<reg::state, 1, 1> GPIO_0;
+  bitfield<reg::state, 0, 1> GPIO_0;
   bitfield<reg::state, 1, 1> GPIO_1;
   bitfield<reg::state, 2, 1> GPIO_2;
   bitfield<reg::state, 3, 1> GPIO_3;
@@ -329,7 +329,7 @@ union GPIO_OE_XOR {
 
 union GPIO_HI_OUT {
   GPIO_HI_OUT() {}
-  bitfield<reg::state, 1, 1> QSPI_0;
+  bitfield<reg::state, 0, 1> QSPI_0;
   bitfield<reg::state, 1, 1> QSPI_1;
   bitfield<reg::state, 2, 1> QSPI_2;
   bitfield<reg::state, 3, 1> QSPI_3;
@@ -339,7 +339,7 @@ union GPIO_HI_OUT {
 
 union GPIO_HI_SET {
   GPIO_HI_SET() {}
-  bitfield<reg::state, 1, 1> QSPI_0;
+  bitfield<reg::state, 0, 1> QSPI_0;
   bitfield<reg::state, 1, 1> QSPI_1;
   bitfield<reg::state, 2, 1> QSPI_2;
   bitfield<reg::state, 3, 1> QSPI_3;
@@ -349,7 +349,7 @@ union GPIO_HI_SET {
 
 union GPIO_HI_CLR {
   GPIO_HI_CLR() {}
-  bitfield<reg::state, 1, 1> QSPI_0;
+  bitfield<reg::state, 0, 1> QSPI_0;
   bitfield<reg::state, 1, 1> QSPI_1;
   bitfield<reg::state, 2, 1> QSPI_2;
   bitfield<reg::state, 3, 1> QSPI_3;
@@ -359,7 +359,7 @@ union GPIO_HI_CLR {
 
 union GPIO_HI_XOR {
   GPIO_HI_XOR() {}
-  bitfield<reg::state, 1, 1> QSPI_0;
+  bitfield<reg::state, 0, 1> QSPI_0;
   bitfield<reg::state, 1, 1> QSPI_1;
   bitfield<reg::state, 2, 1> QSPI_2;
   bitfield<reg::state, 3, 1> QSPI_3;
@@ -369,7 +369,7 @@ union GPIO_HI_XOR {
 
 union GPIO_HI_OE {
   GPIO_HI_OE() {}
-  bitfield<reg::state, 1, 1> QSPI_0;
+  bitfield<reg::state, 0, 1> QSPI_0;
   bitfield<reg::state, 1, 1> QSPI_1;
   bitfield<reg::state, 2, 1> QSPI_2;
   bitfield<reg::state, 3, 1> QSPI_3;
@@ -379,7 +379,7 @@ union GPIO_HI_OE {
 
 union GPIO_HI_OE_SET {
   GPIO_HI_OE_SET() {}
-  bitfield<reg::state, 1, 1> QSPI_0;
+  bitfield<reg::state, 0, 1> QSPI_0;
   bitfield<reg::state, 1, 1> QSPI_1;
   bitfield<reg::state, 2, 1> QSPI_2;
   bitfield<reg::state, 3, 1> QSPI_3;
@@ -389,7 +389,7 @@ union GPIO_HI_OE_SET {
 
 union GPIO_HI_OE_CLR {
   GPIO_HI_OE_CLR() {}
-  bitfield<reg::state, 1, 1> QSPI_0;
+  bitfield<reg::state, 0, 1> QSPI_0;
   bitfield<reg::state, 1, 1> QSPI_1;
   bitfield<reg::state, 2, 1> QSPI_2;
   bitfield<reg::state, 3, 1> QSPI_3;
@@ -399,7 +399,7 @@ union GPIO_HI_OE_CLR {
 
 union GPIO_HI_OE_XOR {
   GPIO_HI_OE_XOR() {}
-  bitfield<reg::state, 1, 1> QSPI_0;
+  bitfield<reg::state, 0, 1> QSPI_0;
   bitfield<reg::state, 1, 1> QSPI_1;
   bitfield<reg::state, 2, 1> QSPI_2;
   bitfield<reg::state, 3, 1> QSPI_3;
