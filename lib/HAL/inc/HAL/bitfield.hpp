@@ -15,8 +15,7 @@ struct bitfield {
   static constexpr register_integral bitrange = max << offset;
 
   operator bitstate() const noexcept {
-    return static_cast<bitstate>(
-        ((reinterpret_cast<const register_integral &>(value) >> offset) & max));
+    return static_cast<bitstate>((value >> offset) & max);
   }
 
   bitfield &operator=(const bitstate &v) noexcept {

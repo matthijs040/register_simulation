@@ -12,6 +12,106 @@ void *SIO::operator new(size_t size) {
   return reinterpret_cast<SIO *>(base_address);
 }
 
+std::error_code SIO::set_pin_OE(GPIO::pin_number number,
+                                reg::state state) noexcept {
+  auto result = std::expected<reg::state, std::error_code>();
+  switch (number) {
+  case 0:
+    GPIO_OE.GPIO_0 = state;
+    break;
+  case 1:
+    GPIO_OE.GPIO_1 = state;
+    break;
+  case 2:
+    GPIO_OE.GPIO_2 = state;
+    break;
+  case 3:
+    GPIO_OE.GPIO_3 = state;
+    break;
+  case 4:
+    GPIO_OE.GPIO_4 = state;
+    break;
+  case 5:
+    GPIO_OE.GPIO_5 = state;
+    break;
+  case 6:
+    GPIO_OE.GPIO_6 = state;
+    break;
+  case 7:
+    GPIO_OE.GPIO_7 = state;
+    break;
+  case 8:
+    GPIO_OE.GPIO_8 = state;
+    break;
+  case 9:
+    GPIO_OE.GPIO_9 = state;
+    break;
+  case 10:
+    GPIO_OE.GPIO_10 = state;
+    break;
+  case 11:
+    GPIO_OE.GPIO_11 = state;
+    break;
+  case 12:
+    GPIO_OE.GPIO_12 = state;
+    break;
+  case 13:
+    GPIO_OE.GPIO_13 = state;
+    break;
+  case 14:
+    GPIO_OE.GPIO_14 = state;
+    break;
+  case 15:
+    GPIO_OE.GPIO_15 = state;
+    break;
+  case 16:
+    GPIO_OE.GPIO_16 = state;
+    break;
+  case 17:
+    GPIO_OE.GPIO_17 = state;
+    break;
+  case 18:
+    GPIO_OE.GPIO_18 = state;
+    break;
+  case 19:
+    GPIO_OE.GPIO_19 = state;
+    break;
+  case 20:
+    GPIO_OE.GPIO_20 = state;
+    break;
+  case 21:
+    GPIO_OE.GPIO_21 = state;
+    break;
+  case 22:
+    GPIO_OE.GPIO_22 = state;
+    break;
+  case 23:
+    GPIO_OE.GPIO_23 = state;
+    break;
+  case 24:
+    GPIO_OE.GPIO_24 = state;
+    break;
+  case 25:
+    GPIO_OE.GPIO_25 = state;
+    break;
+  case 26:
+    GPIO_OE.GPIO_26 = state;
+    break;
+  case 27:
+    GPIO_OE.GPIO_27 = state;
+    break;
+  case 28:
+    GPIO_OE.GPIO_28 = state;
+    break;
+  case 29:
+    GPIO_OE.GPIO_29 = state;
+    break;
+  default:
+    return std::make_error_code(std::errc::invalid_argument);
+  }
+  return std::error_code();
+}
+
 std::expected<reg::state, std::error_code>
 SIO::get_pin_OE(GPIO::pin_number number) const noexcept {
   auto result = std::expected<reg::state, std::error_code>();

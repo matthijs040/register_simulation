@@ -18,6 +18,7 @@ public:
   void operator delete(void *addr);
 
   std::expected<reg::state, std::error_code> get_pin_OE(GPIO::pin_number number) const noexcept;
+  std::error_code set_pin_OE(GPIO::pin_number number, reg::state state) noexcept;
 
   reg::CPUID CPUID;
   reg::GPIO_IN GPIO_IN;

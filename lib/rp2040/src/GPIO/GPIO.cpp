@@ -8,8 +8,7 @@
 std::size_t GPIO::get_num_pins() noexcept { return 29u; }
 static const GPIO::pin_number max_pin_num = GPIO::get_num_pins() - 1;
 
-reg::CTRL &get_control_register(const GPIO &handle,
-                                       GPIO::pin_number pin) {
+reg::CTRL &get_control_register(const GPIO &handle, GPIO::pin_number pin) {
   auto *reg = handle.impl_handle.get()->gpio.get();
   const auto first_offset = 1;
   const auto register_spacing = 2;
@@ -18,8 +17,7 @@ reg::CTRL &get_control_register(const GPIO &handle,
   return *((register_block + first_offset) + (pin * register_spacing));
 }
 
-reg::STATUS &get_status_register(const GPIO &handle,
-                                        GPIO::pin_number pin) {
+reg::STATUS &get_status_register(const GPIO &handle, GPIO::pin_number pin) {
   auto *registers = handle.impl_handle.get()->gpio.get();
   const auto register_spacing = 2;
   auto *register_block = reinterpret_cast<reg::STATUS *>(registers);
@@ -60,25 +58,30 @@ std::error_code GPIO::set_pin_mode(pin_number number, GPIO::mode mode) {
   ctrl_reg.FUNCSEL = reg::CTRL::FUNCSEL_states::SIO;
   switch (mode) {
   case GPIO::mode::input_only: {
-    ctrl_reg.OEOVER = reg::CTRL::OEOVER_states::disabled;
+    ctrl_reg.OEOVER = reg::CTRL::OEOVER_states::FUNCSEL_defined;
+    impl_handle->SIO_handle->set_pin_OE(number, reg::state::disabled);
     pad_reg.OD = reg::state::enabled;
     pad_reg.IE = reg::state::enabled;
     break;
   }
   case GPIO::mode::output_only: {
-    ctrl_reg.OEOVER = reg::CTRL::OEOVER_states::enabled;
+    ctrl_reg.OEOVER = reg::CTRL::OEOVER_states::FUNCSEL_defined;
+    impl_handle->SIO_handle->set_pin_OE(number, reg::state::enabled);
     pad_reg.OD = reg::state::disabled;
     pad_reg.IE = reg::state::disabled;
     break;
   }
   case GPIO::mode::input_and_output: {
-    ctrl_reg.OEOVER = reg::CTRL::OEOVER_states::enabled;
+    ctrl_reg.OEOVER = reg::CTRL::OEOVER_states::FUNCSEL_defined;
+    impl_handle->SIO_handle->set_pin_OE(number, reg::state::enabled);
     pad_reg.OD = reg::state::disabled;
     pad_reg.IE = reg::state::enabled;
+
     break;
   }
   case GPIO::mode::disabled: {
     ctrl_reg.FUNCSEL = reg::CTRL::FUNCSEL_states::disabled;
+    impl_handle->SIO_handle->set_pin_OE(number, reg::state::disabled);
     ctrl_reg.OEOVER = reg::CTRL::OEOVER_states::disabled;
     pad_reg.OD = reg::state::disabled;
     pad_reg.IE = reg::state::disabled;
@@ -100,8 +103,9 @@ GPIO::mode GPIO::get_pin_mode(pin_number number) {
   auto &pad = get_pad_register(*this, number);
 
   const bool input_enabled = pad.IE == reg::state::set;
-  const bool output_enabled =
-      pad.OD == reg::state::cleared && status.OETOPAD == reg::state::set;
+  const bool output_enabled = pad.OD == reg::state::cleared &&
+                              status.OETOPAD == reg::state::set &&
+                              impl_handle->SIO_handle->get_pin_OE(number);
 
   if (input_enabled && output_enabled)
     return GPIO::mode::input_and_output;
