@@ -24,7 +24,10 @@ struct bitfield {
     const auto &as_integral = reinterpret_cast<register_integral &>(value);
     const auto shifted_value = std::to_underlying(v) << offset;
     const auto masked_value = (as_integral & ~bitrange) | shifted_value;
-    value = reinterpret_cast<const stored_bits &>(masked_value);
+    if constexpr(uses_simulated_registers)
+      value = reinterpret_cast<const stored_bits &>(masked_value);
+    else
+      value = masked_value;
     return *this;
   }
   bitfield(register_integral initial_value) : value(initial_value) {}

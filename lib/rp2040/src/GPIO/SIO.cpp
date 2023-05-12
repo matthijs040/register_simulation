@@ -12,6 +12,13 @@ void *SIO::operator new(size_t size) {
   return reinterpret_cast<SIO *>(base_address);
 }
 
+SIO &SIO::get() noexcept {
+  static SIO *handle;
+  if (handle)
+    return *handle;
+  return *(handle = new SIO());
+}
+
 std::error_code SIO::set_pin_OE(GPIO::pin_number number,
                                 reg::state state) noexcept {
   auto result = std::expected<reg::state, std::error_code>();

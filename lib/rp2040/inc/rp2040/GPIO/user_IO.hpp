@@ -10,6 +10,8 @@
 class user_IO : std::conditional<USE_SIMULATED_REGISTERS,
                                  simulated_peripheral<user_IO>, void> {
 public:
+  static user_IO &get() noexcept;
+
   ~user_IO();
   void operator delete(void *addr);
 
@@ -121,18 +123,4 @@ private:
   void *operator new(std::size_t size);
 
   static constexpr uintptr_t base_address = 0x40014000;
-  static std::weak_ptr<user_IO> storage_handle;
-
-  // To force users to use make_shared for initialization.
-  friend std::shared_ptr<user_IO> std::make_shared<user_IO>();
-};
-
-template <> inline std::shared_ptr<user_IO> std::make_shared<user_IO>() {
-  if (const auto ptr = user_IO::storage_handle.lock())
-    return ptr;
-  auto ptr = std::shared_ptr<user_IO>(new user_IO());
-  ::new (ptr.get()) user_IO();
-
-  user_IO::storage_handle = ptr;
-  return ptr;
 }

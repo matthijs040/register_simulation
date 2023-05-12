@@ -1,24 +1,28 @@
 #pragma once
 
 #include "registers/SIO.hpp"
+#include <HAL/GPIO.hpp>
 #include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
-#include <memory>
-#include <type_traits>
-#include <HAL/GPIO.hpp>
 #include <expected>
+#include <memory>
 #include <system_error>
+#include <type_traits>
 
 class SIO : std::conditional<USE_SIMULATED_REGISTERS, simulated_peripheral<SIO>,
                              void> {
 public:
   static constexpr uintptr_t base_address = 0xd0000000;
 
+  static SIO &get() noexcept;
+
   ~SIO();
   void operator delete(void *addr);
 
-  std::expected<reg::state, std::error_code> get_pin_OE(GPIO::pin_number number) const noexcept;
-  std::error_code set_pin_OE(GPIO::pin_number number, reg::state state) noexcept;
+  std::expected<reg::state, std::error_code>
+  get_pin_OE(GPIO::pin_number number) const noexcept;
+  std::error_code set_pin_OE(GPIO::pin_number number,
+                             reg::state state) noexcept;
 
   reg::CPUID CPUID;
   reg::GPIO_IN GPIO_IN;
@@ -87,17 +91,4 @@ public:
 private:
   SIO();
   void *operator new(std::size_t);
-
-  static inline std::weak_ptr<SIO> storage_handle;
-  friend std::shared_ptr<SIO> std::make_shared<SIO>();
 };
-
-template <> inline std::shared_ptr<SIO> std::make_shared<SIO>() {
-  if (const auto ptr = SIO::storage_handle.lock())
-    return ptr;
-  auto ptr = std::shared_ptr<SIO>(new SIO());
-  ::new (ptr.get()) SIO();
-
-  SIO::storage_handle = ptr;
-  return ptr;
-}
