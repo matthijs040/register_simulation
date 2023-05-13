@@ -3,7 +3,7 @@
 
 int main(int argc, char const *argv[])
 {
-    auto instance = GPIO();
+    auto instance = GPIO(1);
 
     return EXIT_SUCCESS;
 }

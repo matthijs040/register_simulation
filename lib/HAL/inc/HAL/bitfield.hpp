@@ -15,15 +15,19 @@ struct bitfield {
   static constexpr register_integral bitrange = max << offset;
 
   operator bitstate() const noexcept {
-    return static_cast<bitstate>(
-        ((reinterpret_cast<const register_integral &>(value) >> offset) & max));
+    return static_cast<bitstate>((value >> offset) & max);
   }
 
   bitfield &operator=(const bitstate &v) noexcept {
     // Cannot static assert this without a constexpr way of getting largest enum
     // class value.
-    value = (reinterpret_cast<register_integral &>(value) & ~bitrange) |
-            (std::to_underlying(v) << offset);
+    const auto &as_integral = reinterpret_cast<register_integral &>(value);
+    const auto shifted_value = std::to_underlying(v) << offset;
+    const auto masked_value = (as_integral & ~bitrange) | shifted_value;
+    if constexpr(uses_simulated_registers)
+      value = reinterpret_cast<const stored_bits &>(masked_value);
+    else
+      value = masked_value;
     return *this;
   }
   bitfield(register_integral initial_value) : value(initial_value) {}

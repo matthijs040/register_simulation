@@ -9,7 +9,8 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/test/rp2040_tests",
-            "args": [],
+            "args": [ //"--gtest_filter=GPIO_tests.correct_mode_is_returned_when_set"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

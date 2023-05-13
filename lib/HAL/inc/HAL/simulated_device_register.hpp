@@ -14,9 +14,9 @@ public:
       : value(initial_value) {}
   // ---------------- Accessors ----------------
 
-  operator Underlying() const {
+  operator register_integral() const {
     on_read();
-    return value;
+    return reinterpret_cast<const register_integral&>(value);
   }
 
   void operator=(Underlying v) {
