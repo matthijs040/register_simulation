@@ -32,15 +32,15 @@ TEST(GPIO_tests, setting_state_with_wrong_modes_is_rejected) {
 
   handle.set_pin_mode(GPIO::mode::input_only);
   EXPECT_EQ(handle.set_pin_state(GPIO::state::high),
-            std::errc::resource_unavailable_try_again);
+            std::errc::operation_not_permitted);
   EXPECT_EQ(handle.set_pin_state(GPIO::state::low),
-            std::errc::resource_unavailable_try_again);
+            std::errc::operation_not_permitted);
 
   handle.set_pin_mode(GPIO::mode::disabled);
   EXPECT_EQ(handle.set_pin_state(GPIO::state::high),
-            std::errc::resource_unavailable_try_again);
+            std::errc::operation_not_permitted);
   EXPECT_EQ(handle.set_pin_state(GPIO::state::low),
-            std::errc::resource_unavailable_try_again);
+            std::errc::operation_not_permitted);
 }
 
 TEST(GPIO_tests, setting_state_with_correct_modes_is_accepted) {
