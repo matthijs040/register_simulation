@@ -123,4 +123,4 @@ private:
   void *operator new(std::size_t size);
 
   static constexpr uintptr_t base_address = 0x40014000;
-}
+};

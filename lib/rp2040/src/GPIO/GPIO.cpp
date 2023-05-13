@@ -4,6 +4,7 @@
 #include <rp2040/GPIO/pad_control.hpp>
 #include <rp2040/GPIO/user_IO.hpp>
 
+#include <cstdint>
 #include <system_error>
 
 std::size_t GPIO::get_num_pins() noexcept { return 29u; }

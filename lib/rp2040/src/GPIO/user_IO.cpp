@@ -1,11 +1,12 @@
 #include <rp2040/GPIO/GPIO.hpp>
-#include <rp2040/GPIO/GPIO_handle.hpp>
 #include <rp2040/GPIO/user_IO.hpp>
+#include <rp2040/GPIO/SIO.hpp>
+#include <rp2040/GPIO/registers/shared_types.hpp>
 
 #include <iostream>
 #include <new>
 #include <typeinfo>
-#include <utility>
+#include <expected>
 
 std::expected<reg::state, std::error_code>
 is_peripheral_output_enabled(GPIO::pin_number pin_number,

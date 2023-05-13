@@ -2,10 +2,7 @@
 
 #include <array>
 #include <cstdint>
-#include <memory>
 #include <system_error>
-
-class GPIO_handle;
 
 class GPIO {
 public:
