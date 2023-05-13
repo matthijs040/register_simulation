@@ -9,7 +9,7 @@
                 "${workspaceFolder}/lib/rp2040/inc"
             ],
             "defines": [
-                "USE_SIMULATED_REGISTERS=true"
+                "USE_SIMULATED_REGISTERS=false"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c23",

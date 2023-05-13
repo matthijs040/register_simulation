@@ -114,7 +114,7 @@ void init_OEOVER_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
       break;
     }
   };
-  OEOVER::storage_type::set_effect_handlers(&ctrl, OEOVER_handlers);
+  OEOVER::sim_storage::set_effect_handlers(&ctrl, OEOVER_handlers);
 }
 
 void init_OETOPAD_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
@@ -189,7 +189,7 @@ void initialize_handlers() {
     init_FUNCSEL_handlers(pin, ctrl, status, logging_handle);
     init_OEOVER_handlers(pin, ctrl, status, logging_handle);
     init_OUTOVER_handlers(pin, ctrl, status, logging_handle);
-    init_OETOPAD_handlers(pin, ctrl, status, std::clog);
+    init_OETOPAD_handlers(pin, ctrl, status, logging_handle);
   }
 }
 
