@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "build/_deps/googletest-src/googletest/include/**",
                 "${workspaceFolder}/lib/HAL/inc",
-                "${workspaceFolder}/lib/rp2040/inc"
+                "${workspaceFolder}/lib/rp2040/inc",
+                "${workspaceFolder}/build/_deps/googletest-src/googletest"
             ],
             "defines": [
                 "USE_SIMULATED_REGISTERS=false"

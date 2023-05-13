@@ -10,4 +10,7 @@ endif()
 add_subdirectory(lib/HAL)
 add_subdirectory(lib/rp2040)
 add_subdirectory(src)
+
+if(${CMAKE_CROSSCOMPILING} MATCHES 0)
 add_subdirectory(test)
+endif()
