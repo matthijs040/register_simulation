@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <type_traits>
-#include "simulated_device_register.hpp"
 
 // Device register becomes non-volatile while const evaluated as volatile types
 // cannot be interacted in in constexpr functions. Could maybe use
@@ -11,6 +10,7 @@
 using register_integral = std::uint32_t;
 using register_mask = register_integral;
 
+#include "simulated_device_register.hpp"
 template<typename Underlying>
 class simulated_device_register;
 

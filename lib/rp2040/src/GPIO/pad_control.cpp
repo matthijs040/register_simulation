@@ -18,7 +18,9 @@ void pad_control::operator delete(void *addr) {
   static_cast<pad_control *>(addr)->~pad_control();
 }
 
-void *pad_control::operator new(size_t) {
+void *pad_control::operator new(size_t size) {
+  if constexpr(USE_SIMULATED_REGISTERS)
+      return simulated_peripheral<pad_control>::operator new(size);
   return reinterpret_cast<pad_control *>(base_address);
 }
 

@@ -206,9 +206,9 @@ void user_IO::operator delete(void *addr) {
 };
 
 void *user_IO::operator new(std::size_t size) {
-  return USE_SIMULATED_REGISTERS
-             ? simulated_peripheral<user_IO>::operator new(size)
-             : reinterpret_cast<user_IO *>(base_address);
+  if constexpr (USE_SIMULATED_REGISTERS)
+    return simulated_peripheral<user_IO>::operator new(size);
+  return reinterpret_cast<user_IO *>(base_address);
 }
 
 user_IO &user_IO::get() noexcept {
