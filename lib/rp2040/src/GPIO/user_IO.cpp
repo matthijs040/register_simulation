@@ -1,12 +1,12 @@
 #include <rp2040/GPIO/GPIO.hpp>
-#include <rp2040/GPIO/user_IO.hpp>
 #include <rp2040/GPIO/SIO.hpp>
 #include <rp2040/GPIO/registers/shared_types.hpp>
+#include <rp2040/GPIO/user_IO.hpp>
 
+#include <expected>
 #include <iostream>
 #include <new>
 #include <typeinfo>
-#include <expected>
 
 std::expected<reg::state, std::error_code>
 is_peripheral_output_enabled(GPIO::pin_number pin_number,
@@ -180,7 +180,7 @@ void init_OUTOVER_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
 
 void initialize_handlers() {
   // Set handlers for every CTRL reg in the block.
-  auto logging_handle = std::ostream(nullptr);
+  static auto logging_handle = std::ostream(nullptr);
 
   for (GPIO::pin_number pin = 0; pin < GPIO::get_num_pins(); pin++) {
     reg::CTRL &ctrl = get_control_register(pin);
@@ -195,8 +195,6 @@ void initialize_handlers() {
 
 user_IO::user_IO() {
   // TODO: reset registers to enabled but cleared state.
-  if constexpr (USE_SIMULATED_REGISTERS)
-    initialize_handlers();
 }
 
 user_IO::~user_IO() {
@@ -217,5 +215,10 @@ user_IO &user_IO::get() noexcept {
   static user_IO *handle;
   if (handle)
     return *handle;
-  return *(handle = new user_IO());
+  handle = new user_IO();
+
+  if constexpr (USE_SIMULATED_REGISTERS)
+    initialize_handlers();
+
+  return *handle;
 }
