@@ -7,7 +7,8 @@
                 "build/_deps/googletest-src/googletest/include/**",
                 "${workspaceFolder}/lib/HAL/inc",
                 "${workspaceFolder}/lib/rp2040/inc",
-                "${workspaceFolder}/build/_deps/googletest-src/googletest"
+                "${workspaceFolder}/build/_deps/googletest-src/googletest",
+                "${workspaceFolder}/build/_deps/pico_sdk-src/**"
             ],
             "defines": [
                 "USE_SIMULATED_REGISTERS=false"
@@ -15,7 +16,8 @@
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c23",
             "cppStandard": "gnu++23",
-            "intelliSenseMode": "linux-gcc-x64"
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4
