@@ -36,9 +36,9 @@ reg::GPIO &get_pad_register(GPIO::pin_number pin) {
 }
 
 std::error_code reserve_pin(const GPIO::pin_number pin) {
-  auto &ctrl = get_control_register(pin);
-  if (ctrl.FUNCSEL != reg::CTRL::FUNCSEL_states::disabled)
+  if (GPIO::is_pin_reserved(pin))
     return std::make_error_code(std::errc::device_or_resource_busy);
+  auto &ctrl = get_control_register(pin);
   ctrl.FUNCSEL = reg::CTRL::FUNCSEL_states::SIO;
   return std::error_code();
 }
