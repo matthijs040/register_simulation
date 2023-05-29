@@ -14,10 +14,11 @@ int main(int argc, char const *argv[]) {
   if (instance.initialization_result)
     return EXIT_FAILURE;
 
-  const auto mode = instance.get_pin_mode();
+  auto mode = instance.get_pin_mode();
   std::cout << "pre-GPIO_init() mode: " << std::to_underlying(mode) << "\n";
   gpio_init(LED_pin);
-  std::cout << "pre-GPIO_init() mode: " << std::to_underlying(mode) << "\n";
+  mode = instance.get_pin_mode();  
+  std::cout << "post-GPIO_init() mode: " << std::to_underlying(mode) << "\n";
 
   // gpio_set_dir(LED_pin, GPIO_OUT);
   // while (true) {
