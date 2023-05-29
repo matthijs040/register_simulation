@@ -17,19 +17,19 @@ int main(int argc, char const *argv[]) {
   auto mode = instance.get_pin_mode();
   std::cout << "pre-GPIO_init() mode: " << std::to_underlying(mode) << "\n";
   gpio_init(LED_pin);
-  mode = instance.get_pin_mode();  
   std::cout << "post-GPIO_init() mode: " << std::to_underlying(mode) << "\n";
+  gpio_set_dir(LED_pin, GPIO_OUT);
+  mode = instance.get_pin_mode();
 
-  // gpio_set_dir(LED_pin, GPIO_OUT);
-  // while (true) {
-  //   gpio_put(LED_pin, true);
-  //   std::cout << "high: " << std::to_underlying(instance.get_pin_state())
-  //             << "\n";
-  //   sleep_ms(250);
-  //   gpio_put(LED_pin, false);
-  //   std::cout << "low: " << std::to_underlying(instance.get_pin_state())
-  //             << "\n";
-  //   sleep_ms(250);
-  // }
+  while (true) {
+    gpio_put(LED_pin, true);
+    std::cout << "high: " << std::to_underlying(instance.get_pin_state())
+              << "\n";
+    sleep_ms(10);
+    gpio_put(LED_pin, false);
+    std::cout << "low: " << std::to_underlying(instance.get_pin_state())
+              << "\n";
+    sleep_ms(10);
+  }
   return EXIT_SUCCESS;
 }
