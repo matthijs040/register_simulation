@@ -1,4 +1,4 @@
-project(lib)
+project(rp2040_HAL)
 
 add_library(rp2040_impl STATIC 
     src/GPIO/GPIO.cpp   
