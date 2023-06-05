@@ -51,6 +51,7 @@ union CTRL {
   bitfield<OUTOVER_states, 8, 2> OUTOVER;
 
   enum class FUNCSEL_states : register_integral {
+    XIP,
     SPI,
     UART,
     I2C,

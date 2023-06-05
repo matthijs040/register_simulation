@@ -36,9 +36,9 @@ reg::GPIO &get_pad_register(GPIO::pin_number pin) {
 }
 
 std::error_code reserve_pin(const GPIO::pin_number pin) {
-  auto &ctrl = get_control_register(pin);
-  if (ctrl.FUNCSEL != reg::CTRL::FUNCSEL_states::disabled)
+  if (GPIO::is_pin_reserved(pin))
     return std::make_error_code(std::errc::device_or_resource_busy);
+  auto &ctrl = get_control_register(pin);
   ctrl.FUNCSEL = reg::CTRL::FUNCSEL_states::SIO;
   return std::error_code();
 }
@@ -118,15 +118,17 @@ GPIO::mode GPIO::get_pin_mode() {
   auto &pad = get_pad_register(acquired_pin);
 
   const bool input_enabled = pad.IE == reg::state::set;
-  const bool output_enabled = pad.OD == reg::state::cleared &&
-                              status.OETOPAD == reg::state::set &&
-                              SIO::get().get_pin_OE(acquired_pin);
 
-  if (input_enabled && output_enabled)
+  const bool pad_enabled = pad.OD == reg::state::cleared;
+  const bool to_pad_enabled = status.OETOPAD == reg::state::set;
+  const bool SIO_out_enabled = SIO::get().get_pin_OE(acquired_pin).value() == reg::state::enabled;
+  const bool all_out_enabled = pad_enabled && to_pad_enabled && SIO_out_enabled;
+
+  if (input_enabled && all_out_enabled)
     return GPIO::mode::input_and_output;
   if (input_enabled)
     return GPIO::mode::input_only;
-  if (output_enabled)
+  if (all_out_enabled)
     return GPIO::mode::output_only;
   return GPIO::mode::disabled;
 }
