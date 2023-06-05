@@ -3,12 +3,10 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
-                "build/_deps/googletest-src/googletest/include/**",
-                "${workspaceFolder}/lib/HAL/inc",
-                "${workspaceFolder}/lib/rp2040/inc",
-                "${workspaceFolder}/build/_deps/googletest-src/googletest",
-                "${workspaceFolder}/build/_deps/pico_sdk-src/**"
+                "build_application/_deps/pico_sdk-src/**",
+                "build_tests/_deps/googletest-src/googletest/include/**",
+                "lib/HAL/inc",
+                "lib/rp2040/inc",
             ],
             "defines": [
                 "USE_SIMULATED_REGISTERS=false"
@@ -16,8 +14,7 @@
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c23",
             "cppStandard": "gnu++23",
-            "intelliSenseMode": "linux-gcc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "intelliSenseMode": "linux-gcc-x64"
         }
     ],
     "version": 4
