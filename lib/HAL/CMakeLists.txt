@@ -5,7 +5,7 @@ target_include_directories(HAL PUBLIC inc)
 set_target_properties(HAL PROPERTIES CXX_STANDARD 23)
 
 message(CHECK_START "Checking if we are crosscompiling: ")
-if(DEFINED CMAKE_CROSSCOMPILING)
+if(${CMAKE_CROSSCOMPILING})
     message(CHECK_PASS "true")
     set(use_simulated_registers false)
 else()
