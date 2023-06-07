@@ -4,7 +4,6 @@
 #include <HAL/simulated_peripheral.hpp>
 
 #include "registers.hpp"
-#include <memory>
 #include <optional>
 
 class user_IO : std::conditional<USE_SIMULATED_REGISTERS,

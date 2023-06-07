@@ -2,7 +2,6 @@
 
 #include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
-#include <memory>
 #include <type_traits>
 #include "registers/pad_GPIO.hpp"
 

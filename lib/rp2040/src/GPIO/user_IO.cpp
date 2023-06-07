@@ -1,6 +1,6 @@
 #include <rp2040/GPIO/GPIO.hpp>
 #include <rp2040/GPIO/SIO.hpp>
-#include <rp2040/GPIO/registers/shared_types.hpp>
+#include <rp2040/shared_types.hpp>
 #include <rp2040/GPIO/user_IO.hpp>
 
 #include <expected>

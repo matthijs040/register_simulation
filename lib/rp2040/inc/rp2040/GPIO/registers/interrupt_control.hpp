@@ -1,5 +1,5 @@
 #pragma once
-#include "shared_types.hpp"
+#include <rp2040/shared_types.hpp>
 #include <HAL/bitfield.hpp>
 
 namespace reg {

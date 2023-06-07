@@ -1,11 +1,10 @@
 #pragma once
 
-#include "registers/SIO.hpp"
-#include <HAL/GPIO.hpp>
 #include <HAL/device_register.hpp>
+#include <HAL/GPIO.hpp>
 #include <HAL/simulated_peripheral.hpp>
+#include "registers/SIO.hpp"
 #include <expected>
-#include <memory>
 #include <system_error>
 #include <type_traits>
 

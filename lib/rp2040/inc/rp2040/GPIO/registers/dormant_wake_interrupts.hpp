@@ -1,6 +1,6 @@
 #pragma once
 #include <HAL/bitfield.hpp>
-#include "shared_types.hpp"
+#include <rp2040/shared_types.hpp>
 
 namespace reg {
 union DORMANT_WAKE_INTS3 {
