@@ -4,10 +4,15 @@
 #include <cstdint>
 #include <ratio>
 #include <system_error>
+#include <ranges>
 
 class clock_control {
 public:
   using kiloHertz = unsigned long long;
+
+  constexpr static std::size_t get_num_clock_sources() noexcept;
+
+  constexpr static const char* const* get_clock_source_names(std::size_t& num_sources) noexcept; 
 
   kiloHertz get_current_frequency() const noexcept;
 

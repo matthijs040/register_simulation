@@ -68,7 +68,8 @@
         "charconv": "cpp",
         "format": "cpp",
         "span": "cpp",
-        "expected": "cpp"
+        "expected": "cpp",
+        "ranges": "cpp"
     },
     "cmake.configureOnOpen": true,
     // "cmake.configureArgs": ["-DCMAKE_TOOLCHAIN_FILE=build/rp2040_toolchain.cmake"]
