@@ -8,7 +8,7 @@
             "name": "debug test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/test/rp2040_tests",
+            "program": "${workspaceFolder}/build_tests/clock_control_tests",
             "args": [ //"--gtest_filter=GPIO_tests.correct_mode_is_returned_when_set"
             ],
             "stopAtEntry": false,

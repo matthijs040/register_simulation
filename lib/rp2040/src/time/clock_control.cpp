@@ -24,12 +24,10 @@ static const std::array clock_names = {"gpout0", "gpout1", "gpout2", "gpout3",
                                        "ref",    "sys",    "peri",   "usb",
                                        "adc",    "rtc"};
 
-std::size_t clock_control::get_num_clock_sources() noexcept {
+std::size_t clock_control::get_num_clocks() noexcept {
   return clock_names.size();
 }
 
-const char *const *
-clock_control::get_clock_source_names(std::size_t &num_clock_sources) noexcept {
-  num_clock_sources = get_num_clock_sources();
-  return clock_names.begin();
+std::span<const char *const> clock_control::get_clock_names() noexcept {
+  return std::span(clock_names).subspan(0, clock_names.size());
 }

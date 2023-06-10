@@ -10,9 +10,9 @@ class clock_control {
 public:
   using kiloHertz = unsigned long long;
 
-  static std::size_t get_num_clock_sources() noexcept;
+  static std::size_t get_num_clocks() noexcept;
 
-  static const char* const* get_clock_source_names(std::size_t& num_sources) noexcept; 
+  static std::span<const char* const> get_clock_names() noexcept; 
 
   kiloHertz get_current_frequency() const noexcept;
 
