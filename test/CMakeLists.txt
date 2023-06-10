@@ -11,10 +11,19 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib ${CMAKE_CURRENT_BINARY_DIR}/
 project(unit_tests)
 include(CTest)
 
-add_executable(rp2040_tests gpio_tests.cpp)
-target_compile_options(rp2040_tests PRIVATE -fprofile-arcs -ftest-coverage)
-target_link_options(rp2040_tests PRIVATE -lgcov --coverage)
-target_link_libraries(rp2040_tests PRIVATE rp2040_impl GTest::gtest_main)
-set_target_properties(rp2040_tests PROPERTIES CXX_STANDARD 23)
+add_executable(GPIO_tests GPIO_tests.cpp)
+target_compile_options(GPIO_tests PRIVATE -fprofile-arcs -ftest-coverage)
+target_link_options(GPIO_tests PRIVATE -lgcov --coverage)
+target_link_libraries(GPIO_tests PRIVATE rp2040_impl GTest::gtest_main)
+set_target_properties(GPIO_tests PROPERTIES CXX_STANDARD 23)
 
-add_test(NAME run_rp2040_tests COMMAND rp2040_tests)
+add_test(NAME run_GPIO_tests COMMAND GPIO_tests)
+
+add_executable(clock_control_tests clock_control_tests.cpp)
+target_compile_options(clock_control_tests PRIVATE -fprofile-arcs -ftest-coverage)
+target_link_options(clock_control_tests PRIVATE -lgcov --coverage)
+target_link_libraries(clock_control_tests PRIVATE rp2040_impl GTest::gtest_main)
+set_target_properties(clock_control_tests PROPERTIES CXX_STANDARD 23)
+
+add_test(NAME run_clock_control_tests COMMAND clock_control_tests)
+

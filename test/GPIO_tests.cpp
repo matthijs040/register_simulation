@@ -57,8 +57,3 @@ TEST(GPIO_tests, setting_state_with_correct_modes_is_accepted) {
   if (handle.set_pin_state(GPIO::state::floating) == std::error_code())
     EXPECT_EQ(handle.get_pin_state(), GPIO::state::floating);
 }
-
-int main(int argc, char *argv[]) {
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
