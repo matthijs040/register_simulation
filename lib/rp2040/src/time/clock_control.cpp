@@ -1,8 +1,19 @@
 #include <HAL/clock_control.hpp>
+#include <algorithm>
 
-std::error_code initialize() { return {}; }
+static const std::array clock_names = {"gpout0", "gpout1", "gpout2", "gpout3",
+                                       "ref",    "sys",    "peri",   "usb",
+                                       "adc",    "rtc"};
 
-clock_control::clock_control() : initialization_result(initialize()) {}
+std::error_code initialize(clock_control::clock_name name) {
+  if (std::find(clock_names.begin(), clock_names.end(), name) ==
+      std::end(clock_names))
+    return std::make_error_code(std::errc::invalid_argument);
+  return {};
+}
+
+clock_control::clock_control(clock_name name)
+    : addressed_clock(name), initialization_result(initialize(name)) {}
 
 clock_control::~clock_control() {}
 
@@ -11,18 +22,16 @@ clock_control::sleep_for(std::chrono::nanoseconds) const noexcept {
   return {};
 }
 
-clock_control::kiloHertz clock_control::get_current_frequency() const noexcept {
-  return 0;
-}
-
 std::error_code
-clock_control::set_current_frequency(clock_control::kiloHertz) noexcept {
+clock_control::get_current_frequency(kiloHertz &value) const noexcept {
+  (void)value;
   return {};
 }
 
-static const std::array clock_names = {"gpout0", "gpout1", "gpout2", "gpout3",
-                                       "ref",    "sys",    "peri",   "usb",
-                                       "adc",    "rtc"};
+std::error_code clock_control::set_current_frequency(kiloHertz value) noexcept {
+  (void)value;
+  return {};
+}
 
 std::size_t clock_control::get_num_clocks() noexcept {
   return clock_names.size();
