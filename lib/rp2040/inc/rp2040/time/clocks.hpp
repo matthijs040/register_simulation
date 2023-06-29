@@ -44,7 +44,7 @@ public:
   // Clock divisor, can be changed on-the-fly
   reg::CLK_REF_DIV CLK_REF_DIV;
   // Indicates which SRC is currently selected by the glitchless mux (one-hot).
-  reg::CLK_REF_SELECTED CLK_REF_SELECTED;
+  const reg::CLK_REF_SELECTED CLK_REF_SELECTED;
   // Clock control, can be changed on-the-fly (except for auxsrc)
   reg::CLK_SYS_CTRL CLK_SYS_CTRL;
   // Clock divisor, can be changed on-the-fly

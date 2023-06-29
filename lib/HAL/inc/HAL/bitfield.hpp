@@ -7,7 +7,9 @@
 template <typename bitstate, std::size_t offset, std::size_t num_bits,
           bool uses_simulated_registers = USE_SIMULATED_REGISTERS>
 struct bitfield {
-
+  template<typename U = bitstate>
+  bitfield(std::enable_if_t<std::is_scoped_enum_v<U>, U> initial_value) : value(initial_value) {}
+ 
   bitfield(bitstate initial_value)
       : value(static_cast<storage_type>(initial_value)) {}
 
@@ -30,9 +32,6 @@ struct bitfield {
       value = masked_value;
     return *this;
   }
-  bitfield(register_integral initial_value) : value(initial_value) {}
-
-  static_assert(std::is_scoped_enum_v<bitstate>);
 
   using stored_bits = bitfield<bitstate, offset, num_bits, false>;
   using sim_storage = simulated_device_register<stored_bits>;

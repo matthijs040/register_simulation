@@ -5,6 +5,7 @@
 
 namespace reg {
 union CLK_GPOUT_CTRL {
+  CLK_GPOUT_CTRL() {}
   bitfield<reg::state, 20, 1> NUDGE;
   bitfield<register_integral, 16, 2> PHASE;
   bitfield<reg::state, 12, 1> DC50;
@@ -28,6 +29,7 @@ union CLK_GPOUT_CTRL {
 };
 
 union CLK_GPOUT_DIV {
+  CLK_GPOUT_DIV() {}
   /** @brief Integer component of the divisor, 0 → divide by 2^16. */
   bitfield<register_integral, 8, 24> INT;
   /** @brief Fractional component of the divisor. */
@@ -35,6 +37,7 @@ union CLK_GPOUT_DIV {
 };
 
 union CLK_GPOUT_SELECTED {
+  CLK_GPOUT_SELECTED() {}
   /**
    * @brief GPOUT-clocks only have an "auxilliary selection register".
    * Thus, their true selected source is hardwired to 0x1. (clksrc_clk_ref_aux)
@@ -43,6 +46,7 @@ union CLK_GPOUT_SELECTED {
 };
 
 union CLK_REF_CTRL {
+  CLK_REF_CTRL() {}
   enum class AUXSRC_states : register_integral {
     clksrc_pll_usb = 0x0,
     clksrc_gpin0 = 0x1,
@@ -59,9 +63,11 @@ union CLK_REF_CTRL {
 };
 
 union CLK_REF_DIV {
+  CLK_REF_DIV() {}
   bitfield<register_integral, 2, 8> INT;
 };
 union CLK_REF_SELECTED {
+  CLK_REF_SELECTED() {}
   /**
    * @brief The glitchless multiplexer does not switch instantaneously (to avoid
    * glitches), so software should poll this register to wait for the switch to
@@ -75,6 +81,7 @@ union CLK_REF_SELECTED {
 };
 
 union CLK_SYS_CTRL {
+  CLK_SYS_CTRL() {}
   enum class AUXSRC_states : register_integral {
     clksrc_pll_sys = 0x0,
     clksrc_pll_usb = 0x1,
@@ -93,6 +100,7 @@ union CLK_SYS_CTRL {
 };
 
 union CLK_SYS_DIV {
+  CLK_SYS_DIV() {}
   /** @brief Integer component of the divisor, 0 → divide by 2^16. */
   bitfield<register_integral, 8, 24> INT;
   /** @brief Fractional component of the divisor. */
@@ -100,10 +108,12 @@ union CLK_SYS_DIV {
 };
 
 union CLK_SYS_SELECTED {
+  CLK_SYS_SELECTED() {}
   bitfield<register_integral, 0, 32> selected_source;
 };
 
 union CLK_PERI_CTRL {
+  CLK_PERI_CTRL() {}
   bitfield<reg::state, 11, 1> ENABLE;
   bitfield<reg::state, 10, 1> KILL;
 
@@ -119,9 +129,11 @@ union CLK_PERI_CTRL {
   bitfield<AUXSRC_states, 5, 3> AUXSRC;
 };
 union CLK_PERI_SELECTED {
+  CLK_PERI_SELECTED() {}
   bitfield<register_integral, 0, 32> selected_source;
 };
 union CLK_USB_CTRL {
+  CLK_USB_CTRL() {}
   bitfield<reg::state, 20, 1> NUDGE;
   bitfield<register_integral, 16, 2> PHASE;
   bitfield<reg::state, 11, 1> ENABLE;
@@ -138,14 +150,17 @@ union CLK_USB_CTRL {
   bitfield<AUXSRC_states, 5, 3> AUXSRC;
 };
 union CLK_USB_DIV {
+  CLK_USB_DIV() {}
   bitfield<register_integral, 2, 8> INT;
 };
 
 union CLK_USB_SELECTED {
+  CLK_USB_SELECTED() {}
   bitfield<register_integral, 0, 32> selected_source;
 };
 
 union CLK_ADC_CTRL {
+  CLK_ADC_CTRL() {}
   bitfield<reg::state, 20, 1> NUDGE;
   bitfield<register_integral, 16, 2> PHASE;
   bitfield<reg::state, 11, 1> ENABLE;
@@ -163,14 +178,17 @@ union CLK_ADC_CTRL {
 };
 
 union CLK_ADC_DIV {
+  CLK_ADC_DIV() {}
   bitfield<register_integral, 2, 8> INT;
 };
 
 union CLK_ADC_SELECTED {
+  CLK_ADC_SELECTED() {}
   bitfield<register_integral, 0, 32> selected_source;
 };
 
 union CLK_RTC_CTRL {
+  CLK_RTC_CTRL() {}
   bitfield<reg::state, 20, 1> NUDGE;
   bitfield<register_integral, 16, 2> PHASE;
   bitfield<reg::state, 11, 1> ENABLE;
@@ -188,6 +206,7 @@ union CLK_RTC_CTRL {
 };
 
 union CLK_RTC_DIV {
+  CLK_RTC_DIV() {}
   /** @brief Integer component of the divisor, 0 → divide by 2^16. */
   bitfield<register_integral, 8, 24> INT;
   /** @brief Fractional component of the divisor. */
@@ -195,10 +214,12 @@ union CLK_RTC_DIV {
 };
 
 union CLK_RTC_SELECTED {
+  CLK_RTC_SELECTED() {}
   bitfield<register_integral, 0, 32> selected_source;
 };
 
 union CLK_SYS_RESUS_CTRL {
+  CLK_SYS_RESUS_CTRL() {}
   bitfield<reg::state, 16, 1> CLEAR;
   bitfield<reg::state, 12, 1> FRCE;
   bitfield<reg::state, 8, 1> ENABLE;
@@ -210,14 +231,17 @@ union CLK_SYS_RESUS_CTRL {
 };
 
 union CLK_SYS_RESUS_STATUS {
+  CLK_SYS_RESUS_STATUS() {}
   bitfield<reg::state, 0, 1> RESUSSED;
 };
 
 union FC0_REF_KHZ {
+  FC0_REF_KHZ() {}
   bitfield<register_integral, 0, 20> reference_frequency;
 };
 
 union FC0_MIN_KHZ {
+  FC0_MIN_KHZ() {}
   /**
    * @brief Minimum pass frequency in kHz. This is optional. Set to 0 if you are
    * not using the pass/fail flags.
@@ -226,6 +250,7 @@ union FC0_MIN_KHZ {
 };
 
 union FC0_MAX_KHZ {
+  FC0_MAX_KHZ() {}
   /**
    * @brief Maximum pass frequency in kHz. This is optional. Set to 0 if you are
    * not using the pass/fail flags.
@@ -234,6 +259,7 @@ union FC0_MAX_KHZ {
 };
 
 union FC0_DELAY {
+  FC0_DELAY() {}
   /**
    * @brief Delays the start of frequency counting to allow the mux to settle.
    * Delay is measured in multiples of the reference clock period
@@ -242,6 +268,7 @@ union FC0_DELAY {
 };
 
 union FC0_INTERVAL {
+  FC0_INTERVAL() {}
   /**
    * @brief The test interval is 0.98us * 2**interval.
    * but let’s call it 1us * 2^interval
@@ -252,6 +279,7 @@ union FC0_INTERVAL {
 };
 
 union FC0_SRC {
+  FC0_SRC() {}
   enum class Clocks {
     none = 0x00,
     pll_sys_clksrc_primary = 0x01,
@@ -273,6 +301,7 @@ union FC0_SRC {
 };
 
 union FC0_STATUS {
+  FC0_STATUS() {}
   bitfield<reg::state, 28, 1> DIED;
   bitfield<reg::state, 24, 1> FAST;
   bitfield<reg::state, 20, 1> SLOW;
@@ -284,11 +313,13 @@ union FC0_STATUS {
 };
 
 union FC0_RESULT {
+  FC0_RESULT() {}
   bitfield<register_integral, 5, 25> KHZ;
   bitfield<register_integral, 0, 5> FRAC;
 };
 
 union WAKE_EN0 {
+  WAKE_EN0() {}
   bitfield<reg::state, 31, 1> CLK_SYS_SRAM3;
   bitfield<reg::state, 30, 1> CLK_SYS_SRAM2;
   bitfield<reg::state, 29, 1> CLK_SYS_SRAM1;
@@ -324,6 +355,7 @@ union WAKE_EN0 {
 };
 
 union WAKE_EN1 {
+  WAKE_EN1() {}
   bitfield<reg::state, 14, 1> CLK_SYS_XOSC;
   bitfield<reg::state, 13, 1> CLK_SYS_XIP;
   bitfield<reg::state, 12, 1> CLK_SYS_WATCHDOG;
@@ -342,6 +374,7 @@ union WAKE_EN1 {
 };
 
 union SLEEP_EN0 {
+  SLEEP_EN0() {}
   bitfield<reg::state, 31, 1> CLK_SYS_SRAM3;
   bitfield<reg::state, 30, 1> CLK_SYS_SRAM2;
   bitfield<reg::state, 29, 1> CLK_SYS_SRAM1;
@@ -377,6 +410,7 @@ union SLEEP_EN0 {
 };
 
 union SLEEP_EN1 {
+  SLEEP_EN1() {}
   bitfield<reg::state, 14, 1> CLK_SYS_XOSC;
   bitfield<reg::state, 13, 1> CLK_SYS_XIP;
   bitfield<reg::state, 12, 1> CLK_SYS_WATCHDOG;
@@ -395,6 +429,7 @@ union SLEEP_EN1 {
 };
 
 union ENABLED0 {
+  ENABLED0() {}
   bitfield<reg::state, 31, 1> CLK_SYS_SRAM3;
   bitfield<reg::state, 30, 1> CLK_SYS_SRAM2;
   bitfield<reg::state, 29, 1> CLK_SYS_SRAM1;
@@ -430,6 +465,7 @@ union ENABLED0 {
 };
 
 union ENABLED1 {
+  ENABLED1() {}
   bitfield<reg::state, 14, 1> CLK_SYS_XOSC;
   bitfield<reg::state, 13, 1> CLK_SYS_XIP;
   bitfield<reg::state, 12, 1> CLK_SYS_WATCHDOG;
@@ -448,16 +484,20 @@ union ENABLED1 {
 };
 
 union INTR {
+  INTR() {}
   bitfield<reg::state, 0, 1> CLK_SYS_RESUS;
 };
 
 union INTE {
+  INTE() {}
   bitfield<reg::state, 0, 1> CLK_SYS_RESUS;
 };
 union INTF {
+  INTF() {}
   bitfield<reg::state, 0, 1> CLK_SYS_RESUS;
 };
 union INTS {
+  INTS() {}
   bitfield<reg::state, 0, 1> CLK_SYS_RESUS;
 };
 

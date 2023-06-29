@@ -5,6 +5,7 @@ add_library(rp2040_impl STATIC
     src/GPIO/user_IO.cpp 
     src/GPIO/pad_control.cpp
     src/GPIO/SIO.cpp
+    src/time/clocks.cpp
     src/time/clock_control.cpp )
 
 target_compile_options(rp2040_impl PRIVATE -Wall -Wextra -Wpedantic -Werror)

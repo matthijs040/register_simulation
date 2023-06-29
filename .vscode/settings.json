@@ -69,7 +69,13 @@
         "format": "cpp",
         "span": "cpp",
         "expected": "cpp",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "strstream": "cpp",
+        "bitset": "cpp",
+        "cfenv": "cpp",
+        "complex": "cpp",
+        "shared_mutex": "cpp",
+        "typeindex": "cpp"
     },
     "cmake.configureOnOpen": true,
     // "cmake.configureArgs": ["-DCMAKE_TOOLCHAIN_FILE=build/rp2040_toolchain.cmake"]
