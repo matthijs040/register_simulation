@@ -46,7 +46,7 @@ union CLK_GPOUT_SELECTED {
 };
 
 union CLK_REF_CTRL {
-  CLK_REF_CTRL() {}
+
   enum class AUXSRC_states : register_integral {
     clksrc_pll_usb = 0x0,
     clksrc_gpin0 = 0x1,
@@ -60,6 +60,8 @@ union CLK_REF_CTRL {
     xosc_clksrc = 0x2,
   };
   bitfield<SRC_states, 0, 2> SRC;
+
+  CLK_REF_CTRL() : SRC(SRC_states::rosc_clksrc_ph) {}
 };
 
 union CLK_REF_DIV {

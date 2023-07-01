@@ -27,22 +27,28 @@ clock_control::sleep_for(std::chrono::nanoseconds) const noexcept {
 
 std::error_code
 clock_control::get_current_frequency(kiloHertz &value) const noexcept {
-  if(initialization_result)
+  if (initialization_result)
     return std::make_error_code(std::errc::operation_not_permitted);
-  
+
   auto &periph = clocks::get();
+  auto return_code = std::error_code();
+  if (periph.CLK_REF_CTRL.SRC != reg::CLK_REF_CTRL::SRC_states::rosc_clksrc_ph)
+    periph.CLK_REF_CTRL.SRC = reg::CLK_REF_CTRL::SRC_states::rosc_clksrc_ph;
+
   if (periph.FC0_STATUS.RUNNING == reg::state::set)
-    return std::make_error_code(std::errc::device_or_resource_busy);
+    return std::make_error_code(std::errc::operation_would_block);
   if (periph.FC0_STATUS.DIED == reg::state::set)
-    return std::make_error_code(std::errc::operation_canceled);
+    return_code = std::make_error_code(std::errc::operation_canceled);
   if (periph.FC0_STATUS.DONE == reg::state::set) {
     value = periph.FC0_RESULT.KHZ / periph.FC0_RESULT.FRAC;
-    return std::error_code();
+    return return_code;
   }
-  // periph.CLK_REF_CTRL.SRC = &addressed_clock - &clock_names.front();
-  
-  
-  return {};
+
+  const auto clock = static_cast<reg::FC0_SRC::Clocks>(
+      (&addressed_clock - &clock_names.front()) + 3);
+
+  periph.FC0_SRC.clock_to_frequency_count = clock;
+  return std::make_error_code(std::errc::device_or_resource_busy);
 }
 
 std::error_code clock_control::set_current_frequency(kiloHertz value) noexcept {

@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(clock_control_tests, given_clock_control_has_clocks) {
+TEST(clock_control_tests, clock_control_has_clocks) {
   EXPECT_GT(clock_control::get_num_clocks(), 0);
 }
 
@@ -15,4 +15,9 @@ TEST(clock_control_tests, each_clock_has_non_empty_name) {
     EXPECT_NE(name, nullptr);
     EXPECT_NE(name, "\0");
   }
+}
+
+TEST(clock_control_tests, stub )
+{
+  
 }
