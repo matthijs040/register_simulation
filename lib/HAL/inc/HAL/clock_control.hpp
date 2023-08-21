@@ -6,6 +6,18 @@
 #include <ratio>
 #include <system_error>
 
+namespace clock_error {
+  enum class code {
+    success = 0,
+    name_not_found,
+    disabled,
+    invalid_configuration,
+    busy
+  };
+
+  std::error_code make_error_code(clock_error::code e) noexcept;
+}
+
 class clock_control {
 public:
   using kiloHertz = unsigned long long;
@@ -27,3 +39,8 @@ public:
   clock_control(clock_name name);
   ~clock_control();
 };
+
+namespace std {
+template <> struct is_error_code_enum<clock_error::code> : true_type {};
+
+} // namespace std

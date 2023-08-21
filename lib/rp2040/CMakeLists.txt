@@ -9,6 +9,15 @@ add_library(rp2040_impl STATIC
     src/time/clock_control.cpp
     src/time/ROSC.cpp)
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT supported OUTPUT error)
+if( supported )
+message(STATUS "IPO / LTO enabled")
+    set_target_properties(rp2040_impl PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+else()
+    message(STATUS "IPO / LTO not supported: <${error}>")
+endif()
+
 target_compile_options(rp2040_impl PRIVATE -Wall -Wextra -Wpedantic -Werror)
 set_target_properties(rp2040_impl PROPERTIES CXX_STANDARD 23)
 target_link_libraries(rp2040_impl PUBLIC HAL)
