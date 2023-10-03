@@ -5,6 +5,7 @@
 #include <ranges>
 #include <ratio>
 #include <system_error>
+#include <expected>
 
 namespace clock_error {
   enum class code {
@@ -27,9 +28,9 @@ public:
 
   static std::span<clock_name> get_clock_names() noexcept;
 
-  std::error_code get_current_frequency(kiloHertz &value) const noexcept;
+  std::expected<kiloHertz, std::error_code> get_current_frequency() const noexcept;
 
-  std::error_code set_current_frequency(kiloHertz value) noexcept;
+  std::expected<kiloHertz, std::error_code> set_current_frequency(kiloHertz value) noexcept;
 
   std::error_code sleep_for(std::chrono::nanoseconds) const noexcept;
 

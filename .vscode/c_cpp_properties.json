@@ -3,8 +3,8 @@
         {
             "name": "Linux",
             "includePath": [
-                "~/repos/pico-sdk/**",
                 "build_tests/_deps/googletest-src/googletest/include/**",
+                "build_app/_deps/pico_sdk-src/src/**",
                 "lib/HAL/inc",
                 "lib/rp2040/inc"
             ],

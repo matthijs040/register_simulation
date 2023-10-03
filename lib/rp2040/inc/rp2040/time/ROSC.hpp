@@ -10,7 +10,7 @@
 class ROSC : std::conditional<USE_SIMULATED_REGISTERS,
                               simulated_peripheral<ROSC>, void> {
 public:
-  static constexpr uintptr_t base_address = 0x40008000;
+  static constexpr uintptr_t base_address = 0x40060000;
   static ROSC &get() noexcept;
   ~ROSC();
   void operator delete(void *addr);

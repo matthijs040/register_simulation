@@ -1,5 +1,3 @@
-build_application
-build_tests
-
+build_*
 *.md
 !README.md
