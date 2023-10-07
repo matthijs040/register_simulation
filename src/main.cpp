@@ -10,45 +10,43 @@
 #include <chrono>
 
 constexpr uint8_t LED_pin = PICO_DEFAULT_LED_PIN;
+static GPIO *instance;
 
 void enable_LED_pin()
 {
-  auto instance = GPIO(LED_pin);
-  if (instance.initialization_result)
+  if (instance->initialization_result)
   {
-    std::cout << "initializing the LED failed with error: " << instance.initialization_result.message() << '\n';
+    std::cout << "initializing the LED failed with error: " << instance->initialization_result.message() << '\n';
     return;
   }
 
-  auto error = instance.set_pin_mode(GPIO::mode::output_only);
+  auto error = instance->set_pin_mode(GPIO::mode::output_only);
   if (error)
   {
     std::cout << "Setting pin mode to output failed with error: " << error.message() << '\n';
     return;
   }
-  error = instance.set_pin_state(GPIO::state::high);
+  error = instance->set_pin_state(GPIO::state::high);
   if (error)
   {
     std::cout << "Setting the pin state to high failed with error: " << error.message() << '\n';
     return;
   }
 
-  const char *state = instance.get_pin_state() == GPIO::state::high ? "high" : "low";
+  const char *state = instance->get_pin_state() == GPIO::state::high ? "high" : "low";
   std::cout << "LED state is now: " << state << "\n";
 }
 
 void disable_LED_pin()
 {
-  auto instance = GPIO(LED_pin);
-  instance.set_pin_mode(GPIO::mode::output_only);
-  instance.set_pin_state(GPIO::state::low);
+  instance->set_pin_mode(GPIO::mode::output_only);
+  instance->set_pin_state(GPIO::state::low);
   std::cout << "Set LED low.\n";
 }
 
 void get_LED_state()
 {
-  auto instance = GPIO(LED_pin);
-  const char *state = instance.get_pin_state() == GPIO::state::high ? "high" : "low";
+  const char *state = instance->get_pin_state() == GPIO::state::high ? "high" : "low";
   std::cout << "LED state is: " << state << '\n';
 }
 
@@ -80,6 +78,9 @@ int main(int, char const *[])
 {
   if (!stdio_init_all())
     return EXIT_FAILURE;
+
+  auto handle = GPIO(LED_pin);
+  instance = &handle;
 
   while (true)
   {
