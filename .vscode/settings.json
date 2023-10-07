@@ -78,5 +78,6 @@
         "typeindex": "cpp"
     },
     "cmake.configureOnOpen": true,
+    "cmake.sourceDirectory": "/home/matthijs/Documents/repos/register_simulation/src",
     // "cmake.configureArgs": ["-DCMAKE_TOOLCHAIN_FILE=build/rp2040_toolchain.cmake"]
 }
