@@ -8,7 +8,7 @@ pico_sdk_init()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
 project(application)
-add_executable(main main.cpp)
+add_executable(main main.cpp application.cpp)
 
 # include(CheckIPOSupported)
 # check_ipo_supported(RESULT supported OUTPUT error)
