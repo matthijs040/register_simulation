@@ -6,6 +6,9 @@
 #include <span>
 
 #include <pico/stdlib.h>
+#include <hardware/clocks.h>
+
+#include <rp2040/time/clocks.hpp>
 
 using named_function = std::pair<const char *, std::function<void(void)>>;
 
@@ -47,6 +50,25 @@ void application::get_LED_state()
     std::cout << "LED state is: " << state << '\n';
 }
 
+void application::attach_ROSC()
+{
+    // Attach src ROSC to clock index " clk_gpout* "
+    clock_gpio_init_int_frac(21,  // GPIO pin 21.
+                             0x4, // ROSC, according to "CLOCKS: CLK_GPOUT0_CTRL Register" in the datasheet.
+                             1,   // Devide the muxed signal by 1 (not at all)
+                             0    // Divide the devisor again by added component 0 (not at all)
+    );
+}
+
+void application::detach_clock()
+{
+    // Detach by making clock index " clk_gpout* " sourceless?
+    // Cannot do that. Each allowed source value is a clock signal.
+    // Just disable the output.
+    auto &clock_handle = clocks::get();
+    clock_handle.CLK_GPOUT0_CTRL.ENABLE = reg::state::disabled;
+}
+
 void get_string(std::span<char> data)
 {
     std::size_t index = 0;
@@ -67,7 +89,9 @@ void get_string(std::span<char> data)
 application::application(GPIO &LED_handle_)
     : LED_handle(LED_handle_), RPCs({named_function{"LED.set.high", std::bind(&application::enable_LED, this)},
                                      named_function{"LED.set.low", std::bind(&application::disable_LED, this)},
-                                     named_function{"LED.get", std::bind(&application::get_LED_state, this)}})
+                                     named_function{"LED.get", std::bind(&application::get_LED_state, this)},
+                                     named_function{"CLK.attach.ROSC", std::bind(&application::attach_ROSC, this)},
+                                     named_function{"CLK.detach", std::bind(&application::detach_clock, this)}})
 {
 }
 

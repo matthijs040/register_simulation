@@ -75,7 +75,8 @@
         "cfenv": "cpp",
         "complex": "cpp",
         "shared_mutex": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "clocks.h": "c"
     },
     "cmake.configureOnOpen": true,
     "cmake.sourceDirectory": "/home/matthijs/Documents/repos/register_simulation/src",

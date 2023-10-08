@@ -314,6 +314,10 @@ union FC0_STATUS {
   bitfield<reg::state, 0, 1> PASS;
 };
 
+#ifdef KHZ
+#undef KHZ
+#endif
+
 union FC0_RESULT {
   FC0_RESULT() {}
   bitfield<register_integral, 5, 25> KHZ;
