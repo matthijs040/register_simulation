@@ -9,6 +9,7 @@
 #include <hardware/clocks.h>
 
 #include <rp2040/time/clocks.hpp>
+#include <rp2040/GPIO/user_IO.hpp>
 
 using named_function = std::pair<const char *, std::function<void(void)>>;
 
@@ -52,12 +53,19 @@ void application::get_LED_state()
 
 void application::attach_ROSC()
 {
-    // Attach src ROSC to clock index " clk_gpout* "
-    clock_gpio_init_int_frac(21,  // GPIO pin 21.
-                             0x4, // ROSC, according to "CLOCKS: CLK_GPOUT0_CTRL Register" in the datasheet.
-                             1,   // Devide the muxed signal by 1 (not at all)
-                             0    // Divide the devisor again by added component 0 (not at all)
-    );
+    auto &pin_handle = user_IO::get();
+    if (pin_handle.GPIO21_CTRL.FUNCSEL != reg::CTRL::FUNCSEL_states::disabled)
+    {
+        std::cerr << "Pin to expose clock signal on is occupied.\n";
+        return;
+    }
+    pin_handle.GPIO21_CTRL.FUNCSEL = reg::CTRL::FUNCSEL_states::Clock_GPIO;
+
+    auto &clock_handle = clocks::get();
+    clock_handle.CLK_GPOUT0_CTRL.AUXSRC = reg::CLK_GPOUT_CTRL::AUXSRC_states::rosc_clksrc;
+    clock_handle.CLK_GPOUT0_DIV.INT = 1u;
+    clock_handle.CLK_GPOUT0_DIV.FRAC = 0u;
+    clock_handle.CLK_GPOUT0_CTRL.ENABLE = reg::state::enabled;
 }
 
 void application::detach_clock()
