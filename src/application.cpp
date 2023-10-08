@@ -15,25 +15,8 @@ using named_function = std::pair<const char *, std::function<void(void)>>;
 
 void application::enable_LED()
 {
-    if (LED_handle.initialization_result)
-    {
-        std::cout << "initializing the LED failed with error: " << LED_handle.initialization_result.message() << '\n';
-        return;
-    }
-
-    auto error = LED_handle.set_pin_mode(GPIO::mode::output_only);
-    if (error)
-    {
-        std::cout << "Setting pin mode to output failed with error: " << error.message() << '\n';
-        return;
-    }
-    error = LED_handle.set_pin_state(GPIO::state::high);
-    if (error)
-    {
-        std::cout << "Setting the pin state to high failed with error: " << error.message() << '\n';
-        return;
-    }
-
+    LED_handle.set_pin_mode(GPIO::mode::output_only);
+    LED_handle.set_pin_state(GPIO::state::high);
     const char *state = LED_handle.get_pin_state() == GPIO::state::high ? "high" : "low";
     std::cout << "LED state is now: " << state << "\n";
 }
@@ -51,21 +34,34 @@ void application::get_LED_state()
     std::cout << "LED state is: " << state << '\n';
 }
 
-void application::attach_ROSC()
+void attach_clock(reg::CLK_GPOUT_CTRL::AUXSRC_states source)
 {
     auto &pin_handle = user_IO::get();
-    if (pin_handle.GPIO21_CTRL.FUNCSEL != reg::CTRL::FUNCSEL_states::disabled)
+    if (pin_handle.GPIO21_CTRL.FUNCSEL != reg::CTRL::FUNCSEL_states::Clock_GPIO)
     {
-        std::cerr << "Pin to expose clock signal on is occupied.\n";
-        return;
+        if (pin_handle.GPIO21_CTRL.FUNCSEL != reg::CTRL::FUNCSEL_states::disabled)
+        {
+            std::cerr << "Pin to expose clock signal on is occupied.\n";
+            return;
+        }
+        pin_handle.GPIO21_CTRL.FUNCSEL = reg::CTRL::FUNCSEL_states::Clock_GPIO;
     }
-    pin_handle.GPIO21_CTRL.FUNCSEL = reg::CTRL::FUNCSEL_states::Clock_GPIO;
 
     auto &clock_handle = clocks::get();
-    clock_handle.CLK_GPOUT0_CTRL.AUXSRC = reg::CLK_GPOUT_CTRL::AUXSRC_states::rosc_clksrc;
+    clock_handle.CLK_GPOUT0_CTRL.AUXSRC = source;
     clock_handle.CLK_GPOUT0_DIV.INT = 1u;
     clock_handle.CLK_GPOUT0_DIV.FRAC = 0u;
     clock_handle.CLK_GPOUT0_CTRL.ENABLE = reg::state::enabled;
+}
+
+void application::attach_ROSC()
+{
+    attach_clock(reg::CLK_GPOUT_CTRL::AUXSRC_states::rosc_clksrc);
+}
+
+void application::attach_sys()
+{
+    attach_clock(reg::CLK_GPOUT_CTRL::AUXSRC_states::clk_sys);
 }
 
 void application::detach_clock()
@@ -75,6 +71,9 @@ void application::detach_clock()
     // Just disable the output.
     auto &clock_handle = clocks::get();
     clock_handle.CLK_GPOUT0_CTRL.ENABLE = reg::state::disabled;
+    auto &pin_handle = user_IO::get();
+    if (pin_handle.GPIO21_CTRL.FUNCSEL == reg::CTRL::FUNCSEL_states::Clock_GPIO)
+        pin_handle.GPIO21_CTRL.FUNCSEL = reg::CTRL::FUNCSEL_states::disabled;
 }
 
 void get_string(std::span<char> data)
@@ -99,12 +98,14 @@ application::application(GPIO &LED_handle_)
                                      named_function{"LED.set.low", std::bind(&application::disable_LED, this)},
                                      named_function{"LED.get", std::bind(&application::get_LED_state, this)},
                                      named_function{"CLK.attach.ROSC", std::bind(&application::attach_ROSC, this)},
+                                     named_function{"CLK.attach.sys", std::bind(&application::attach_sys, this)},
                                      named_function{"CLK.detach", std::bind(&application::detach_clock, this)}})
 {
 }
 
 application::~application()
 {
+    detach_clock();
 }
 
 void application::run()

@@ -21,10 +21,12 @@ private:
     void disable_LED();
     void get_LED_state();
 
+
     void attach_ROSC();
+    void attach_sys();
     void detach_clock();
 
-    std::array<named_function, 5> RPCs;
+    std::array<named_function, 6> RPCs;
 
 };
 
