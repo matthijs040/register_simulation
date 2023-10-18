@@ -134,10 +134,14 @@ void apply_settings(
 }
 
 void application::set_ROSC_state(const char *state) {
+  std::cout << "called set ROSC state with state: " << state << "\n";
   uint32_t power_level = 0u;
   auto result = std::from_chars(state, state + std::strlen(state), power_level);
-  if (result.ec != std::errc())
+  if (result.ec != std::errc()) {
+    std::cout << "failed to extract number from: '" << state
+              << "' with error: " << std::to_underlying(result.ec) << "\n";
     return;
+  }
 
   const auto frequency_range = determine_frequency_range(power_level);
   apply_settings(
@@ -163,6 +167,31 @@ void application::set_ROSC_state(const char *state) {
       frequency_range == reg::ROSC::CTRL::FREQ_RANGE_states::low
           ? take_drive_strength(power_level)
           : reg::ROSC::drive_strength::quadruple_strength);
+
+  const auto range_to_string = [](reg::ROSC::CTRL::FREQ_RANGE_states state) {
+    return state == reg::ROSC::CTRL::FREQ_RANGE_states::low      ? "low"
+           : state == reg::ROSC::CTRL::FREQ_RANGE_states::medium ? "medium"
+           : state == reg::ROSC::CTRL::FREQ_RANGE_states::high   ? "high"
+                                                                 : "invalid";
+  };
+
+  auto DS_to_string = [](reg::ROSC::drive_strength DS) {
+    return DS == reg::ROSC::drive_strength::default_strength     ? "default"
+           : DS == reg::ROSC::drive_strength::double_strength    ? "double"
+           : DS == reg::ROSC::drive_strength::triple_strength    ? "triple"
+           : DS == reg::ROSC::drive_strength::quadruple_strength ? "quadruple"
+                                                                 : "invalid";
+  };
+
+  const auto &handle = ROSC::get();
+  printf("ROSC state is now:\n\
+    frequency range: %s\n\
+    power stages: DS0: %s, DS1: %s, DS2: %s, DS3: %s, DS4: %s, DS5: %s, DS6: %s, DS7: %s\n",
+         range_to_string(handle.CTRL.FREQ_RANGE),
+         DS_to_string(handle.FREQA.DS0), DS_to_string(handle.FREQA.DS1),
+         DS_to_string(handle.FREQA.DS2), DS_to_string(handle.FREQA.DS3),
+         DS_to_string(handle.FREQB.DS4), DS_to_string(handle.FREQB.DS5),
+         DS_to_string(handle.FREQB.DS6), DS_to_string(handle.FREQB.DS7));
 }
 
 void get_string(std::span<char> data) {
@@ -202,7 +231,7 @@ application::application(GPIO &LED_handle_)
            named_function{"ROSC.set.state",
                           std::bind(&application::set_ROSC_state, this,
                                     std::placeholders::_1)}})
-
+ 
 {}
 
 application::~application() { detach_clock(); }
@@ -223,7 +252,8 @@ void application::run() {
     const auto found =
         std::find_if(RPCs.begin(), RPCs.end(), [line](named_function fn) {
           return std::strlen(line.data()) >= std::strlen(fn.first) &&
-                 std::strcmp(line.data(), fn.first) == 0;
+                 std::strncmp(line.data(), fn.first, std::strlen(fn.first)) ==
+                     0;
         });
 
     if (found != RPCs.end())
