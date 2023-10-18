@@ -2,31 +2,63 @@
 #include <algorithm>
 #include <cstring>
 #include <rp2040/time/clocks.hpp>
+#include <rp2040/time/ROSC.hpp>
 
-static const std::array clock_names = {"pll_sys_clksrc_primary",
-                                       "pll_usb_clksrc_primary",
-                                       "rosc_clksrc",
-                                       "rosc_clksrc_ph",
-                                       "xosc_clksrc",
-                                       "clksrc_gpin0",
-                                       "clksrc_gpin1",
-                                       "clk_ref",
-                                       "clk_sys",
-                                       "clk_peri",
-                                       "clk_usb",
-                                       "clk_adc",
-                                       "clk_rtc"};
+constexpr std::array clock_names = {"rosc_clksrc",
+                                    "rosc_clksrc_ph",
+                                    "xosc_clksrc",
+                                    "clksrc_gpin0",
+                                    "clksrc_gpin1",
+                                    "clk_ref",
+                                    "clk_sys",
+                                    "clk_peri",
+                                    "clk_usb",
+                                    "clk_adc",
+                                    "clk_rtc"};
+
+enum class clock_label : std::uint8_t
+{
+  rosc_clksrc,
+  rosc_clksrc_ph,
+  xosc_clksrc,
+  clksrc_gpin0,
+  clksrc_gpin1,
+  clk_ref,
+  clk_sys,
+  clk_peri,
+  clk_usb,
+  clk_adc,
+  clk_rtc
+};
 
 std::error_code initialize(clock_control::clock_name name)
 {
-
-  if (std::find_if(
-          clock_names.begin(), clock_names.end(), [&name](const char *name_)
-          { return std::strncmp(
-                name, name_, std::min(std::strlen(name), std::strlen(name_))); }) == clock_names.end())
-    return std::make_error_code(std::errc::invalid_argument);
+  const auto found = std::find_if(
+      clock_names.begin(), clock_names.end(), [&name](const char *name_)
+      { return std::strncmp(
+            name, name_, std::min(std::strlen(name), std::strlen(name_))); });
+  if (found == clock_names.end())
+    return std::error_code(clock_error::code::name_not_found);
 
   // TODO: Ensure that the selected clock is enabled.
+  // i.e. Has a source set on its control register that is either:
+  // * rosc_clksrc
+  // * xosc_clksrc
+  // * clksrc_gpin0
+  // * clksrc_gpin1
+  // Unsure if clock sources for peripherals can be set to
+  // switch (static_cast<clock_label>(found - clock_names.begin()))
+  // {
+  // case clock_label::rosc_clksrc:
+  // case clock_label::rosc_clksrc_ph:
+  //   auto &ROSC_handle = ROSC::get();
+  //   if (ROSC_handle.STATUS.ENABLED == reg::state::cleared)
+  //     ROSC_handle.CTRL.ENABLE = reg::ROSC::CTRL::ENABLE_states::enabled;
+  //   break;
+  // 
+  // default:
+  //   break;
+  // }
 
   return {};
 }
@@ -61,8 +93,9 @@ clock_control::get_current_frequency() const noexcept
   if (periph.FC0_STATUS.DONE == reg::state::set)
     return periph.FC0_RESULT.KHZ / periph.FC0_RESULT.FRAC;
 
-  // The +1 is to account for the "none"-element in the enumerator.
-  const auto clock = static_cast<reg::FC0_SRC::Clocks>((addressed_clock - clock_names.front()) + 1);
+  // The + 1 is to account for the "none"-element in the enumerator.
+  // The + 2 is to account for the PLL intermediary clocks that are not user accessible.
+  const auto clock = static_cast<reg::FC0_SRC::Clocks>((addressed_clock - clock_names.front()) + 3);
 
   periph.FC0_INTERVAL.frequency_test_interval = 10U; // FIXME: replace, this value was stolen from pico-SDK.
   periph.FC0_MIN_KHZ.minimum_pass_frequency = 0U;
@@ -72,10 +105,9 @@ clock_control::get_current_frequency() const noexcept
   return std::unexpected(std::make_error_code(std::errc::operation_in_progress));
 }
 
-std::expected<clock_control::kiloHertz, std::error_code> clock_control::set_current_frequency(kiloHertz /* value */ ) noexcept
+std::expected<clock_control::kiloHertz, std::error_code> clock_control::set_current_frequency(kiloHertz /* value */) noexcept
 {
-   // auto &periph = clocks::get();
-  
+  //   auto &periph = clocks::get();
 
   return {};
 }

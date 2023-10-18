@@ -17,15 +17,15 @@ public:
 
   std::expected<uint32_t, std::error_code> get_frequency_kHz();
 
-  reg::CTRL CTRL;
-  reg::FREQA FREQA;
-  reg::FREQB FREQB;
-  reg::DORMANT DORMANT;
-  reg::DIV DIV;
-  reg::PHASE PHASE;
-  reg::STATUS STATUS;
-  reg::RANDOMBIT RANDOMBIT;
-  reg::COUNT COUNT;
+  reg::ROSC::CTRL CTRL;
+  reg::ROSC::FREQA FREQA;
+  reg::ROSC::FREQB FREQB;
+  reg::ROSC::DORMANT DORMANT;
+  reg::ROSC::DIV DIV;
+  reg::ROSC::PHASE PHASE;
+  reg::ROSC::STATUS STATUS;
+  reg::ROSC::RANDOMBIT RANDOMBIT;
+  reg::ROSC::COUNT COUNT;
 
 private:
   ROSC();

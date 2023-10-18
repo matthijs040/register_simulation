@@ -3,7 +3,7 @@
 #include <rp2040/shared_types.hpp>
 
 namespace reg {
-
+namespace ROSC {
 // Ring Oscillator control
 union CTRL {
   enum class ENABLE_states : register_integral {
@@ -19,7 +19,10 @@ union CTRL {
     too_high = 0xfa6,
   };
   bitfield<FREQ_RANGE_states, 0, 12> FREQ_RANGE;
-  CTRL() {}
+
+  CTRL() : ENABLE{ENABLE_states::enabled} {
+    FREQ_RANGE = {FREQ_RANGE_states::low};
+  }
 };
 
 enum class PASSWD_states { apply = 0x9696, reset = 0 };
@@ -96,5 +99,5 @@ union COUNT {
   COUNT() {}
   bitfield<register_integral, 0, 8> value;
 };
-
+} // namespace ROSC
 } // namespace reg

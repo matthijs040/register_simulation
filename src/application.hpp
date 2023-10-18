@@ -2,9 +2,9 @@
 #include <HAL/GPIO.hpp>
 #include <array>
 #include <functional>
+#include <variant>
 
-using named_function = std::pair<const char *, std::function<void(void)>>;
-
+using named_function = std::pair<const char *, std::function<void(const char*)>>;
 
 class application
 {
@@ -17,16 +17,17 @@ public:
 private:
     GPIO& LED_handle;
 
-    void enable_LED();
-    void disable_LED();
-    void get_LED_state();
+    void enable_LED(const char* stub = "");
+    void disable_LED(const char* stub = "");
+    void get_LED_state(const char* stub = "");
 
 
-    void attach_ROSC();
-    void attach_sys();
-    void detach_clock();
+    void attach_ROSC(const char* stub = "");
+    void attach_sys(const char* stub = "");
+    void detach_clock(const char* stub = "");
+    void set_ROSC_state(const char* state);
 
-    std::array<named_function, 6> RPCs;
+    std::array<named_function, 7> RPCs;
 
 };
 

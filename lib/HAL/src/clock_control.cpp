@@ -17,6 +17,8 @@ std::error_code clock_error::make_error_code(clock_error::code e) noexcept {
         return "Clock not found";
         case clock_error::code::busy:
         return "Clock irresponsive";
+        case clock_error::code::invalid_pin:
+        return "Invalid clock-pin";
       }
       return "Unknown";
     }
