@@ -99,10 +99,10 @@ determine_frequency_range(uint32_t &strength) {
 
   if (strength <= low_range_power)
     return reg::ROSC::CTRL::FREQ_RANGE_states::low;
-  strength -= low_range_power;
+  strength -= low_range_power + 1;
   if (strength <= mid_range_power)
     return reg::ROSC::CTRL::FREQ_RANGE_states::medium;
-  strength -= mid_range_power;
+  strength -= mid_range_power + 1;
   return reg::ROSC::CTRL::FREQ_RANGE_states::high;
 }
 
@@ -186,12 +186,32 @@ void application::set_ROSC_state(const char *state) {
   const auto &handle = ROSC::get();
   printf("ROSC state is now:\n\
     frequency range: %s\n\
-    power stages: DS0: %s, DS1: %s, DS2: %s, DS3: %s, DS4: %s, DS5: %s, DS6: %s, DS7: %s\n",
+    power stages: DS0: %s, DS1: %s, DS2: %s, DS3: %s, DS4: %s, DS5: %s, DS6: %s, DS7: %s\n\
+    DIV: %u\n",
          range_to_string(handle.CTRL.FREQ_RANGE),
          DS_to_string(handle.FREQA.DS0), DS_to_string(handle.FREQA.DS1),
          DS_to_string(handle.FREQA.DS2), DS_to_string(handle.FREQA.DS3),
          DS_to_string(handle.FREQB.DS4), DS_to_string(handle.FREQB.DS5),
-         DS_to_string(handle.FREQB.DS6), DS_to_string(handle.FREQB.DS7));
+         DS_to_string(handle.FREQB.DS6), DS_to_string(handle.FREQB.DS7),
+         handle.DIV.divisor);
+}
+
+void application::set_ROSC_devisor(const char *param) {
+  uint8_t divisor = 0u;
+  auto result = std::from_chars(param, param + std::strlen(param), divisor);
+  if (result.ec != std::errc()) {
+    std::cout << "failed to extract number from: '" << param
+              << "' with error: " << std::to_underlying(result.ec) << "\n";
+    return;
+  }
+
+  if (divisor > 31) {
+    std::cout << "parsed divisor is > 31 and thus invalid.\n";
+    return;
+  }
+  auto &handle = ROSC::get();
+  handle.DIV.divisor = divisor;
+  std::cout << "devisor is now set to: " << handle.DIV.divisor << "\n";
 }
 
 void get_string(std::span<char> data) {
@@ -228,10 +248,13 @@ application::application(GPIO &LED_handle_)
                                     std::placeholders::_1)},
            named_function{"CLK.detach", std::bind(&application::detach_clock,
                                                   this, std::placeholders::_1)},
-           named_function{"ROSC.set.state",
+           named_function{"ROSC.set.state", 
                           std::bind(&application::set_ROSC_state, this,
+                                    std::placeholders::_1)},
+           named_function{"ROSC.set.divisor",
+                          std::bind(&application::set_ROSC_devisor, this,
                                     std::placeholders::_1)}})
- 
+
 {}
 
 application::~application() { detach_clock(); }
