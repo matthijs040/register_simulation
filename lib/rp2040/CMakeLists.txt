@@ -7,7 +7,8 @@ add_library(rp2040_impl STATIC
     src/GPIO/SIO.cpp
     src/time/clocks.cpp
     src/time/clock_control.cpp
-    src/time/ROSC.cpp)
+    src/time/ROSC.cpp
+    src/UART/UART.cpp)
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT supported OUTPUT error)
