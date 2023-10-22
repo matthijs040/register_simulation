@@ -1,4 +1,6 @@
 #include <rp2040/time/clocks.hpp>
+#include <bit>
+#include <concepts>
 
 clocks::clocks() {
   // TODO maybe? Terrified of writing the initializer list for this.
@@ -16,9 +18,10 @@ void clocks::operator delete(void *addr) {
 }
 
 void *clocks::operator new(std::size_t size) {
-  if constexpr (USE_SIMULATED_REGISTERS)
-    return simulated_peripheral<clocks>::operator new(size);
-  return reinterpret_cast<clocks *>(base_address);
+  using base = simulated_peripheral<clocks>;
+  if constexpr (std::derived_from<clocks, base>)
+    return base::operator new(size);
+  return std::bit_cast<clocks *>(base_address);
 }
 
 clocks &clocks::get() noexcept {

@@ -66,7 +66,7 @@ union DORMANT {
 // Controls the output divider
 union DIV {
   bitfield<register_integral, 0, 12> divisor;
-  DIV() : divisor(16) {}
+  DIV() : divisor(0xaa0 + 16) {}
 };
 // Controls the phase shifted output
 union PHASE {

@@ -35,16 +35,18 @@ reg::GPIO &get_pad_register(GPIO::pin_number pin) {
   return *((register_block + first_offset) + (pin * register_spacing));
 }
 
-std::error_code reserve_pin(const GPIO::pin_number pin) {
+std::error_code reserve_pin(const GPIO::pin_number pin,
+                            reg::CTRL::FUNCSEL_states function) {
   if (GPIO::is_pin_reserved(pin))
     return std::make_error_code(std::errc::device_or_resource_busy);
   auto &ctrl = get_control_register(pin);
-  ctrl.FUNCSEL = reg::CTRL::FUNCSEL_states::SIO;
+  ctrl.FUNCSEL = function;
   return std::error_code();
 }
 
 GPIO::GPIO(const pin_number number)
-    : acquired_pin(number), initialization_result(reserve_pin(number)) {}
+    : acquired_pin(number), initialization_result(reserve_pin(
+                                number, reg::CTRL::FUNCSEL_states::SIO)) {}
 
 GPIO::~GPIO() {
   if (initialization_result)
@@ -59,14 +61,11 @@ bool GPIO::is_pin_reserved(pin_number number) noexcept {
     return true;
 
   const auto &reg = get_control_register(number);
-
-  const bool is_disabled = reg.FUNCSEL == reg::CTRL::FUNCSEL_states::disabled;
-  const bool is_used_here = reg.FUNCSEL == reg::CTRL::FUNCSEL_states::SIO;
-  return !is_disabled && !is_used_here;
+  return reg.FUNCSEL != reg::CTRL::FUNCSEL_states::disabled;
 }
 
 std::error_code GPIO::set_pin_mode(GPIO::mode mode) {
-  if (is_pin_reserved(acquired_pin))
+  if (initialization_result)
     return std::make_error_code(std::errc::operation_not_permitted);
 
   auto &ctrl_reg = get_control_register(acquired_pin);
@@ -111,7 +110,7 @@ std::error_code GPIO::set_pin_mode(GPIO::mode mode) {
 }
 
 GPIO::mode GPIO::get_pin_mode() {
-  if (is_pin_reserved(acquired_pin))
+  if (initialization_result)
     return GPIO::mode::reserved;
 
   auto &status = get_status_register(acquired_pin);
@@ -121,7 +120,8 @@ GPIO::mode GPIO::get_pin_mode() {
 
   const bool pad_enabled = pad.OD == reg::state::cleared;
   const bool to_pad_enabled = status.OETOPAD == reg::state::set;
-  const bool SIO_out_enabled = SIO::get().get_pin_OE(acquired_pin).value() == reg::state::enabled;
+  const bool SIO_out_enabled =
+      SIO::get().get_pin_OE(acquired_pin).value() == reg::state::enabled;
   const bool all_out_enabled = pad_enabled && to_pad_enabled && SIO_out_enabled;
 
   if (input_enabled && all_out_enabled)
@@ -134,7 +134,7 @@ GPIO::mode GPIO::get_pin_mode() {
 }
 
 std::error_code GPIO::set_pin_state(GPIO::state state) {
-  if (is_pin_reserved(acquired_pin))
+  if (initialization_result)
     return std::make_error_code(std::errc::operation_not_permitted);
 
   const auto mode = get_pin_mode();

@@ -3,6 +3,7 @@
 #include "GPIO.hpp"
 #include <expected>
 #include <span>
+#include <optional>
 
 namespace HAL {
   
@@ -11,6 +12,8 @@ public:
   const struct pins {
     GPIO::pin_number RX;
     GPIO::pin_number TX;
+    std::optional<GPIO::pin_number> CTS;
+    std::optional<GPIO::pin_number> RTS;
   } used_pins;
   const std::size_t used_baudrate;
 

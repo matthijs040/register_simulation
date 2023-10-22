@@ -210,7 +210,7 @@ void application::set_ROSC_devisor(const char *param) {
     return;
   }
   auto &handle = ROSC::get();
-  handle.DIV.divisor = divisor;
+  handle.DIV.divisor = 0xaa0 + divisor;
   std::cout << "devisor is now set to: " << handle.DIV.divisor << "\n";
 }
 
