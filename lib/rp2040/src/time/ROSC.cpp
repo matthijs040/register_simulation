@@ -119,6 +119,11 @@ determine_frequency_range(uint32_t &strength) {
 
 std::expected<uint32_t, std::error_code>
 ROSC::set_frequency_Hz(std::uint32_t frequency) noexcept {
+  if (CTRL.ENABLE == reg::ROSC::CTRL::ENABLE_states::disabled) {
+    std::error_code err = clock_error::code::disabled;
+    auto ret = std::unexpected(err);
+    return ret;
+  }
   // Correct the divisor if the highest frequency with the highest divisor is
   // insufficient.
   const uint32_t offset_factor = frequency / frequencies.back();
@@ -126,18 +131,15 @@ ROSC::set_frequency_Hz(std::uint32_t frequency) noexcept {
   // to have the desired frequency be within 'frequencies' Then we divide the
   // default divisor by 2, making the new divisor 15, which is a little over
   // doubling the max frequency.
-  DIV.divisor = div_prefix + offset_factor > 1 ? table_divisor / offset_factor
-                                               : table_divisor;
-
-  if (CTRL.ENABLE == reg::ROSC::CTRL::ENABLE_states::disabled) {
-    std::error_code err = clock_error::code::disabled;
-    auto ret = std::unexpected(err);
-    return ret;
-  }
+  DIV.divisor = offset_factor >= 1
+                    ? (div_prefix + (table_divisor / (offset_factor + 1)))
+                    : (div_prefix + table_divisor);
 
   const auto found =
       std::find_if(frequencies.begin(), frequencies.end(),
-                   [frequency, offset_factor](auto elem) { return elem * offset_factor <= frequency; });
+                   [frequency, offset_factor](auto elem) {
+                     return elem * (offset_factor + 1) <= frequency;
+                   });
   uint32_t power_stage = found - frequencies.begin();
   auto set_frequency = frequencies.at(power_stage);
   set_power_stage(power_stage);
