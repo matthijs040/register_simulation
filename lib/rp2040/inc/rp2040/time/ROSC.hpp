@@ -4,9 +4,9 @@
 #include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
 #include <expected>
+#include <span>
 #include <system_error>
 #include <type_traits>
-#include <span>
 
 class ROSC : std::conditional<USE_SIMULATED_REGISTERS,
                               simulated_peripheral<ROSC>, void> {

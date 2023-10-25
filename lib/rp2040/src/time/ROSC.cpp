@@ -15,7 +15,7 @@ constexpr std::array frequencies{
     8333333u, 8333333u, 8212560u, 8173076u, 8333333u, 8235294u,
 };
 constexpr uint32_t table_divisor = 31;
-constexpr uint32_t div_prefix = 0xaa0;
+constexpr uint32_t divisor_prefix = 0xaa0;
 
 // The three power-stages of all 8 drive-strength registers. (used in the
 // "low" frequency range)
@@ -54,7 +54,7 @@ ROSC::get_frequency_Hz() const noexcept {
   }
 
   return frequencies.at(get_power_stage()) *
-         (table_divisor / (DIV.divisor - div_prefix));
+         (table_divisor / (DIV.divisor - divisor_prefix));
 }
 
 constexpr uint32_t drive_strength_to_power_level(drive_strength strength) {
@@ -68,9 +68,9 @@ std::uint32_t ROSC::get_power_stage() const noexcept {
   uint32_t power_stage = 0u;
   if (CTRL.FREQ_RANGE == reg::ROSC::CTRL::FREQ_RANGE_states::medium ||
       CTRL.FREQ_RANGE == reg::ROSC::CTRL::FREQ_RANGE_states::high)
-    power_stage += low_range_power;
+    power_stage += low_range_power + 1;
   if (CTRL.FREQ_RANGE == reg::ROSC::CTRL::FREQ_RANGE_states::high)
-    power_stage += mid_range_power;
+    power_stage += mid_range_power + 1;
 
   power_stage += drive_strength_to_power_level(FREQA.DS0);
   power_stage += drive_strength_to_power_level(FREQA.DS1);
@@ -118,40 +118,44 @@ determine_frequency_range(uint32_t &strength) {
   return CTRL::FREQ_RANGE_states::high;
 }
 
+inline void find_closest_match(uint32_t desired_frequency,
+                               const uint32_t *&result,
+                               uint32_t &used_divisor) {
+
+  uint32_t old_offset = std::numeric_limits<uint32_t>::max();
+  for (uint32_t divisor = table_divisor; divisor; divisor--) {
+    for (const auto &frequency : frequencies) {
+      uint32_t offset =
+          abs(desired_frequency - (frequency * table_divisor / divisor));
+      if (!result || offset < old_offset) {
+        old_offset = offset;
+        used_divisor = divisor;
+        result = &frequency;
+      }
+    }
+  }
+}
+
 std::expected<uint32_t, std::error_code>
-ROSC::set_frequency_Hz(std::uint32_t frequency) noexcept {
+ROSC::set_frequency_Hz(std::uint32_t desired_frequency) noexcept {
   if (CTRL.ENABLE == reg::ROSC::CTRL::ENABLE_states::disabled) {
     std::cout << "CTRL.ENABLE is disabled\n";
     std::error_code err = clock_error::code::disabled;
     auto ret = std::unexpected(err);
     return ret;
   }
-  // Correct the divisor if the highest frequency with the highest divisor is
-  // insufficient.
-  const uint32_t offset_factor = frequency / frequencies.back();
-  // e.g. if the offset factor is 2, i.e. The greatest frequency must be doubled
-  // to have the desired frequency be within 'frequencies' Then we divide the
-  // default divisor by 2, making the new divisor 15, which is a little over
-  // doubling the max frequency.
-  DIV.divisor = offset_factor >= 1
-                    ? (div_prefix + (table_divisor / (offset_factor + 1)))
-                    : (div_prefix + table_divisor);
-
   const uint32_t *result = nullptr;
-  uint32_t old_offset = std::numeric_limits<uint32_t>::max();
-  for (const auto &freq : frequencies) {
-    uint32_t offset = abs(frequency - freq * (offset_factor + 1));
-    if (!result || offset < old_offset) {
-      old_offset = offset;
-      result = &freq;
-    }
-  }
+  uint32_t used_divisor;
+  find_closest_match(desired_frequency, result,
+                     used_divisor);
 
   uint32_t power_stage = result - frequencies.data();
-  auto set_frequency = frequencies.at(power_stage) * (offset_factor + 1);
+  auto final_frequency =
+      frequencies.at(power_stage) * table_divisor / used_divisor;
   set_power_stage(power_stage);
+  DIV.divisor = divisor_prefix + used_divisor;
 
-  return set_frequency;
+  return final_frequency;
 }
 
 void ROSC::set_power_stage(uint32_t power_stage) noexcept {

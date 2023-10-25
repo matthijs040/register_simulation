@@ -22,7 +22,7 @@ else()
     message(STATUS "IPO / LTO not supported: <${error}>")
 endif()
 
-target_compile_options(tests PRIVATE -fprofile-arcs -ftest-coverage -Og)
+target_compile_options(tests PRIVATE -fprofile-arcs -ftest-coverage -Og -g)
 target_link_options(tests PRIVATE -lgcov --coverage)
 target_link_libraries(tests PRIVATE rp2040_impl GTest::gtest_main)
 set_target_properties(tests PROPERTIES CXX_STANDARD 23)
