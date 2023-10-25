@@ -73,7 +73,7 @@ bool has_additional_control_flow(HAL::UART::pins pins) {
   return pins.CTS.has_value() && pins.RTS.has_value();
 }
 
-std::optional<UART::ID> get_ID_by_pins(HAL::UART::pins pins) {
+constexpr std::optional<UART::ID> get_ID_by_pins(HAL::UART::pins pins) {
   std::optional<UART::ID> ret = {};
   if (pins.RX == 1 || pins.RX == 13 || pins.RX == 17 || pins.RX == 29)
     if (pins.TX == 0 || pins.TX == 12 || pins.TX == 16 || pins.TX == 28)
@@ -121,8 +121,33 @@ void reset_peripheral(UART::ID ID) {
   }
 }
 
-void set_baudrate(UART&, std::size_t)
-{
+uint32_t set_baudrate(UART &handle, std::size_t baudrate, std::uint32_t clock_rate_Hz) {
+  assert(baudrate);
+
+  uint32_t baud_rate_div = (8 * clock_rate_Hz / baudrate);
+  uint32_t baud_ibrd = baud_rate_div >> 7;
+  uint32_t baud_fbrd;
+
+  if (baud_ibrd == 0) {
+    baud_ibrd = 1;
+    baud_fbrd = 0;
+  } else if (baud_ibrd >= 65535) {
+    baud_ibrd = 65535;
+    baud_fbrd = 0;
+  } else {
+    baud_fbrd = ((baud_rate_div & 0x7f) + 1) / 2;
+  }
+
+  handle.UARTFBRD.BAUD_DIVFRAC = baud_fbrd;
+  handle.UARTIBRD.BAUD_DIVINT = baud_ibrd;
+
+
+  // PL011 needs a (dummy) LCR_H write to latch in the divisors.
+  // We don't want to actually change LCR_H contents here.
+  handle.UARTLCR_H.FEN = reg::state::disabled;
+
+  // See datasheet
+  return (4 * clock_rate_Hz) / (64 * baud_ibrd + baud_fbrd);
 }
 
 std::error_code initialize(HAL::UART::pins pins, std::size_t baudrate) {
@@ -141,7 +166,9 @@ std::error_code initialize(HAL::UART::pins pins, std::size_t baudrate) {
   // Setup clock and baudrate.
   reset_peripheral(*ID);
   UART &handle = UART::get(ID.value());
-  set_baudrate(handle, baudrate);
+
+  // FIXME: add clock.
+  set_baudrate(handle, baudrate, 0u);
 
   return {};
 }

@@ -3,9 +3,9 @@
 #include "registers/ROSC.hpp"
 #include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
-#include <type_traits>
-#include <system_error>
 #include <expected>
+#include <system_error>
+#include <type_traits>
 
 class ROSC : std::conditional<USE_SIMULATED_REGISTERS,
                               simulated_peripheral<ROSC>, void> {
@@ -15,7 +15,12 @@ public:
   ~ROSC();
   void operator delete(void *addr);
 
-  std::expected<uint32_t, std::error_code> get_frequency_kHz();
+  std::uint32_t get_power_stage() const noexcept;
+  void set_power_stage(uint32_t) noexcept;
+
+  std::expected<uint32_t, std::error_code> get_frequency_Hz() const noexcept;
+  std::expected<uint32_t, std::error_code>
+      set_frequency_Hz(std::uint32_t) noexcept;
 
   reg::ROSC::CTRL CTRL;
   reg::ROSC::FREQA FREQA;
@@ -30,4 +35,11 @@ public:
 private:
   ROSC();
   void *operator new(std::size_t);
+
+  void apply_settings(reg::ROSC::CTRL::FREQ_RANGE_states,
+                      reg::ROSC::drive_strength, reg::ROSC::drive_strength,
+                      reg::ROSC::drive_strength, reg::ROSC::drive_strength,
+                      reg::ROSC::drive_strength, reg::ROSC::drive_strength,
+                      reg::ROSC::drive_strength,
+                      reg::ROSC::drive_strength) noexcept;
 };

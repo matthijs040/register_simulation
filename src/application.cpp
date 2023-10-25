@@ -71,68 +71,6 @@ void application::detach_clock(const char *) {
     pin_handle.GPIO21_CTRL.FUNCSEL = reg::CTRL::FUNCSEL_states::disabled;
 }
 
-reg::ROSC::drive_strength take_drive_strength(uint32_t &strength) {
-  if (strength >= 3) {
-    strength -= 3;
-    return reg::ROSC::drive_strength::quadruple_strength;
-  }
-  if (strength >= 2) {
-    strength -= 2;
-    return reg::ROSC::drive_strength::triple_strength;
-  }
-  if (strength >= 1) {
-    strength -= 1;
-    return reg::ROSC::drive_strength::double_strength;
-  }
-
-  return reg::ROSC::drive_strength::default_strength;
-}
-
-reg::ROSC::CTRL::FREQ_RANGE_states
-determine_frequency_range(uint32_t &strength) {
-  // The three power-stages of all 8 drive-strength registers. (used in the
-  // "low" frequency range)
-  constexpr auto low_range_power = 8 * 3;
-  // the three power-stages of the 6 drive-strength registers used in the "mid"
-  // frequency range.
-  constexpr auto mid_range_power = 6 * 3;
-
-  if (strength <= low_range_power)
-    return reg::ROSC::CTRL::FREQ_RANGE_states::low;
-  strength -= low_range_power + 1;
-  if (strength <= mid_range_power)
-    return reg::ROSC::CTRL::FREQ_RANGE_states::medium;
-  strength -= mid_range_power + 1;
-  return reg::ROSC::CTRL::FREQ_RANGE_states::high;
-}
-
-void apply_settings(
-    reg::ROSC::CTRL::FREQ_RANGE_states frequency_range,
-    reg::ROSC::drive_strength DS0 = reg::ROSC::drive_strength::default_strength,
-    reg::ROSC::drive_strength DS1 = reg::ROSC::drive_strength::default_strength,
-    reg::ROSC::drive_strength DS2 = reg::ROSC::drive_strength::default_strength,
-    reg::ROSC::drive_strength DS3 = reg::ROSC::drive_strength::default_strength,
-    reg::ROSC::drive_strength DS4 = reg::ROSC::drive_strength::default_strength,
-    reg::ROSC::drive_strength DS5 = reg::ROSC::drive_strength::default_strength,
-    reg::ROSC::drive_strength DS6 = reg::ROSC::drive_strength::default_strength,
-    reg::ROSC::drive_strength DS7 =
-        reg::ROSC::drive_strength::default_strength) {
-  auto &handle = ROSC::get();
-
-  handle.CTRL.FREQ_RANGE = frequency_range;
-  handle.FREQA.DS0 = DS0;
-  handle.FREQA.DS1 = DS1;
-  handle.FREQA.DS2 = DS2;
-  handle.FREQA.DS3 = DS3;
-  handle.FREQA.PASSWD = reg::ROSC::PASSWD_states::apply;
-
-  handle.FREQB.DS4 = DS4;
-  handle.FREQB.DS5 = DS5;
-  handle.FREQB.DS6 = DS6;
-  handle.FREQB.DS7 = DS7;
-  handle.FREQB.PASSWD = reg::ROSC::PASSWD_states::apply;
-}
-
 void application::set_ROSC_state(const char *state) {
   std::cout << "called set ROSC state with state: " << state << "\n";
   uint32_t power_level = 0u;
@@ -143,30 +81,8 @@ void application::set_ROSC_state(const char *state) {
     return;
   }
 
-  const auto frequency_range = determine_frequency_range(power_level);
-  apply_settings(
-      frequency_range, take_drive_strength(power_level),
-      take_drive_strength(power_level), take_drive_strength(power_level),
-      take_drive_strength(power_level),
-      // The following DS registers have their DS set based on given strength
-      // only if their frequency range uses those stages. The datasheet mentions
-      // that these stages must *at least* have the strength of the lowest-power
-      // stage that is active in the loop. Setting these at their highest anyway
-      // guarantees this condition while not affecting frequency.
-      frequency_range == reg::ROSC::CTRL::FREQ_RANGE_states::low ||
-              frequency_range == reg::ROSC::CTRL::FREQ_RANGE_states::medium
-          ? take_drive_strength(power_level)
-          : reg::ROSC::drive_strength::quadruple_strength,
-      frequency_range == reg::ROSC::CTRL::FREQ_RANGE_states::low ||
-              frequency_range == reg::ROSC::CTRL::FREQ_RANGE_states::medium
-          ? take_drive_strength(power_level)
-          : reg::ROSC::drive_strength::quadruple_strength,
-      frequency_range == reg::ROSC::CTRL::FREQ_RANGE_states::low
-          ? take_drive_strength(power_level)
-          : reg::ROSC::drive_strength::quadruple_strength,
-      frequency_range == reg::ROSC::CTRL::FREQ_RANGE_states::low
-          ? take_drive_strength(power_level)
-          : reg::ROSC::drive_strength::quadruple_strength);
+  auto &handle = ROSC::get();
+  handle.set_power_stage(power_level);
 
   const auto range_to_string = [](reg::ROSC::CTRL::FREQ_RANGE_states state) {
     return state == reg::ROSC::CTRL::FREQ_RANGE_states::low      ? "low"
@@ -183,7 +99,6 @@ void application::set_ROSC_state(const char *state) {
                                                                  : "invalid";
   };
 
-  const auto &handle = ROSC::get();
   printf("ROSC state is now:\n\
     frequency range: %s\n\
     power stages: DS0: %s, DS1: %s, DS2: %s, DS3: %s, DS4: %s, DS5: %s, DS6: %s, DS7: %s\n\
@@ -248,10 +163,10 @@ application::application(GPIO &LED_handle_)
                                     std::placeholders::_1)},
            named_function{"CLK.detach", std::bind(&application::detach_clock,
                                                   this, std::placeholders::_1)},
-           named_function{"ROSC.set.state", 
+           named_function{"ROSC.set.state ", 
                           std::bind(&application::set_ROSC_state, this,
                                     std::placeholders::_1)},
-           named_function{"ROSC.set.divisor",
+           named_function{"ROSC.set.divisor ",
                           std::bind(&application::set_ROSC_devisor, this,
                                     std::placeholders::_1)}})
 
