@@ -14,6 +14,8 @@ constexpr std::array frequencies{
     6372549u, 6500000u, 8163265u, 8219178u, 8450704u, 8333333u, 8333333u,
     8333333u, 8333333u, 8212560u, 8173076u, 8333333u, 8235294u,
 };
+constexpr uint32_t table_divisor = 31;
+constexpr uint32_t div_prefix = 0xaa0;
 
 // The three power-stages of all 8 drive-strength registers. (used in the
 // "low" frequency range)
@@ -51,7 +53,7 @@ ROSC::get_frequency_Hz() const noexcept {
     return ret;
   }
 
-  return frequencies.at(get_power_stage());
+  return frequencies.at(get_power_stage()) * (table_divisor / DIV.divisor);
 }
 
 constexpr uint32_t drive_strength_to_power_level(drive_strength strength) {
@@ -117,6 +119,16 @@ determine_frequency_range(uint32_t &strength) {
 
 std::expected<uint32_t, std::error_code>
 ROSC::set_frequency_Hz(std::uint32_t frequency) noexcept {
+  // Correct the divisor if the highest frequency with the highest divisor is
+  // insufficient.
+  const uint32_t offset_factor = frequency / frequencies.back();
+  // e.g. if the offset factor is 2, i.e. The greatest frequency must be doubled
+  // to have the desired frequency be within 'frequencies' Then we divide the
+  // default divisor by 2, making the new divisor 15, which is a little over
+  // doubling the max frequency.
+  DIV.divisor = div_prefix + offset_factor > 1 ? table_divisor / offset_factor
+                                               : table_divisor;
+
   if (CTRL.ENABLE == reg::ROSC::CTRL::ENABLE_states::disabled) {
     std::error_code err = clock_error::code::disabled;
     auto ret = std::unexpected(err);
@@ -124,10 +136,11 @@ ROSC::set_frequency_Hz(std::uint32_t frequency) noexcept {
   }
 
   const auto found =
-      std::find_if(frequencies.begin(), frequencies.end(), [frequency](auto elem) {return elem <= frequency; });
+      std::find_if(frequencies.begin(), frequencies.end(),
+                   [frequency, offset_factor](auto elem) { return elem * offset_factor <= frequency; });
   uint32_t power_stage = found - frequencies.begin();
   auto set_frequency = frequencies.at(power_stage);
-  set_power_stage(power_stage);;
+  set_power_stage(power_stage);
 
   return set_frequency;
 }

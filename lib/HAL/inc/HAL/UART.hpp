@@ -2,24 +2,23 @@
 
 #include "GPIO.hpp"
 #include <expected>
-#include <span>
 #include <optional>
+#include <span>
 
 namespace HAL {
-  
+
 class UART {
 public:
+  const std::error_code initialization_result;
   const struct pins {
     GPIO::pin_number RX;
     GPIO::pin_number TX;
     std::optional<GPIO::pin_number> CTS;
     std::optional<GPIO::pin_number> RTS;
   } used_pins;
-  const std::size_t used_baudrate;
+  const std::uint32_t used_baudrate;
 
-  const std::error_code initialization_result;
-
-  UART(pins pins_to_use, std::size_t baudrate);
+  UART(pins pins_to_use, std::uint32_t baudrate);
   ~UART();
 
   std::expected<std::size_t, std::error_code>

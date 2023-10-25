@@ -3,6 +3,8 @@
 #include <rp2040/GPIO/GPIO.hpp>
 #include <rp2040/UART/UART.hpp>
 #include <rp2040/subsystem_resets/resets.hpp>
+#include <rp2040/time/ROSC.hpp>
+#include <rp2040/time/clocks.hpp>
 
 UART &UART::get(UART::ID which) noexcept {
   static std::array<UART *, num_UART_peripherals> handles;
@@ -121,7 +123,8 @@ void reset_peripheral(UART::ID ID) {
   }
 }
 
-uint32_t set_baudrate(UART &handle, std::size_t baudrate, std::uint32_t clock_rate_Hz) {
+uint32_t set_baudrate(UART &handle, uint32_t baudrate,
+                      std::uint32_t clock_rate_Hz) {
   assert(baudrate);
 
   uint32_t baud_rate_div = (8 * clock_rate_Hz / baudrate);
@@ -141,16 +144,15 @@ uint32_t set_baudrate(UART &handle, std::size_t baudrate, std::uint32_t clock_ra
   handle.UARTFBRD.BAUD_DIVFRAC = baud_fbrd;
   handle.UARTIBRD.BAUD_DIVINT = baud_ibrd;
 
-
   // PL011 needs a (dummy) LCR_H write to latch in the divisors.
   // We don't want to actually change LCR_H contents here.
-  handle.UARTLCR_H.FEN = reg::state::disabled;
+  handle.UARTLCR_H.BRK = reg::state::disabled;
 
   // See datasheet
   return (4 * clock_rate_Hz) / (64 * baud_ibrd + baud_fbrd);
 }
 
-std::error_code initialize(HAL::UART::pins pins, std::size_t baudrate) {
+std::error_code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate) {
   if (baudrate == 0)
     return std::make_error_code(std::errc::invalid_argument);
 
@@ -163,19 +165,27 @@ std::error_code initialize(HAL::UART::pins pins, std::size_t baudrate) {
   if (auto error = set_reserved_pins(pins))
     return error;
 
-  // Setup clock and baudrate.
   reset_peripheral(*ID);
-  UART &handle = UART::get(ID.value());
 
-  // FIXME: add clock.
-  set_baudrate(handle, baudrate, 0u);
+  // Use the ROSC as the peripheral clock source.
+  clocks::get().CLK_PERI_CTRL.ENABLE = reg::state::enabled;
+  clocks::get().CLK_PERI_CTRL.AUXSRC =
+      reg::CLK_PERI_CTRL::AUXSRC_states::rosc_clksrc_ph;
+  // Obtain the frequency or abort if that fails.
+  auto frequency = ROSC::get().get_frequency_Hz();
+  if (frequency.error())
+    return frequency.error();
+
+  UART &handle = UART::get(ID.value());
+  // get the used baudrate as out-param to write to the class member.
+  baudrate = set_baudrate(handle, baudrate, frequency.value());
 
   return {};
 }
 
-HAL::UART::UART(UART::pins pins_to_use, std::size_t baudrate)
-    : used_pins(pins_to_use), used_baudrate(baudrate),
-      initialization_result(initialize(pins_to_use, baudrate)) {}
+HAL::UART::UART(UART::pins pins_to_use, std::uint32_t baudrate)
+    : initialization_result(initialize(pins_to_use, baudrate)),
+      used_pins(pins_to_use), used_baudrate(baudrate) {}
 
 HAL::UART::~UART() {
   clear_pin_reservations(used_pins,
