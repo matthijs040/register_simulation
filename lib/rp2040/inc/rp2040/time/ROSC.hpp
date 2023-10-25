@@ -6,6 +6,7 @@
 #include <expected>
 #include <system_error>
 #include <type_traits>
+#include <span>
 
 class ROSC : std::conditional<USE_SIMULATED_REGISTERS,
                               simulated_peripheral<ROSC>, void> {
@@ -17,6 +18,7 @@ public:
 
   std::uint32_t get_power_stage() const noexcept;
   void set_power_stage(uint32_t) noexcept;
+  static std::span<const uint32_t> get_frequencies_by_power_stage() noexcept;
 
   std::expected<uint32_t, std::error_code> get_frequency_Hz() const noexcept;
   std::expected<uint32_t, std::error_code>

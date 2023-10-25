@@ -53,7 +53,8 @@ ROSC::get_frequency_Hz() const noexcept {
     return ret;
   }
 
-  return frequencies.at(get_power_stage()) * (table_divisor / (DIV.divisor -div_prefix));
+  return frequencies.at(get_power_stage()) *
+         (table_divisor / (DIV.divisor - div_prefix));
 }
 
 constexpr uint32_t drive_strength_to_power_level(drive_strength strength) {
@@ -136,12 +137,17 @@ ROSC::set_frequency_Hz(std::uint32_t frequency) noexcept {
                     ? (div_prefix + (table_divisor / (offset_factor + 1)))
                     : (div_prefix + table_divisor);
 
-  const auto found =
-      std::find_if(frequencies.begin(), frequencies.end(),
-                   [frequency, offset_factor](auto elem) {
-                     return elem * (offset_factor + 1) <= frequency;
-                   });
-  uint32_t power_stage = found - frequencies.begin();
+  const uint32_t *result = nullptr;
+  uint32_t old_offset = std::numeric_limits<uint32_t>::max();
+  for (const auto &freq : frequencies) {
+    uint32_t offset = abs(frequency - freq * (offset_factor + 1));
+    if (!result || offset < old_offset) {
+      old_offset = offset;
+      result = &freq;
+    }
+  }
+
+  uint32_t power_stage = result - frequencies.data();
   auto set_frequency = frequencies.at(power_stage) * (offset_factor + 1);
   set_power_stage(power_stage);
 
@@ -194,4 +200,8 @@ void ROSC::apply_settings(
   FREQB.DS6 = DS6;
   FREQB.DS7 = DS7;
   FREQB.PASSWD = reg::ROSC::PASSWD_states::apply;
+}
+
+std::span<const uint32_t> ROSC::get_frequencies_by_power_stage() noexcept {
+  return frequencies;
 }

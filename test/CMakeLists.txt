@@ -11,7 +11,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib ${CMAKE_CURRENT_BINARY_DIR}/
 project(unit_tests)
 include(CTest)
 
-add_executable(tests GPIO_tests.cpp clock_control_tests.cpp UART_tests.cpp)
+add_executable(tests GPIO_tests.cpp clock_control_tests.cpp UART_tests.cpp ROSC_tests.cpp)
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT supported OUTPUT error)
@@ -22,7 +22,7 @@ else()
     message(STATUS "IPO / LTO not supported: <${error}>")
 endif()
 
-target_compile_options(tests PRIVATE -fprofile-arcs -ftest-coverage)
+target_compile_options(tests PRIVATE -fprofile-arcs -ftest-coverage -Og)
 target_link_options(tests PRIVATE -lgcov --coverage)
 target_link_libraries(tests PRIVATE rp2040_impl GTest::gtest_main)
 set_target_properties(tests PROPERTIES CXX_STANDARD 23)
