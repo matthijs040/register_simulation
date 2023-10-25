@@ -20,7 +20,7 @@ add_executable(main main.cpp application.cpp)
 # endif()
 
 target_link_libraries(main PRIVATE HAL rp2040_impl pico_stdlib)
-target_compile_options(main PRIVATE -g -Og)
+target_compile_options(main PRIVATE -Os)
 pico_enable_stdio_usb(main 1)
 pico_enable_stdio_uart(main 0)
 pico_add_extra_outputs(main)

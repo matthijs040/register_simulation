@@ -27,8 +27,9 @@ private:
     void detach_clock(const char* stub = "");
     void set_ROSC_state(const char* state);
     void set_ROSC_devisor(const char* devisor);
+    void set_ROSC_frequency(const char* frequency);
 
-    std::array<named_function, 8> RPCs;
+    std::array<named_function, 9> RPCs;
 
 };
 

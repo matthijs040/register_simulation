@@ -129,6 +129,28 @@ void application::set_ROSC_devisor(const char *param) {
   std::cout << "devisor is now set to: " << handle.DIV.divisor << "\n";
 }
 
+void application::set_ROSC_frequency(const char *freq_str) {
+  std::cout << "called set ROSC state with Hz: " << freq_str << "\n";
+  uint32_t frequency_Hz = 0u;
+  auto result =
+      std::from_chars(freq_str, freq_str + std::strlen(freq_str), frequency_Hz);
+  if (result.ec != std::errc())
+    return;
+
+  auto &handle = ROSC::get();
+  auto ret = handle.set_frequency_Hz(frequency_Hz);
+  if (!ret.has_value())
+    std::cout << "setting frequency failed with error: "
+              << ret.error().message() << "\n";
+  else
+    std::cout << "Setting frequency succeeded. Is now set to: " << ret.value()
+              << "\n";
+
+  auto gotten_freq = handle.get_frequency_Hz();
+  if (gotten_freq.has_value())
+    std::cout << "Get frequency reports: " << gotten_freq.value() << "\n";
+}
+
 void get_string(std::span<char> data) {
   std::size_t index = 0;
   while (index < data.size()) {
@@ -163,11 +185,14 @@ application::application(GPIO &LED_handle_)
                                     std::placeholders::_1)},
            named_function{"CLK.detach", std::bind(&application::detach_clock,
                                                   this, std::placeholders::_1)},
-           named_function{"ROSC.set.state ", 
+           named_function{"ROSC.set.state ",
                           std::bind(&application::set_ROSC_state, this,
                                     std::placeholders::_1)},
            named_function{"ROSC.set.divisor ",
                           std::bind(&application::set_ROSC_devisor, this,
+                                    std::placeholders::_1)},
+           named_function{"ROSC.set.frequency ",
+                          std::bind(&application::set_ROSC_frequency, this,
                                     std::placeholders::_1)}})
 
 {}

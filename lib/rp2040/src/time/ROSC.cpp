@@ -53,7 +53,7 @@ ROSC::get_frequency_Hz() const noexcept {
     return ret;
   }
 
-  return frequencies.at(get_power_stage()) * (table_divisor / DIV.divisor);
+  return frequencies.at(get_power_stage()) * (table_divisor / (DIV.divisor -div_prefix));
 }
 
 constexpr uint32_t drive_strength_to_power_level(drive_strength strength) {
@@ -120,6 +120,7 @@ determine_frequency_range(uint32_t &strength) {
 std::expected<uint32_t, std::error_code>
 ROSC::set_frequency_Hz(std::uint32_t frequency) noexcept {
   if (CTRL.ENABLE == reg::ROSC::CTRL::ENABLE_states::disabled) {
+    std::cout << "CTRL.ENABLE is disabled\n";
     std::error_code err = clock_error::code::disabled;
     auto ret = std::unexpected(err);
     return ret;
@@ -141,7 +142,7 @@ ROSC::set_frequency_Hz(std::uint32_t frequency) noexcept {
                      return elem * (offset_factor + 1) <= frequency;
                    });
   uint32_t power_stage = found - frequencies.begin();
-  auto set_frequency = frequencies.at(power_stage);
+  auto set_frequency = frequencies.at(power_stage) * (offset_factor + 1);
   set_power_stage(power_stage);
 
   return set_frequency;
