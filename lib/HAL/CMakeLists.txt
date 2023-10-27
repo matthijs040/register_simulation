@@ -3,6 +3,7 @@ project(HAL)
 add_library(HAL STATIC src/simulated_device_register.cpp src/syscalls.cpp src/clock_control.cpp)
 target_include_directories(HAL PUBLIC inc)
 set_target_properties(HAL PROPERTIES CXX_STANDARD 23)
+target_compile_options(HAL PRIVATE -Og -g)
 
 message(CHECK_START "Checking if we are crosscompiling: ")
 if(${CMAKE_CROSSCOMPILING})

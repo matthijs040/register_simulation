@@ -20,7 +20,7 @@ else()
     message(STATUS "IPO / LTO not supported: <${error}>")
 endif()
 
-target_compile_options(rp2040_impl PRIVATE -Og -Wall -Wextra -Wpedantic -Werror)
+target_compile_options(rp2040_impl PRIVATE -Og -g -Wall -Wextra -Wpedantic -Werror)
 set_target_properties(rp2040_impl PROPERTIES CXX_STANDARD 23)
 target_link_libraries(rp2040_impl PUBLIC HAL)
 target_include_directories(rp2040_impl PUBLIC inc)

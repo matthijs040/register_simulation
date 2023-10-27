@@ -54,7 +54,7 @@ ROSC::get_frequency_Hz() const noexcept {
   }
 
   return frequencies.at(get_power_stage()) *
-         (table_divisor / (DIV.divisor - divisor_prefix));
+         table_divisor / (DIV.divisor - divisor_prefix);
 }
 
 constexpr uint32_t drive_strength_to_power_level(drive_strength strength) {
