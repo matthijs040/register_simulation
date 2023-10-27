@@ -6,15 +6,20 @@
 #include <rp2040/time/ROSC.hpp>
 #include <rp2040/time/clocks.hpp>
 
+static std::array<UART *, num_UART_peripherals> handles;
+
 UART &UART::get(UART::ID which) noexcept {
-  static std::array<UART *, num_UART_peripherals> handles;
   auto instance = handles.at(std::to_underlying(which));
   if (!instance)
     instance = new (which) UART();
   return *instance;
 }
 UART::~UART() {}
-void UART::operator delete(void *) {}
+void UART::operator delete(void *ptr) {
+  for (auto *handle : handles)
+    if (handle == ptr)
+      handle = nullptr;
+}
 
 UART::UART() {}
 
@@ -59,11 +64,13 @@ std::error_code set_reserved_pins(HAL::UART::pins pins) {
   if (!pins.CTS.has_value() || !pins.RTS.has_value())
     return {};
 
-  if (auto error = reserve_pin(pins.CTS.value(), reg::CTRL::FUNCSEL_states::UART)) {
+  if (auto error =
+          reserve_pin(pins.CTS.value(), reg::CTRL::FUNCSEL_states::UART)) {
     clear_pin_reservations(pins, 2);
     return error;
   }
-  if (auto error = reserve_pin(pins.RTS.value(), reg::CTRL::FUNCSEL_states::UART)) {
+  if (auto error =
+          reserve_pin(pins.RTS.value(), reg::CTRL::FUNCSEL_states::UART)) {
     clear_pin_reservations(pins, 3);
     return error;
   }
@@ -173,14 +180,14 @@ std::error_code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate) {
       reg::CLK_PERI_CTRL::AUXSRC_states::rosc_clksrc_ph;
   // Obtain the frequency or abort if that fails.
   auto frequency = ROSC::get().get_frequency_Hz();
-  if (frequency.error())
+  if (!frequency.has_value())
     return frequency.error();
 
   UART &handle = UART::get(ID.value());
   // get the used baudrate as out-param to write to the class member.
   baudrate = set_baudrate(handle, baudrate, frequency.value());
 
-  return {};
+  return std::error_code();
 }
 
 HAL::UART::UART(UART::pins pins_to_use, std::uint32_t baudrate)

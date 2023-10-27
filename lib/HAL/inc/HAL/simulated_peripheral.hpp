@@ -16,7 +16,6 @@ public:
     static_cast<Peripheral *>(addr)->~Peripheral();
   }
 
-private:
   enum class stub : register_integral {};
   static_assert(num_peripherals > 0);
   static_assert(sizeof(register_integral) == sizeof(bitfield<stub, 2, 2, true>));
