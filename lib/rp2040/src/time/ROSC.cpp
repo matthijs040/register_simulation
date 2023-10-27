@@ -119,7 +119,7 @@ determine_frequency_range(uint32_t &strength) {
 }
 
 inline void find_closest_match(uint32_t desired_frequency,
-                               const uint32_t *&result,
+                               const unsigned int *&result,
                                uint32_t &used_divisor) {
 
   uint32_t old_offset = std::numeric_limits<uint32_t>::max();
@@ -139,12 +139,11 @@ inline void find_closest_match(uint32_t desired_frequency,
 std::expected<uint32_t, std::error_code>
 ROSC::set_frequency_Hz(std::uint32_t desired_frequency) noexcept {
   if (CTRL.ENABLE == reg::ROSC::CTRL::ENABLE_states::disabled) {
-    std::cout << "CTRL.ENABLE is disabled\n";
     std::error_code err = clock_error::code::disabled;
     auto ret = std::unexpected(err);
     return ret;
   }
-  const uint32_t *result = nullptr;
+  const unsigned int *result = nullptr;
   uint32_t used_divisor;
   find_closest_match(desired_frequency, result,
                      used_divisor);
@@ -206,6 +205,6 @@ void ROSC::apply_settings(
   FREQB.PASSWD = reg::ROSC::PASSWD_states::apply;
 }
 
-std::span<const uint32_t> ROSC::get_frequencies_by_power_stage() noexcept {
+std::span<const unsigned int> ROSC::get_frequencies_by_power_stage() noexcept {
   return frequencies;
 }

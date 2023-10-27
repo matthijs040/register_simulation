@@ -6,7 +6,7 @@
 #include <bit>
 
 template <typename bitstate, std::size_t offset, std::size_t num_bits,
-          bool uses_simulated_registers = USE_SIMULATED_REGISTERS>
+          bool uses_simulated_registers>
 struct bitfield
 {
   template <typename U = bitstate>

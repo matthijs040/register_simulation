@@ -1,6 +1,11 @@
 #pragma once
 
+#include <system/architecture.hpp>
+
 namespace reg {
+
+constexpr bool mock = arch::get_architecture() != arch::architectures::ARM7;
+
 enum class state : bool {
   disabled = false,
   cleared = false,

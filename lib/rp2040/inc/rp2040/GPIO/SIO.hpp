@@ -1,15 +1,14 @@
 #pragma once
 
-#include <HAL/device_register.hpp>
-#include <HAL/GPIO.hpp>
-#include <HAL/simulated_peripheral.hpp>
 #include "registers/SIO.hpp"
+#include <HAL/GPIO.hpp>
+#include <HAL/device_register.hpp>
+#include <HAL/simulated_peripheral.hpp>
 #include <expected>
 #include <system_error>
 #include <type_traits>
 
-class SIO : std::conditional<USE_SIMULATED_REGISTERS, simulated_peripheral<SIO>,
-                             void> {
+class SIO : std::conditional<reg::mock, simulated_peripheral<SIO>, void> {
 public:
   static constexpr uintptr_t base_address = 0xd0000000;
 

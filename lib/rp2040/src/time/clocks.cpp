@@ -19,7 +19,7 @@ void clocks::operator delete(void *addr) {
 
 void *clocks::operator new(std::size_t size) {
   using base = simulated_peripheral<clocks>;
-  if constexpr (std::derived_from<clocks, base>)
+  if constexpr (std::is_base_of_v<base, clocks>)
     return base::operator new(size);
   return std::bit_cast<clocks *>(base_address);
 }

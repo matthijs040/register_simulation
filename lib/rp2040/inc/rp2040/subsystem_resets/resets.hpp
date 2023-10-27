@@ -5,8 +5,8 @@
 #include <cstdint>
 #include <type_traits>
 
-class resets : std::conditional<USE_SIMULATED_REGISTERS,
-                                simulated_peripheral<resets>, void> {
+class resets
+    : std::conditional<reg::mock, simulated_peripheral<resets>, void> {
 public:
   static constexpr uintptr_t base_address = 0x4000c000;
 
@@ -21,5 +21,4 @@ public:
 private:
   resets(/* args */);
   void *operator new(std::size_t);
-  
 };

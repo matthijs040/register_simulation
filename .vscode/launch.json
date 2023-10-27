@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build_tests/tests",
-            "args": [ "--gtest_filter=ROSC_tests.*"
+            "args": [ "--gtest_filter=UART_tests.*"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

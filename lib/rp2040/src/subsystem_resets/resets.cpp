@@ -17,7 +17,7 @@ resets::resets(/* args */) {}
 
 void *resets::operator new(std::size_t size) {
   using base = simulated_peripheral<resets>;
-  if constexpr (std::derived_from<resets, base>)
+  if constexpr (std::is_base_of_v<base, resets>)
     return base::operator new(size);
   return std::bit_cast<resets *>(base_address);
 }

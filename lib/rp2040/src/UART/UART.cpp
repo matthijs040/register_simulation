@@ -20,7 +20,7 @@ UART::UART() {}
 
 void *UART::operator new(std::size_t, UART::ID which) {
   using base = simulated_peripheral<UART>;
-  if constexpr (std::derived_from<UART, base>)
+  if constexpr (std::is_base_of_v<base, UART>)
     return base::operator new(std::to_underlying(which));
   else {
     switch (which) {
@@ -52,18 +52,18 @@ std::error_code set_reserved_pins(HAL::UART::pins pins) {
     clear_pin_reservations(pins, 0);
     return error;
   }
-  if (auto error = reserve_pin(pins.RX, reg::CTRL::FUNCSEL_states::UART)) {
+  if (auto error = reserve_pin(pins.TX, reg::CTRL::FUNCSEL_states::UART)) {
     clear_pin_reservations(pins, 1);
     return error;
   }
   if (!pins.CTS.has_value() || !pins.RTS.has_value())
     return {};
 
-  if (auto error = reserve_pin(pins.RX, reg::CTRL::FUNCSEL_states::UART)) {
+  if (auto error = reserve_pin(pins.CTS.value(), reg::CTRL::FUNCSEL_states::UART)) {
     clear_pin_reservations(pins, 2);
     return error;
   }
-  if (auto error = reserve_pin(pins.RX, reg::CTRL::FUNCSEL_states::UART)) {
+  if (auto error = reserve_pin(pins.RTS.value(), reg::CTRL::FUNCSEL_states::UART)) {
     clear_pin_reservations(pins, 3);
     return error;
   }

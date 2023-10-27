@@ -8,8 +8,8 @@
 #include <system_error>
 #include <type_traits>
 
-class ROSC : std::conditional<USE_SIMULATED_REGISTERS,
-                              simulated_peripheral<ROSC>, void> {
+class ROSC
+    : std::conditional<reg::mock, simulated_peripheral<ROSC>, void> {
 public:
   static constexpr uintptr_t base_address = 0x40060000;
   static ROSC &get() noexcept;
@@ -18,7 +18,7 @@ public:
 
   std::uint32_t get_power_stage() const noexcept;
   void set_power_stage(uint32_t) noexcept;
-  static std::span<const uint32_t> get_frequencies_by_power_stage() noexcept;
+  static std::span<const unsigned int> get_frequencies_by_power_stage() noexcept;
 
   std::expected<uint32_t, std::error_code> get_frequency_Hz() const noexcept;
   std::expected<uint32_t, std::error_code>

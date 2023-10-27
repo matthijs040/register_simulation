@@ -1,14 +1,16 @@
 #pragma once
 
+#include "registers/UART.hpp"
 #include <HAL/simulated_peripheral.hpp>
 #include <cstdint>
 #include <type_traits>
-#include "registers/UART.hpp"
+#include <rp2040/shared_types.hpp>
 
-  static constexpr std::size_t num_UART_peripherals = 2;
+static constexpr std::size_t num_UART_peripherals = 2;
 
-class UART : std::conditional<USE_SIMULATED_REGISTERS,
-                              simulated_peripheral<UART, num_UART_peripherals>, void> {
+class UART
+    : std::conditional<reg::mock,
+                       simulated_peripheral<UART, num_UART_peripherals>, void> {
 public:
   static constexpr uintptr_t base_address_0 = 0x40034000;
   static constexpr uintptr_t base_address_1 = 0x40038000;
