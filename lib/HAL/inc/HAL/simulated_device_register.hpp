@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <bit>
 
 template <class Underlying> class simulated_device_register {
 public:
@@ -16,7 +17,7 @@ public:
 
   operator register_integral() const {
     on_read();
-    return reinterpret_cast<const register_integral&>(value);
+    return *std::bit_cast<const register_integral*>(&value);
   }
 
   void operator=(Underlying v) {

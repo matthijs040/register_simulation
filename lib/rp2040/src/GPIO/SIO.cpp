@@ -1,5 +1,5 @@
 #include <rp2040/GPIO/SIO.hpp>
-#include <concepts>
+#include <bit>
 
 SIO::~SIO() {}
 
@@ -10,7 +10,7 @@ void SIO::operator delete(void *addr) { static_cast<SIO *>(addr)->~SIO(); }
 void *SIO::operator new(size_t size) {
   if constexpr (reg::mock)
     return simulated_peripheral<SIO>::operator new(size);
-  return reinterpret_cast<SIO *>(base_address);
+  return std::bit_cast<SIO *>(base_address);
 }
 
 SIO &SIO::get() noexcept {

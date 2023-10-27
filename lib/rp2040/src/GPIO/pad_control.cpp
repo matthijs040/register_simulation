@@ -1,5 +1,6 @@
 #include <iostream>
 #include <rp2040/GPIO/pad_control.hpp>
+#include <bit>
 
 pad_control::pad_control()
     : VOLTAGE_SELECT(reg::VOLTAGE_SELECT::VOLTAGE_SELECT_states::volts_3_3),
@@ -21,7 +22,7 @@ void pad_control::operator delete(void *addr) {
 void *pad_control::operator new(size_t size) {
   if constexpr(reg::mock)
       return simulated_peripheral<pad_control>::operator new(size);
-  return reinterpret_cast<pad_control *>(base_address);
+  return std::bit_cast<pad_control *>(base_address);
 }
 
 pad_control &pad_control::get() noexcept {

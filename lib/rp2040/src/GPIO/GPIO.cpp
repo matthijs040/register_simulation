@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <system_error>
+#include <bit>
 
 std::size_t GPIO::get_num_pins() noexcept { return 29u; }
 static const GPIO::pin_number max_pin_num = GPIO::get_num_pins() - 1;
@@ -15,14 +16,14 @@ reg::CTRL &get_control_register(GPIO::pin_number pin) {
   const auto first_offset = 1;
   const auto register_spacing = 2;
 
-  auto *register_block = reinterpret_cast<reg::CTRL *>(reg);
+  auto *register_block = std::bit_cast<reg::CTRL *>(reg);
   return *((register_block + first_offset) + (pin * register_spacing));
 }
 
 reg::STATUS &get_status_register(GPIO::pin_number pin) {
   auto *registers = &user_IO::get();
   const auto register_spacing = 2;
-  auto *register_block = reinterpret_cast<reg::STATUS *>(registers);
+  auto *register_block = std::bit_cast<reg::STATUS *>(registers);
   return *(register_block + (pin * register_spacing));
 }
 
@@ -31,7 +32,7 @@ reg::GPIO &get_pad_register(GPIO::pin_number pin) {
   const auto first_offset = 1;
   const auto register_spacing = 1;
 
-  auto *register_block = reinterpret_cast<reg::GPIO *>(reg);
+  auto *register_block = std::bit_cast<reg::GPIO *>(reg);
   return *((register_block + first_offset) + (pin * register_spacing));
 }
 
