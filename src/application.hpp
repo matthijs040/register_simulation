@@ -20,6 +20,7 @@ private:
     void enable_LED(const char* stub = "");
     void disable_LED(const char* stub = "");
     void get_LED_state(const char* stub = "");
+    void get_arch(const char* stub = "");
 
 
     void attach_ROSC(const char* stub = "");
@@ -29,7 +30,7 @@ private:
     void set_ROSC_devisor(const char* devisor);
     void set_ROSC_frequency(const char* frequency);
 
-    std::array<named_function, 9> RPCs;
+    std::array<named_function, 10> RPCs;
 
 };
 

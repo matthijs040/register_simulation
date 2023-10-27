@@ -5,14 +5,3 @@ target_include_directories(HAL PUBLIC inc)
 set_target_properties(HAL PROPERTIES CXX_STANDARD 23)
 target_compile_options(HAL PRIVATE -Og -g)
 
-message(CHECK_START "Checking if we are crosscompiling: ")
-if(${CMAKE_CROSSCOMPILING})
-    message(CHECK_PASS "true")
-    set(use_simulated_registers false)
-else()
-    message(CHECK_PASS "false")
-    set(use_simulated_registers true)
-endif()
-
-target_compile_definitions(HAL PUBLIC USE_SIMULATED_REGISTERS=${use_simulated_registers})
-

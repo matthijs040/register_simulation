@@ -1,12 +1,13 @@
 #include <rp2040/GPIO/GPIO.hpp>
 #include <rp2040/GPIO/SIO.hpp>
-#include <rp2040/shared_types.hpp>
 #include <rp2040/GPIO/user_IO.hpp>
+#include <rp2040/shared_types.hpp>
 
 #include <expected>
 #include <iostream>
 #include <new>
 #include <typeinfo>
+#include <bit>
 
 std::expected<reg::state, std::error_code>
 is_peripheral_output_enabled(GPIO::pin_number pin_number,
@@ -206,10 +207,12 @@ void user_IO::operator delete(void *addr) {
 };
 
 void *user_IO::operator new(std::size_t size) {
-  if constexpr (USE_SIMULATED_REGISTERS)
+  if constexpr (reg::mock)
     return simulated_peripheral<user_IO>::operator new(size);
-  return reinterpret_cast<user_IO *>(base_address);
+  return std::bit_cast<user_IO *>(base_address);
 }
+
+
 
 user_IO &user_IO::get() noexcept {
   static user_IO *handle;
@@ -217,7 +220,7 @@ user_IO &user_IO::get() noexcept {
     return *handle;
   handle = new user_IO();
 
-  if constexpr (USE_SIMULATED_REGISTERS)
+  if constexpr (reg::mock)
     initialize_handlers();
 
   return *handle;

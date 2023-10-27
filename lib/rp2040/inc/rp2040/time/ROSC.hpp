@@ -9,7 +9,7 @@
 #include <type_traits>
 
 class ROSC
-    : std::conditional<reg::mock, simulated_peripheral<ROSC>, void> {
+    : public std::conditional<reg::mock, simulated_peripheral<ROSC>, void> {
 public:
   static constexpr uintptr_t base_address = 0x40060000;
   static ROSC &get() noexcept;

@@ -7,7 +7,7 @@
 #include <type_traits>
 
 class pad_control
-    : std::conditional<reg::mock, simulated_peripheral<pad_control>, void> {
+    : public std::conditional<reg::mock, simulated_peripheral<pad_control>, void> {
 public:
   static constexpr uintptr_t base_address = 0x4001c000;
 

@@ -166,10 +166,18 @@ void get_string(std::span<char> data) {
   }
 }
 
+void application::get_arch(const char *) {
+  std::cout << "arch is: " << std::to_underlying(arch::get_architecture()) << "\n";
+}
+
 application::application(GPIO &LED_handle_)
     : LED_handle(LED_handle_),
       RPCs(
-          {named_function{"LED.set.high",
+          {named_function{
+               "sys.get.arch",
+               std::bind(&application::get_arch, this, std::placeholders::_1)},
+
+           named_function{"LED.set.high",
                           std::bind(&application::enable_LED, this,
                                     std::placeholders::_1)},
            named_function{"LED.set.low",

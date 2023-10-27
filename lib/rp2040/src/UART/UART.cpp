@@ -20,7 +20,7 @@ UART::UART() {}
 
 void *UART::operator new(std::size_t, UART::ID which) {
   using base = simulated_peripheral<UART>;
-  if constexpr (std::is_base_of_v<base, UART>)
+  if constexpr (reg::mock)
     return base::operator new(std::to_underlying(which));
   else {
     switch (which) {

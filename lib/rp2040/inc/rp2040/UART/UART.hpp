@@ -9,7 +9,7 @@
 static constexpr std::size_t num_UART_peripherals = 2;
 
 class UART
-    : std::conditional<reg::mock,
+    : public std::conditional<reg::mock,
                        simulated_peripheral<UART, num_UART_peripherals>, void> {
 public:
   static constexpr uintptr_t base_address_0 = 0x40034000;

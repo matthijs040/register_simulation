@@ -9,9 +9,7 @@
                 "lib/rp2040/inc",
                 "${workspaceFolder}/build_app/generated/pico_base"
             ],
-            "defines": [
-                "USE_SIMULATED_REGISTERS=false"
-            ],
+            "defines": [],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c23",
             "cppStandard": "gnu++23",

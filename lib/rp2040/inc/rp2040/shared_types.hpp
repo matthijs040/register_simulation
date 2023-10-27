@@ -4,7 +4,8 @@
 
 namespace reg {
 
-constexpr bool mock = arch::get_architecture() != arch::architectures::ARM7;
+constexpr bool mock = arch::get_architecture() != arch::architectures::ARM6;
+static_assert(arch::get_architecture() != arch::architectures::unknown);
 
 enum class state : bool {
   disabled = false,

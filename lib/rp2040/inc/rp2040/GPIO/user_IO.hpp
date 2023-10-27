@@ -7,7 +7,7 @@
 #include <optional>
 
 class user_IO
-    : std::conditional<reg::mock, simulated_peripheral<user_IO>, void> {
+    : public std::conditional<reg::mock, simulated_peripheral<user_IO>, void> {
 public:
   static user_IO &get() noexcept;
 

@@ -19,7 +19,7 @@ void pad_control::operator delete(void *addr) {
 }
 
 void *pad_control::operator new(size_t size) {
-  if constexpr(USE_SIMULATED_REGISTERS)
+  if constexpr(reg::mock)
       return simulated_peripheral<pad_control>::operator new(size);
   return reinterpret_cast<pad_control *>(base_address);
 }

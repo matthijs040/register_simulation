@@ -18,9 +18,8 @@ void clocks::operator delete(void *addr) {
 }
 
 void *clocks::operator new(std::size_t size) {
-  using base = simulated_peripheral<clocks>;
-  if constexpr (std::is_base_of_v<base, clocks>)
-    return base::operator new(size);
+  if constexpr (reg::mock)
+    return simulated_peripheral<clocks>::operator new(size);
   return std::bit_cast<clocks *>(base_address);
 }
 

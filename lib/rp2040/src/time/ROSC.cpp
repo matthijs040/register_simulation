@@ -38,9 +38,9 @@ void ROSC::operator delete(void *addr) { static_cast<ROSC *>(addr)->~ROSC(); }
 ROSC::ROSC() : CTRL() {}
 
 void *ROSC::operator new(std::size_t size) {
-  if constexpr (USE_SIMULATED_REGISTERS)
+  if constexpr (reg::mock)
     return simulated_peripheral<ROSC>::operator new(size);
-  return reinterpret_cast<ROSC *>(base_address);
+  return std::bit_cast<ROSC *>(base_address);
 }
 
 std::expected<uint32_t, std::error_code>
@@ -53,8 +53,8 @@ ROSC::get_frequency_Hz() const noexcept {
     return ret;
   }
 
-  return frequencies.at(get_power_stage()) *
-         table_divisor / (DIV.divisor - divisor_prefix);
+  return frequencies.at(get_power_stage()) * table_divisor /
+         (DIV.divisor - divisor_prefix);
 }
 
 constexpr uint32_t drive_strength_to_power_level(drive_strength strength) {
@@ -145,8 +145,7 @@ ROSC::set_frequency_Hz(std::uint32_t desired_frequency) noexcept {
   }
   const unsigned int *result = nullptr;
   uint32_t used_divisor;
-  find_closest_match(desired_frequency, result,
-                     used_divisor);
+  find_closest_match(desired_frequency, result, used_divisor);
 
   uint32_t power_stage = result - frequencies.data();
   auto final_frequency =

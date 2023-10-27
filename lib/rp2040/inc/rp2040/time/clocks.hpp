@@ -6,7 +6,7 @@
 #include <type_traits>
 
 class clocks
-    : std::conditional<reg::mock, simulated_peripheral<clocks>, void> {
+    : public std::conditional<reg::mock, simulated_peripheral<clocks>, void> {
 public:
   static constexpr uintptr_t base_address = 0x40008000;
 

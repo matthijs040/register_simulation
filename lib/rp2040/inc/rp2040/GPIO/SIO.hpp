@@ -8,7 +8,7 @@
 #include <system_error>
 #include <type_traits>
 
-class SIO : std::conditional<reg::mock, simulated_peripheral<SIO>, void> {
+class SIO : public std::conditional<reg::mock, simulated_peripheral<SIO>, void> {
 public:
   static constexpr uintptr_t base_address = 0xd0000000;
 

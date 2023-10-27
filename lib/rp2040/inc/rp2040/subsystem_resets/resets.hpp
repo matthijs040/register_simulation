@@ -6,7 +6,7 @@
 #include <type_traits>
 
 class resets
-    : std::conditional<reg::mock, simulated_peripheral<resets>, void> {
+    : public std::conditional<reg::mock, simulated_peripheral<resets>, void> {
 public:
   static constexpr uintptr_t base_address = 0x4000c000;
 
