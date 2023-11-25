@@ -4,16 +4,16 @@
 
 static std::array<UART *, num_UART_peripherals> handles;
 
+constexpr std::size_t FIFO_size = 32;
+struct UART_FIFOs {
+  std::array<uint8_t, FIFO_size> RX_FIFO{};
+  size_t RX_index{};
+  std::array<uint8_t, FIFO_size> TX_FIFO{};
+  size_t TX_index{};
+};
+
 void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
   using data_type = decltype(reg::UARTDR::data);
-
-  constexpr std::size_t FIFO_size = 32;
-  struct UART_FIFOs {
-    std::array<uint8_t, FIFO_size> RX_FIFO;
-    size_t RX_index;
-    std::array<uint8_t, FIFO_size> TX_FIFO;
-    size_t TX_index;
-  };
 
   static std::map<void *, UART_FIFOs> FIFO_storage;
 
@@ -23,12 +23,12 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
     auto &UARTFR_storage =
         simulated_peripheral<UART>::simulated_register_storage.at(
             std::to_underlying(which) * sizeof(UART) +
-            offsetof(UART, UART::UARTFR));
+            offsetof(UART, UART::UARTFR) / sizeof(UART::UARTFR));
 
     auto &UARTDR_storage =
         simulated_peripheral<UART>::simulated_register_storage.at(
             std::to_underlying(which) * sizeof(UART) +
-            offsetof(UART, UART::UARTDR));
+            offsetof(UART, UART::UARTDR) / sizeof(UART::UARTDR));
 
     // Replace the data in the transfer register.
     if (buffer.RX_index) {
@@ -61,17 +61,17 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
     auto &UARTFR_storage =
         simulated_peripheral<UART>::simulated_register_storage.at(
             std::to_underlying(which) * sizeof(UART) +
-            offsetof(UART, UART::UARTFR));
+            (offsetof(UART, UART::UARTFR) / sizeof(UART::UARTFR)));
 
     // Copy over the data to transfer to the TX_FIFO.
-    if (buffer.TX_index < buffer.TX_FIFO.size() - 1) {
+    if (buffer.TX_index < buffer.TX_FIFO.size()) {
       buffer.TX_FIFO[buffer.TX_index] = after_write;
       buffer.TX_index++;
     }
 
     // Also, if the FIFO is/becomes full by this write,
     // Set the FIFO full flag in the "Flags Register"
-    if (buffer.TX_index >= buffer.TX_FIFO.size() - 1) {
+    if (buffer.TX_index >= buffer.TX_FIFO.size()) {
       UARTFR_storage = UARTFR_storage |
                        std::to_underlying(reg::state::set)
                            << decltype(reg::UARTFR::transmit_FIFO_full)::offset;

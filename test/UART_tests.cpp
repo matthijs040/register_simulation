@@ -1,6 +1,7 @@
 #include <HAL/GPIO.hpp>
 #include <HAL/UART.hpp>
 #include <gtest/gtest.h>
+#include <numeric>
 
 constexpr HAL::UART::format default_format = {HAL::UART::parity::none,
                                               HAL::UART::stop_bits::one,
@@ -85,6 +86,7 @@ TEST(UART_tests, a_transmitted_character_is_put_in_the_right_transmit_FIFO) {
 TEST(UART_tests, transmitting_more_than_TX_FIFO_size_bytes_returns_FIFO_size) {
   constexpr auto TX_FIFO_size = 32U;
   std::array<uint8_t, TX_FIFO_size + 1> data;
+  std::iota(data.begin(), data.end(), 0);
 
   HAL::UART instance =
       HAL::UART(default_pins, default_baudrate, default_format);

@@ -50,7 +50,7 @@ void init_reset_done_handlers() {
     if (read_bits == reg::state::set) {
       auto &working_bit =
           simulated_peripheral<resets>::simulated_register_storage.at(
-              offsetof(resets, resets::RESET));
+              offsetof(resets, resets::RESET) / sizeof(resets::RESET));
       working_bit = working_bit | std::to_underlying(reg::state::cleared)
                                       << decltype(reg::RESET::UART0)::offset;
       auto &done_bit =
@@ -68,7 +68,8 @@ void init_reset_done_handlers() {
     if (read_bits == reg::state::set) {
       auto &done_read =
           simulated_peripheral<resets>::simulated_register_storage.at(
-              offsetof(resets, resets::RESET_DONE));
+              offsetof(resets, resets::RESET_DONE) /
+              sizeof(resets::RESET_DONE));
       done_read = done_read | std::to_underlying(reg::state::cleared)
                                   << decltype(reg::RESET_DONE::UART1)::offset;
     }
