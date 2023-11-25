@@ -78,12 +78,12 @@ std::error_code set_reserved_pins(HAL::UART::pins pins) {
   return {};
 }
 
-bool has_additional_control_flow(HAL::UART::pins pins) {
+constexpr bool has_additional_control_flow(HAL::UART::pins pins) {
   return pins.CTS.has_value() && pins.RTS.has_value();
 }
 
 constexpr std::optional<UART::ID> get_ID_by_pins(HAL::UART::pins pins) {
-  std::optional<UART::ID> ret = {};
+  std::optional<UART::ID> ret = std::nullopt;
   if (pins.RX == 1 || pins.RX == 13 || pins.RX == 17 || pins.RX == 29)
     if (pins.TX == 0 || pins.TX == 12 || pins.TX == 16 || pins.TX == 28)
       ret = UART::ID::first;
@@ -159,7 +159,76 @@ uint32_t set_baudrate(UART &handle, uint32_t baudrate,
   return (4 * clock_rate_Hz) / (64 * baud_ibrd + baud_fbrd);
 }
 
-std::error_code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate) {
+std::error_code set_format(UART &handle,
+                           const HAL::UART::format &format_to_apply) {
+  if (format_to_apply.used_data_bits == HAL::UART::data_bits::nine ||
+      format_to_apply.used_stop_bits == HAL::UART::stop_bits::one_and_a_half)
+    return std::make_error_code(std::errc::not_supported);
+
+  switch (format_to_apply.used_data_bits) {
+  case HAL::UART::data_bits::five:
+    handle.UARTLCR_H.WLEN = reg::UARTLCR_H::WLEN_states::data_bits_5;
+    break;
+  case HAL::UART::data_bits::six:
+    handle.UARTLCR_H.WLEN = reg::UARTLCR_H::WLEN_states::data_bits_6;
+    break;
+  case HAL::UART::data_bits::seven:
+    handle.UARTLCR_H.WLEN = reg::UARTLCR_H::WLEN_states::data_bits_7;
+    break;
+  case HAL::UART::data_bits::eight:
+    handle.UARTLCR_H.WLEN = reg::UARTLCR_H::WLEN_states::data_bits_8;
+    break;
+  case HAL::UART::data_bits::nine:
+    // Should be caught by input if-statement
+    break;
+  }
+
+  switch (format_to_apply.used_parity) {
+  case HAL::UART::parity::none:
+    handle.UARTLCR_H.PEN = reg::state::disabled;
+    break;
+  case HAL::UART::parity::even:
+    handle.UARTLCR_H.EPS = reg::state::set;
+    handle.UARTLCR_H.PEN = reg::state::enabled;
+    break;
+  case HAL::UART::parity::odd:
+    handle.UARTLCR_H.EPS = reg::state::cleared;
+    handle.UARTLCR_H.PEN = reg::state::enabled;
+    break;
+  }
+
+  switch (format_to_apply.used_stop_bits) {
+  case HAL::UART::stop_bits::one:
+    handle.UARTLCR_H.STP2 = reg::state::cleared;
+    break;
+  case HAL::UART::stop_bits::one_and_a_half:
+  // Should be caught by input if-statement
+  case HAL::UART::stop_bits::two:
+    handle.UARTLCR_H.STP2 = reg::state::set;
+  }
+  return {};
+}
+
+HAL::UART::format get_format(const ::UART &handle) {
+  return HAL::UART::format{
+      handle.UARTLCR_H.PEN == reg::state::disabled ? HAL::UART::parity::none
+      : handle.UARTLCR_H.EPS == reg::state::set    ? HAL::UART::parity::even
+                                                   : HAL::UART::parity::odd,
+
+      handle.UARTLCR_H.STP2 == reg::state::set ? HAL::UART::stop_bits::two
+                                               : HAL::UART::stop_bits::one,
+
+      handle.UARTLCR_H.WLEN == reg::UARTLCR_H::WLEN_states::data_bits_5
+          ? HAL::UART::data_bits::five
+      : handle.UARTLCR_H.WLEN == reg::UARTLCR_H::WLEN_states::data_bits_6
+          ? HAL::UART::data_bits::six
+      : handle.UARTLCR_H.WLEN == reg::UARTLCR_H::WLEN_states::data_bits_7
+          ? HAL::UART::data_bits::seven
+          : HAL::UART::data_bits::eight};
+}
+
+std::error_code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate,
+                           const HAL::UART::format &format_to_use) {
   if (baudrate == 0)
     return std::make_error_code(std::errc::invalid_argument);
 
@@ -187,12 +256,32 @@ std::error_code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate) {
   // get the used baudrate as out-param to write to the class member.
   baudrate = set_baudrate(handle, baudrate, frequency.value());
 
+  // Clearing the pin reservation if this error occurs will be handled by the
+  // destructor.
+  auto error = set_format(handle, format_to_use);
+  if (error)
+    return error;
+
+  // Enable the FIFO's used for buffering bytes in transfer.
+  handle.UARTLCR_H.FEN = reg::state::enabled;
+
+  // Enable the peripheral.
+  handle.UARTCR.TXE = reg::state::enabled;
+  handle.UARTCR.RXE = reg::state::enabled;
+  handle.UARTCR.UARTEN = reg::state::enabled;
+
+  // Enable DMA.
+  handle.UARTDMACR.TXDMAE = reg::state::enabled;
+  handle.UARTDMACR.RXDMAE = reg::state::enabled;
+
   return std::error_code();
 }
 
-HAL::UART::UART(UART::pins pins_to_use, std::uint32_t baudrate)
-    : initialization_result(initialize(pins_to_use, baudrate)),
-      used_pins(pins_to_use), used_baudrate(baudrate) {}
+HAL::UART::UART(UART::pins pins_to_use, std::uint32_t baudrate,
+                format format_to_use)
+    : initialization_result(initialize(pins_to_use, baudrate, format_to_use)),
+      used_pins(pins_to_use), used_baudrate(baudrate),
+      used_format(format_to_use) {}
 
 HAL::UART::~UART() {
   clear_pin_reservations(used_pins,
@@ -207,4 +296,12 @@ HAL::UART::send(const std::span<uint8_t>) {
 std::expected<std::size_t, std::error_code>
 HAL::UART::receive(std::span<uint8_t>) {
   return 0u;
+}
+
+HAL::UART::format HAL::UART::get_active_format() const noexcept {
+  auto ID = get_ID_by_pins(used_pins);
+  if (!ID.has_value())
+    return {};
+  auto &handle = ::UART::get(ID.value());
+  return get_format(handle);
 }

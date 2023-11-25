@@ -139,7 +139,7 @@ inline void find_closest_match(uint32_t desired_frequency,
 std::expected<uint32_t, std::error_code>
 ROSC::set_frequency_Hz(std::uint32_t desired_frequency) noexcept {
   if (CTRL.ENABLE == reg::ROSC::CTRL::ENABLE_states::disabled) {
-    std::error_code err = clock_error::code::disabled;
+    std::error_code err = std::error_code(clock_error::code::disabled);
     auto ret = std::unexpected(err);
     return ret;
   }
