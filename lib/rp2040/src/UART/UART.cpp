@@ -6,7 +6,6 @@
 #include <rp2040/time/ROSC.hpp>
 #include <rp2040/time/clocks.hpp>
 
-
 void clear_pin_reservations(HAL::UART::pins pins,
                             std::size_t num_pins_reserved) {
   if (num_pins_reserved > 0)
@@ -90,11 +89,13 @@ void reset_peripheral(UART::ID ID) {
     HW_reset.RESET.UART0 = reg::state::enabled;
     while (HW_reset.RESET_DONE.UART0 == reg::state::cleared) {
     }
+    HW_reset.RESET.UART0 = reg::state::cleared;
     break;
   case UART::ID::second:
     HW_reset.RESET.UART1 = reg::state::enabled;
     while (HW_reset.RESET_DONE.UART1 == reg::state::cleared) {
     }
+    HW_reset.RESET.UART0 = reg::state::cleared;
     break;
   }
 }

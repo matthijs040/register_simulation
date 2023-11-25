@@ -6,20 +6,58 @@ static std::array<UART *, num_UART_peripherals> handles;
 
 constexpr std::size_t FIFO_size = 32;
 struct UART_FIFOs {
-  std::array<uint8_t, FIFO_size> RX_FIFO{};
+  struct RX_entry {
+    uint8_t data;
+    bool overrun_error;
+    bool break_error;
+    bool parity_error;
+    bool framing_error;
+  };
+
+  std::array<RX_entry, FIFO_size> RX_FIFO{};
   size_t RX_index{};
   std::array<uint8_t, FIFO_size> TX_FIFO{};
   size_t TX_index{};
 };
 
+std::array<UART_FIFOs, num_UART_peripherals> &get_FIFO_storage() {
+  static std::array<UART_FIFOs, num_UART_peripherals> instance;
+  return instance;
+}
+
+void flush_UART_FIFOs(UART::ID which) {
+  UART_FIFOs &buffer = get_FIFO_storage()[std::to_underlying(which)];
+  buffer.RX_FIFO.fill({});
+  buffer.RX_index = 0;
+  buffer.TX_FIFO.fill({});
+  buffer.TX_index = 0;
+
+  auto &UARTFR_storage =
+      simulated_peripheral<UART>::simulated_register_storage.at(
+          std::to_underlying(which) * sizeof(UART) +
+          offsetof(UART, UART::UARTFR) / sizeof(UART::UARTFR));
+
+  UARTFR_storage =
+      UARTFR_storage | std::to_underlying(reg::state::set)
+                           << decltype(reg::UARTFR::receive_FIFO_empty)::offset;
+  UARTFR_storage =
+      UARTFR_storage & std::to_underlying(reg::state::cleared)
+                           << decltype(reg::UARTFR::receive_FIFO_full)::offset;
+  UARTFR_storage = UARTFR_storage |
+                   std::to_underlying(reg::state::set)
+                       << decltype(reg::UARTFR::transmit_FIFO_empty)::offset;
+  UARTFR_storage =
+      UARTFR_storage & std::to_underlying(reg::state::cleared)
+                           << decltype(reg::UARTFR::transmit_FIFO_full)::offset;
+}
+
 void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
   using data_type = decltype(reg::UARTDR::data);
 
-  static std::map<void *, UART_FIFOs> FIFO_storage;
+  UART_FIFOs &buffer = get_FIFO_storage()[std::to_underlying(which)];
 
   auto data_handlers = data_type::sim_storage::effect_handlers();
-  data_handlers.on_read = [which, &buffer = FIFO_storage[&data_register]](
-                              const data_type::stored_bits &) {
+  data_handlers.on_read = [which, &buffer](const data_type::stored_bits &) {
     auto &UARTFR_storage =
         simulated_peripheral<UART>::simulated_register_storage.at(
             std::to_underlying(which) * sizeof(UART) +
@@ -39,7 +77,7 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
            & ~(decltype(reg::UARTDR::data)::max
                << decltype(reg::UARTDR::data)::offset))
           // ... and "OR-ed" with the new state of the data from the FIFO.
-          | (buffer.RX_FIFO[buffer.RX_index]
+          | (buffer.RX_FIFO[buffer.RX_index].data
              << decltype(reg::UARTDR::data)::offset);
 
       // Then shift the active index in the static FIFO.
@@ -55,7 +93,7 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
     }
   };
 
-  data_handlers.on_write = [which, &buffer = FIFO_storage[&data_register]](
+  data_handlers.on_write = [which, &buffer](
                                data_type::stored_bits,
                                const data_type::stored_bits &after_write) {
     auto &UARTFR_storage =

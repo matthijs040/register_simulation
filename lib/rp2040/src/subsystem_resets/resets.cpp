@@ -3,6 +3,8 @@
 #include <rp2040/UART/UART.hpp>
 #include <rp2040/subsystem_resets/resets.hpp>
 
+extern void flush_UART_FIFOs(UART::ID which);
+
 void init_reset_handlers() {
   auto &handle = resets::get();
   using UART0 = decltype(reg::RESET::UART0);
@@ -14,9 +16,14 @@ void init_reset_handlers() {
       delete &UART::get(UART::ID::first);
       UART::get(UART::ID::first) // Perform a dummy write to a register to
                                  // ensure it is called.
+
           .UARTLCR_H.BRK = reg::state::disabled;
+
+      flush_UART_FIFOs(UART::ID::first);
       auto &reset_done =
-          simulated_peripheral<resets>::simulated_register_storage.at(2);
+          simulated_peripheral<resets>::simulated_register_storage.at(
+              offsetof(resets, resets::RESET_DONE) /
+              sizeof(resets::RESET_DONE));
       reset_done = reset_done | std::to_underlying(reg::state::set)
                                     << decltype(reg::RESET_DONE::UART0)::offset;
     }
@@ -29,12 +36,16 @@ void init_reset_handlers() {
                                const UART1::stored_bits &after_write) {
     if (before == reg::state::cleared && after_write == reg::state::set) {
       // Force de/con-structor calls by delete and re-get().
-      delete &UART::get(UART::ID::first);
-      UART::get(UART::ID::first) // Perform a dummy write to a register to
-                                 // ensure it is called.
+      delete &UART::get(UART::ID::second);
+      UART::get(UART::ID::second) // Perform a dummy write to a register to
+                                  // ensure it is called.
           .UARTLCR_H.BRK = reg::state::disabled;
+
+      flush_UART_FIFOs(UART::ID::second);
       auto &reset_done =
-          simulated_peripheral<resets>::simulated_register_storage.at(2);
+          simulated_peripheral<resets>::simulated_register_storage.at(
+              offsetof(resets, resets::RESET_DONE) /
+              sizeof(resets::RESET_DONE));
       reset_done = reset_done | std::to_underlying(reg::state::set)
                                     << decltype(reg::RESET_DONE::UART1)::offset;
     }
@@ -54,7 +65,9 @@ void init_reset_done_handlers() {
       working_bit = working_bit | std::to_underlying(reg::state::cleared)
                                       << decltype(reg::RESET::UART0)::offset;
       auto &done_bit =
-          simulated_peripheral<resets>::simulated_register_storage.at(2);
+          simulated_peripheral<resets>::simulated_register_storage.at(
+              offsetof(resets, resets::RESET_DONE) /
+              sizeof(resets::RESET_DONE));
       done_bit = done_bit | std::to_underlying(reg::state::set)
                                 << decltype(reg::RESET_DONE::UART0)::offset;
     }
@@ -70,7 +83,7 @@ void init_reset_done_handlers() {
           simulated_peripheral<resets>::simulated_register_storage.at(
               offsetof(resets, resets::RESET_DONE) /
               sizeof(resets::RESET_DONE));
-      done_read = done_read | std::to_underlying(reg::state::cleared)
+      done_read = done_read & std::to_underlying(reg::state::cleared)
                                   << decltype(reg::RESET_DONE::UART1)::offset;
     }
   };
