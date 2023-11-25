@@ -1,3 +1,4 @@
+#include <HAL/GPIO.hpp>
 #include <HAL/UART.hpp>
 #include <gtest/gtest.h>
 
@@ -29,7 +30,7 @@ TEST(UART_tests, UART_fails_to_initialize_given_invalid_pins) {
 
   HAL::UART instance =
       HAL::UART(invalid_pins, default_baudrate, default_format);
-  EXPECT_EQ(instance.initialization_result, std::errc::invalid_argument);
+  EXPECT_EQ(instance.initialization_result, HAL::UART_error::code::unsupported_pin_configuration);
 }
 
 TEST(UART_tests, UART_fails_to_initialize_given_invalid_stop_bits_config) {
@@ -39,7 +40,7 @@ TEST(UART_tests, UART_fails_to_initialize_given_invalid_stop_bits_config) {
 
   HAL::UART instance =
       HAL::UART(default_pins, default_baudrate, invalid_stop_bits);
-  EXPECT_EQ(instance.initialization_result, std::errc::not_supported);
+  EXPECT_EQ(instance.initialization_result, HAL::UART_error::code::invalid_format_configuration);
 }
 
 TEST(UART_tests, UART_fails_to_initialize_given_invalid_data_bits_config) {
@@ -48,5 +49,21 @@ TEST(UART_tests, UART_fails_to_initialize_given_invalid_data_bits_config) {
                                                    HAL::UART::data_bits::nine};
   HAL::UART instance =
       HAL::UART(default_pins, default_baudrate, invalid_data_bits);
-  EXPECT_EQ(instance.initialization_result, std::errc::not_supported);
+  EXPECT_EQ(instance.initialization_result, HAL::UART_error::code::invalid_format_configuration);
+}
+
+TEST(UART_tests, UART_cleans_its_pin_reservations_after_destruction) {
+  {
+    HAL::UART stub = HAL::UART(default_pins, default_baudrate, default_format);
+
+    // Trying to acquire a GPIO handle on the UART's receive pin should fail
+    // here...
+    GPIO instance = GPIO(default_pins.RX);
+    EXPECT_EQ(instance.initialization_result,
+              std::errc::device_or_resource_busy);
+  }
+
+  // ...And be valid here.
+  GPIO instance = GPIO(default_pins.RX);
+  EXPECT_EQ(instance.initialization_result, std::error_code());
 }

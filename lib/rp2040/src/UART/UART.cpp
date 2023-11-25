@@ -163,7 +163,7 @@ std::error_code set_format(UART &handle,
                            const HAL::UART::format &format_to_apply) {
   if (format_to_apply.used_data_bits == HAL::UART::data_bits::nine ||
       format_to_apply.used_stop_bits == HAL::UART::stop_bits::one_and_a_half)
-    return std::make_error_code(std::errc::not_supported);
+    return HAL::UART_error::code::invalid_format_configuration;
 
   switch (format_to_apply.used_data_bits) {
   case HAL::UART::data_bits::five:
@@ -236,7 +236,7 @@ std::error_code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate,
   // Combination of pins do not map to one peripheral.
   // Reject initialization.
   if (ID == std::nullopt)
-    return std::make_error_code(std::errc::invalid_argument);
+    return HAL::UART_error::code::unsupported_pin_configuration;
 
   if (auto error = set_reserved_pins(pins))
     return error;
@@ -289,13 +289,64 @@ HAL::UART::~UART() {
 }
 
 std::expected<std::size_t, std::error_code>
-HAL::UART::send(const std::span<uint8_t>) {
-  return 0u;
+HAL::UART::send(const std::span<uint8_t> data) {
+  if (initialization_result)
+    return std::unexpected(initialization_result);
+  if (data.empty())
+    return 0U;
+
+  auto &handle = ::UART::get(get_ID_by_pins(used_pins).value());
+  for (const auto &byte : data) {
+    if (handle.UARTFR.transmit_FIFO_full == reg::state::set)
+      return &byte - &data.front();
+
+    handle.UARTDR.data = byte;
+  }
+
+  return data.size();
 }
 
 std::expected<std::size_t, std::error_code>
-HAL::UART::receive(std::span<uint8_t>) {
-  return 0u;
+HAL::UART::receive(std::span<uint8_t> data) {
+  if (data.empty())
+    return 0U;
+
+  if (initialization_result)
+    return std::unexpected(initialization_result);
+
+  auto &handle = ::UART::get(get_ID_by_pins(used_pins).value());
+  if (handle.UARTFR.receive_FIFO_empty == reg::state::set)
+    return (data = std::span<uint8_t>()).size();
+
+  std::error_code transfer_error;
+
+  for (uint8_t &byte : data) {
+
+    // Check for errors in received data before performing the read.
+    // This is because e.g. the Overrun-error bit clears when the FIFO is read
+    // from.
+    if (handle.UARTDR.overrun_error == reg::state::set)
+      transfer_error = HAL::UART_error::code::receive_buffer_overflown;
+    if (handle.UARTDR.parity_error == reg::state::set)
+      transfer_error = HAL::UART_error::code::parity_error_in_received_data;
+    if (handle.UARTDR.framing_error == reg::state::set ||
+        handle.UARTDR.break_error == reg::state::set)
+      transfer_error = HAL::UART_error::code::format_error_in_received_data;
+
+    // Read the data byte.
+    byte = handle.UARTDR.data;
+
+    if (handle.UARTFR.receive_FIFO_empty == reg::state::set) {
+      // Change the caller's buffer to data that actually changed.
+      return transfer_error ? std::unexpected(transfer_error)
+                            : std::expected<std::size_t, std::error_code>(
+                                  &byte - &data.front());
+    }
+  }
+
+  return transfer_error
+             ? std::unexpected(transfer_error)
+             : std::expected<std::size_t, std::error_code>(data.size());
 }
 
 HAL::UART::format HAL::UART::get_active_format() const noexcept {

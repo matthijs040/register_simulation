@@ -7,6 +7,21 @@
 
 namespace HAL {
 
+namespace UART_error {
+enum class code {
+  success = 0,
+  unsupported_pin_configuration,
+  unsupported_parity_configuration,
+  invalid_format_configuration,
+  receive_buffer_overflown,
+  parity_error_in_received_data,
+  format_error_in_received_data,
+};
+
+std::error_code make_error_code(UART_error::code e) noexcept;
+
+} // namespace UART_error
+
 class UART {
 public:
   const std::error_code initialization_result;
@@ -40,3 +55,12 @@ public:
 };
 
 } // namespace HAL
+
+namespace std
+{
+  template <>
+  struct is_error_code_enum<HAL::UART_error::code> : true_type
+  {
+  };
+
+} // namespace std
