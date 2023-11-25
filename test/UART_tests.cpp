@@ -30,7 +30,8 @@ TEST(UART_tests, UART_fails_to_initialize_given_invalid_pins) {
 
   HAL::UART instance =
       HAL::UART(invalid_pins, default_baudrate, default_format);
-  EXPECT_EQ(instance.initialization_result, HAL::UART_error::code::unsupported_pin_configuration);
+  EXPECT_EQ(instance.initialization_result,
+            HAL::UART_error::code::unsupported_pin_configuration);
 }
 
 TEST(UART_tests, UART_fails_to_initialize_given_invalid_stop_bits_config) {
@@ -40,7 +41,8 @@ TEST(UART_tests, UART_fails_to_initialize_given_invalid_stop_bits_config) {
 
   HAL::UART instance =
       HAL::UART(default_pins, default_baudrate, invalid_stop_bits);
-  EXPECT_EQ(instance.initialization_result, HAL::UART_error::code::invalid_format_configuration);
+  EXPECT_EQ(instance.initialization_result,
+            HAL::UART_error::code::invalid_format_configuration);
 }
 
 TEST(UART_tests, UART_fails_to_initialize_given_invalid_data_bits_config) {
@@ -49,7 +51,8 @@ TEST(UART_tests, UART_fails_to_initialize_given_invalid_data_bits_config) {
                                                    HAL::UART::data_bits::nine};
   HAL::UART instance =
       HAL::UART(default_pins, default_baudrate, invalid_data_bits);
-  EXPECT_EQ(instance.initialization_result, HAL::UART_error::code::invalid_format_configuration);
+  EXPECT_EQ(instance.initialization_result,
+            HAL::UART_error::code::invalid_format_configuration);
 }
 
 TEST(UART_tests, UART_cleans_its_pin_reservations_after_destruction) {
@@ -66,4 +69,15 @@ TEST(UART_tests, UART_cleans_its_pin_reservations_after_destruction) {
   // ...And be valid here.
   GPIO instance = GPIO(default_pins.RX);
   EXPECT_EQ(instance.initialization_result, std::error_code());
+}
+
+TEST(UART_tests, a_transmitted_character_is_put_in_the_right_transmit_FIFO) {
+  HAL::UART instance =
+      HAL::UART(default_pins, default_baudrate, default_format);
+
+  uint8_t data = 42;
+  auto result = instance.send({&data, sizeof(data)});
+
+  ASSERT_TRUE(result.has_value());
+  EXPECT_EQ(result.value(), 1);
 }

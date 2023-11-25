@@ -9,6 +9,7 @@ add_library(rp2040_impl STATIC
     src/time/clock_control.cpp
     src/time/ROSC.cpp
     src/UART/UART.cpp
+    src/UART/UART_peripheral.cpp
     src/subsystem_resets/resets.cpp)
 
 include(CheckIPOSupported)
