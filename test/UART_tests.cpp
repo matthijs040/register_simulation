@@ -81,3 +81,15 @@ TEST(UART_tests, a_transmitted_character_is_put_in_the_right_transmit_FIFO) {
   ASSERT_TRUE(result.has_value());
   EXPECT_EQ(result.value(), 1);
 }
+
+TEST(UART_tests, transmitting_more_than_TX_FIFO_size_bytes_returns_FIFO_size) {
+  constexpr auto TX_FIFO_size = 32U;
+  std::array<uint8_t, TX_FIFO_size + 1> data;
+
+  HAL::UART instance =
+      HAL::UART(default_pins, default_baudrate, default_format);
+
+  auto result = instance.send(data);
+  ASSERT_TRUE(result.has_value());
+  EXPECT_EQ(result.value(), TX_FIFO_size);
+}

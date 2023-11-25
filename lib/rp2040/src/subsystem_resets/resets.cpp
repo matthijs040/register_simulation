@@ -49,7 +49,8 @@ void init_reset_done_handlers() {
   UART0_handlers.on_read = [](const UART0::stored_bits &read_bits) {
     if (read_bits == reg::state::set) {
       auto &working_bit =
-          simulated_peripheral<resets>::simulated_register_storage.at(0);
+          simulated_peripheral<resets>::simulated_register_storage.at(
+              offsetof(resets, resets::RESET));
       working_bit = working_bit | std::to_underlying(reg::state::cleared)
                                       << decltype(reg::RESET::UART0)::offset;
       auto &done_bit =
@@ -66,7 +67,8 @@ void init_reset_done_handlers() {
   UART1_handlers.on_read = [](const UART1::stored_bits &read_bits) {
     if (read_bits == reg::state::set) {
       auto &done_read =
-          simulated_peripheral<resets>::simulated_register_storage.at(0);
+          simulated_peripheral<resets>::simulated_register_storage.at(
+              offsetof(resets, resets::RESET_DONE));
       done_read = done_read | std::to_underlying(reg::state::cleared)
                                   << decltype(reg::RESET_DONE::UART1)::offset;
     }
