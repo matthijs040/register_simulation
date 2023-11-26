@@ -43,7 +43,7 @@ public:
     UART::data_bits used_data_bits;
   } used_format;
 
-  UART(pins pins_to_use, std::uint32_t baudrate, format format);
+  UART(pins pins_to_use, std::uint32_t baudrate, format format, bool enable_loopback);
   ~UART();
 
   std::expected<std::size_t, std::error_code>

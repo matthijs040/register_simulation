@@ -198,7 +198,8 @@ HAL::UART::format get_format(const ::UART &handle) {
 }
 
 std::error_code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate,
-                           const HAL::UART::format &format_to_use) {
+                           const HAL::UART::format &format_to_use,
+                           bool enable_loopback) {
   if (baudrate == 0)
     return std::make_error_code(std::errc::invalid_argument);
 
@@ -236,6 +237,7 @@ std::error_code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate,
   handle.UARTLCR_H.FEN = reg::state::enabled;
 
   // Enable the peripheral.
+  handle.UARTCR.LBE = enable_loopback ? reg::state::set : reg::state::cleared;
   handle.UARTCR.TXE = reg::state::enabled;
   handle.UARTCR.RXE = reg::state::enabled;
   handle.UARTCR.UARTEN = reg::state::enabled;
@@ -248,8 +250,8 @@ std::error_code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate,
 }
 
 HAL::UART::UART(UART::pins pins_to_use, std::uint32_t baudrate,
-                format format_to_use)
-    : initialization_result(initialize(pins_to_use, baudrate, format_to_use)),
+                format format_to_use, bool enable_loopback)
+    : initialization_result(initialize(pins_to_use, baudrate, format_to_use, enable_loopback)),
       used_pins(pins_to_use), used_baudrate(baudrate),
       used_format(format_to_use) {}
 
