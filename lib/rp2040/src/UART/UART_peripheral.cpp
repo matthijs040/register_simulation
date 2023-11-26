@@ -1,10 +1,12 @@
 #include <HAL/UART.hpp>
+#include <boost/circular_buffer.hpp>
 #include <map>
 #include <rp2040/UART/UART.hpp>
 
 static std::array<UART *, num_UART_peripherals> handles;
 
 constexpr std::size_t FIFO_size = 32;
+constexpr std::size_t shift_register_size = 1;
 struct UART_FIFOs {
   struct RX_entry {
     uint8_t data;
@@ -14,10 +16,28 @@ struct UART_FIFOs {
     bool framing_error;
   };
 
-  std::array<RX_entry, FIFO_size> RX_FIFO{};
-  size_t RX_index{};
-  std::array<uint8_t, FIFO_size> TX_FIFO{};
-  size_t TX_index{};
+  boost::circular_buffer<RX_entry> RX_FIFO;
+  boost::circular_buffer<uint8_t> TX_FIFO;
+
+  UART_FIFOs()
+      : RX_FIFO(FIFO_size + shift_register_size),
+        TX_FIFO(FIFO_size, shift_register_size) {}
+
+  void flush_FIFOs() {
+    RX_FIFO.clear();
+    TX_FIFO.clear();
+  }
+
+  void write_to_RX_FIFO(uint8_t data) {
+    // Drop the data if the RX FIFO and shift-register both have data.
+    if (RX_FIFO.size() == FIFO_size + shift_register_size)
+      return;
+
+    // Otherwise, push data, but add the overflow flag if this is the final
+    // entry.
+    RX_FIFO.push_back(
+        RX_entry{data, RX_FIFO.size() == FIFO_size, false, false, false});
+  }
 };
 
 std::array<UART_FIFOs, num_UART_peripherals> &get_FIFO_storage() {
@@ -25,12 +45,15 @@ std::array<UART_FIFOs, num_UART_peripherals> &get_FIFO_storage() {
   return instance;
 }
 
+void write_to_UART(UART::ID which, uint8_t data) {
+
+  auto &FIFOs = get_FIFO_storage()[std::to_underlying(which)];
+  FIFOs.write_to_RX_FIFO(data);
+}
+
 void flush_UART_FIFOs(UART::ID which) {
   UART_FIFOs &buffer = get_FIFO_storage()[std::to_underlying(which)];
-  buffer.RX_FIFO.fill({});
-  buffer.RX_index = 0;
-  buffer.TX_FIFO.fill({});
-  buffer.TX_index = 0;
+  buffer.flush_FIFOs();
 
   auto &UARTFR_storage =
       simulated_peripheral<UART>::simulated_register_storage.at(
@@ -69,24 +92,30 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
             offsetof(UART, UART::UARTDR) / sizeof(UART::UARTDR));
 
     // Replace the data in the transfer register.
-    if (buffer.RX_index) {
+    if (!buffer.RX_FIFO.empty()) {
+      auto RX_data = buffer.RX_FIFO.front();
+
       // Do this by assigning the present state...
       UARTDR_storage =
-          (UARTDR_storage
-           // ... "AND-ed" with the inverse of the shifted data-bitfield ...
-           & ~(decltype(reg::UARTDR::data)::max
-               << decltype(reg::UARTDR::data)::offset))
-          // ... and "OR-ed" with the new state of the data from the FIFO.
-          | (buffer.RX_FIFO[buffer.RX_index].data
-             << decltype(reg::UARTDR::data)::offset);
+          (((((UARTDR_storage
+               // ... "AND-ed" with the inverse of the shifted data-bitfield ...
+               & ~(decltype(reg::UARTDR::data)::max
+                   << decltype(reg::UARTDR::data)::offset)))
+             // ... and "OR-ed" with the new state of the data from the FIFO.
+             | (RX_data.data << decltype(reg::UARTDR::data)::offset)) &
+            ~(decltype(reg::UARTDR::overrun_error)::max
+              << decltype(reg::UARTDR::overrun_error)::offset))
+           // ... and "OR-ed" with the new state of the data from the FIFO.
+           | (RX_data.overrun_error
+              << decltype(reg::UARTDR::overrun_error)::offset));
 
       // Then shift the active index in the static FIFO.
-      buffer.RX_index--;
+      buffer.RX_FIFO.pop_front();
     }
 
     // Also, if the static FIFO is/becomes empty by this read,
     // Set the FIFO empty flag in the "Flags Register"
-    if (buffer.RX_index == 0) {
+    if (buffer.RX_FIFO.empty()) {
       UARTFR_storage = UARTFR_storage |
                        std::to_underlying(reg::state::set)
                            << decltype(reg::UARTFR::receive_FIFO_empty)::offset;
@@ -102,14 +131,14 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
             (offsetof(UART, UART::UARTFR) / sizeof(UART::UARTFR)));
 
     // Copy over the data to transfer to the TX_FIFO.
-    if (buffer.TX_index < buffer.TX_FIFO.size()) {
-      buffer.TX_FIFO[buffer.TX_index] = after_write;
-      buffer.TX_index++;
+    if (buffer.TX_FIFO.size() < FIFO_size) {
+      buffer.TX_FIFO.push_back(after_write);
     }
 
     // Also, if the FIFO is/becomes full by this write,
     // Set the FIFO full flag in the "Flags Register"
-    if (buffer.TX_index >= buffer.TX_FIFO.size()) {
+    const bool at_capacity = buffer.TX_FIFO.size() == FIFO_size;
+    if (at_capacity ) {
       UARTFR_storage = UARTFR_storage |
                        std::to_underlying(reg::state::set)
                            << decltype(reg::UARTFR::transmit_FIFO_full)::offset;
