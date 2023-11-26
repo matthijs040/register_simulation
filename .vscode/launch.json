@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build_tests/tests",
-            "args": [  // "--gtest_filter=UART_tests.transmitting_more_than_TX_FIFO_size_bytes_returns_FIFO_size"
+            "args": [  "--gtest_filter=UART_tests.sending_character_with_loopback_enabled_can_be_received"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

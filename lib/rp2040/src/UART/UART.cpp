@@ -312,7 +312,7 @@ HAL::UART::receive(std::span<uint8_t> data) {
       // Change the caller's buffer to data that actually changed.
       return transfer_error ? std::unexpected(transfer_error)
                             : std::expected<std::size_t, std::error_code>(
-                                  &byte - &data.front());
+                                  &byte - &data.front() + 1);
     }
   }
 

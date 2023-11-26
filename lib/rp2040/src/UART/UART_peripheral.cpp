@@ -49,6 +49,21 @@ void write_to_UART(UART::ID which, uint8_t data) {
 
   auto &FIFOs = get_FIFO_storage()[std::to_underlying(which)];
   FIFOs.write_to_RX_FIFO(data);
+
+  auto &UARTFR_storage =
+      simulated_peripheral<UART>::simulated_register_storage.at(
+          std::to_underlying(which) * sizeof(UART) +
+          offsetof(UART, UART::UARTFR) / sizeof(UART::UARTFR));
+
+  // Clear the receive-FIFO-empty flag if the FIFO has been empty.
+  UARTFR_storage =
+      UARTFR_storage & std::to_underlying(reg::state::cleared)
+                           << decltype(reg::UARTFR::receive_FIFO_empty)::offset;
+
+  // Also, set receive-full flag if the RX fifo is at capacity.
+  UARTFR_storage = UARTFR_storage &
+                   ((FIFOs.RX_FIFO.size() == FIFO_size + shift_register_size)
+                    << decltype(reg::UARTFR::receive_FIFO_full)::offset);
 }
 
 void flush_UART_FIFOs(UART::ID which) {
@@ -130,6 +145,13 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
             std::to_underlying(which) * sizeof(UART) +
             (offsetof(UART, UART::UARTFR) / sizeof(UART::UARTFR)));
 
+    // If the LoopBack-Enable register is set don't buffer.
+    // Just send it into the same UART's Receive FIFO.
+    if (UART::get(which).UARTCR.LBE == reg::state::set) {
+      write_to_UART(which, after_write);
+      return;
+    }
+
     // Copy over the data to transfer to the TX_FIFO.
     if (buffer.TX_FIFO.size() < FIFO_size) {
       buffer.TX_FIFO.push_back(after_write);
@@ -138,7 +160,7 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
     // Also, if the FIFO is/becomes full by this write,
     // Set the FIFO full flag in the "Flags Register"
     const bool at_capacity = buffer.TX_FIFO.size() == FIFO_size;
-    if (at_capacity ) {
+    if (at_capacity) {
       UARTFR_storage = UARTFR_storage |
                        std::to_underlying(reg::state::set)
                            << decltype(reg::UARTFR::transmit_FIFO_full)::offset;
