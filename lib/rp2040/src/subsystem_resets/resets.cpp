@@ -9,45 +9,36 @@ void init_reset_handlers() {
   auto &handle = resets::get();
   using UART0 = decltype(reg::RESET::UART0);
   auto UART0_handlers = UART0::sim_storage::effect_handlers();
-  UART0_handlers.on_write = [](UART0::stored_bits before,
-                               const UART0::stored_bits &after_write) {
+  UART0_handlers.on_write = [&handle](UART0::stored_bits before,
+                                      const UART0::stored_bits &after_write) {
     if (before == reg::state::cleared && after_write == reg::state::set) {
       // Force de/con-structor calls by delete and re-get().
       delete &UART::get(UART::ID::first);
-      UART::get(UART::ID::first) // Perform a dummy write to a register to
-                                 // ensure it is called.
-
-          .UARTLCR_H.BRK = reg::state::disabled;
+      // Perform a dummy write to a register to ensure it is called.
+      UART::get(UART::ID::first).UARTLCR_H.BRK = reg::state::disabled;
 
       flush_UART_FIFOs(UART::ID::first);
-      auto &reset_done =
-          simulated_peripheral<resets>::simulated_register_storage.at(
-              offsetof(resets, resets::RESET_DONE) /
-              sizeof(resets::RESET_DONE));
-      reset_done = reset_done | std::to_underlying(reg::state::set)
-                                    << decltype(reg::RESET_DONE::UART0)::offset;
+      simulated_peripheral<resets>::acquire_field<
+          decltype(reg::RESET_DONE::UART0)>(&handle.RESET_DONE) =
+          reg::state::set;
     }
   };
   UART0::sim_storage::set_effect_handlers(&handle.RESET.UART0, UART0_handlers);
 
   using UART1 = decltype(reg::RESET::UART1);
   auto UART1_handlers = UART1::sim_storage::effect_handlers();
-  UART1_handlers.on_write = [](UART1::stored_bits before,
-                               const UART1::stored_bits &after_write) {
+  UART1_handlers.on_write = [&handle](UART1::stored_bits before,
+                                      const UART1::stored_bits &after_write) {
     if (before == reg::state::cleared && after_write == reg::state::set) {
       // Force de/con-structor calls by delete and re-get().
       delete &UART::get(UART::ID::second);
-      UART::get(UART::ID::second) // Perform a dummy write to a register to
-                                  // ensure it is called.
-          .UARTLCR_H.BRK = reg::state::disabled;
+      // Perform a dummy write to a register to ensure it is called.
+      UART::get(UART::ID::second).UARTLCR_H.BRK = reg::state::disabled;
 
       flush_UART_FIFOs(UART::ID::second);
-      auto &reset_done =
-          simulated_peripheral<resets>::simulated_register_storage.at(
-              offsetof(resets, resets::RESET_DONE) /
-              sizeof(resets::RESET_DONE));
-      reset_done = reset_done | std::to_underlying(reg::state::set)
-                                    << decltype(reg::RESET_DONE::UART1)::offset;
+      simulated_peripheral<resets>::acquire_field<
+          decltype(reg::RESET_DONE::UART1)>(&handle.RESET_DONE) =
+          reg::state::set;
     }
   };
   UART1::sim_storage::set_effect_handlers(&handle.RESET.UART1, UART1_handlers);
@@ -57,34 +48,25 @@ void init_reset_done_handlers() {
   auto &handle = resets::get();
   using UART0 = decltype(reg::RESET_DONE::UART0);
   auto UART0_handlers = UART0::sim_storage::effect_handlers();
-  UART0_handlers.on_read = [](const UART0::stored_bits &read_bits) {
-    if (read_bits == reg::state::set) {
-      auto &working_bit =
-          simulated_peripheral<resets>::simulated_register_storage.at(
-              offsetof(resets, resets::RESET) / sizeof(resets::RESET));
-      working_bit = working_bit | std::to_underlying(reg::state::cleared)
-                                      << decltype(reg::RESET::UART0)::offset;
-      auto &done_bit =
-          simulated_peripheral<resets>::simulated_register_storage.at(
-              offsetof(resets, resets::RESET_DONE) /
-              sizeof(resets::RESET_DONE));
-      done_bit = done_bit | std::to_underlying(reg::state::set)
-                                << decltype(reg::RESET_DONE::UART0)::offset;
-    }
+  UART0_handlers.on_read = [&handle](const UART0::stored_bits &read_bits) {
+    if (read_bits == reg::state::cleared)
+      return;
+
+    simulated_peripheral<resets>::acquire_field<decltype(reg::RESET::UART0)>(
+        &handle.RESET) = reg::state::cleared;
+    simulated_peripheral<resets>::acquire_field<
+        decltype(reg::RESET_DONE::UART0)>(&handle.RESET_DONE) = reg::state::set;
   };
   UART0::sim_storage::set_effect_handlers(&handle.RESET_DONE.UART0,
                                           UART0_handlers);
 
   using UART1 = decltype(reg::RESET_DONE::UART1);
   auto UART1_handlers = UART1::sim_storage::effect_handlers();
-  UART1_handlers.on_read = [](const UART1::stored_bits &read_bits) {
+  UART1_handlers.on_read = [&handle](const UART1::stored_bits &read_bits) {
     if (read_bits == reg::state::set) {
-      auto &done_read =
-          simulated_peripheral<resets>::simulated_register_storage.at(
-              offsetof(resets, resets::RESET_DONE) /
-              sizeof(resets::RESET_DONE));
-      done_read = done_read & std::to_underlying(reg::state::cleared)
-                                  << decltype(reg::RESET_DONE::UART1)::offset;
+      simulated_peripheral<resets>::acquire_field<
+          decltype(reg::RESET_DONE::UART1)>(&handle.RESET_DONE) =
+          reg::state::cleared;
     }
   };
   UART1::sim_storage::set_effect_handlers(&handle.RESET_DONE.UART1,

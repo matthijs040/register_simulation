@@ -35,15 +35,13 @@ struct simulated_peripheral {
    * returned "bitfield"-type having "uses_simulated_registers" set to false,
    * bitfield will have its reads and writes directly done to the underlying
    * integral. The remaining "bitfield"-configuration will map to the field the
-   * caller has provided. Ensuring that shifting and masking is correct. Note
-   * that this does assume that the register is interpretable as a bitfield.
+   * caller has provided. Ensuring that shifting and masking is correct. 
    *
-   * @tparam Peripheral_Field
-   * @tparam BitField
-   * @return auto&
+   * @tparam BitField bitfield-type to convert member to. 
+   * @return const void* address of the field to wrap in Bitfield::stored_bits.
    */
   template <typename Bitfield>
-  inline auto &acquire_field(const void *field_address) {
+  static inline auto &acquire_field(const void *field_address) {
 
     const off_t offset =
         std::bit_cast<const register_integral *>(field_address) -
