@@ -11,7 +11,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib ${CMAKE_CURRENT_BINARY_DIR}/
 project(unit_tests)
 include(CTest)
 
-add_executable(tests GPIO_tests.cpp clock_control_tests.cpp UART_tests.cpp ROSC_tests.cpp)
+add_executable(tests GPIO_tests.cpp clock_control_tests.cpp UART_tests.cpp ROSC_tests.cpp misc_tests.cpp)
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT supported OUTPUT error)
