@@ -1,7 +1,7 @@
 #include <HAL/UART.hpp>
-#include <boost/circular_buffer.hpp>
 #include <map>
 #include <rp2040/UART/UART.hpp>
+#include <system/fixed_capacity_queue.hpp>
 
 static std::array<UART *, num_UART_peripherals> handles;
 
@@ -16,12 +16,10 @@ struct UART_FIFOs {
     bool framing_error;
   };
 
-  boost::circular_buffer<RX_entry> RX_FIFO;
-  boost::circular_buffer<uint8_t> TX_FIFO;
+  fixed_capacity_queue<RX_entry, FIFO_size + shift_register_size> RX_FIFO;
+  fixed_capacity_queue<uint8_t, FIFO_size + shift_register_size> TX_FIFO;
 
-  UART_FIFOs()
-      : RX_FIFO(FIFO_size + shift_register_size),
-        TX_FIFO(FIFO_size, shift_register_size) {}
+  UART_FIFOs() : RX_FIFO(), TX_FIFO() {}
 
   void flush_FIFOs() {
     RX_FIFO.clear();
@@ -35,7 +33,7 @@ struct UART_FIFOs {
 
     // Otherwise, push data, but add the overflow flag if this is the final
     // entry.
-    RX_FIFO.push_back(
+    RX_FIFO.push(
         RX_entry{data, RX_FIFO.size() == FIFO_size, false, false, false});
   }
 };
@@ -108,7 +106,7 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
 
     // Replace the data in the transfer register.
     if (!buffer.RX_FIFO.empty()) {
-      auto RX_data = buffer.RX_FIFO.front();
+      auto& RX_data = buffer.RX_FIFO.front().value().get();
 
       // Do this by assigning the present state...
       UARTDR_storage =
@@ -125,7 +123,7 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
               << decltype(reg::UARTDR::overrun_error)::offset));
 
       // Then shift the active index in the static FIFO.
-      buffer.RX_FIFO.pop_front();
+      buffer.RX_FIFO.pop();
     }
 
     // Also, if the static FIFO is/becomes empty by this read,
@@ -154,7 +152,7 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
 
     // Copy over the data to transfer to the TX_FIFO.
     if (buffer.TX_FIFO.size() < FIFO_size) {
-      buffer.TX_FIFO.push_back(after_write);
+      buffer.TX_FIFO.push(after_write);
     }
 
     // Also, if the FIFO is/becomes full by this write,
