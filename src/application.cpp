@@ -12,6 +12,7 @@
 #include <rp2040/GPIO/user_IO.hpp>
 #include <rp2040/time/clocks.hpp>
 
+#include <HAL/UART.hpp>
 #include <rp2040/time/ROSC.hpp>
 #include <rp2040/time/registers/ROSC.hpp>
 
@@ -151,6 +152,63 @@ void application::set_ROSC_frequency(const char *freq_str) {
     std::cout << "Get frequency reports: " << gotten_freq.value() << "\n";
 }
 
+void application::UART_send_loopback(const char *data) {
+  uint8_t RX_pin = 0u;
+  uint8_t TX_pin = 0u;
+
+  auto result = std::from_chars(data, data + std::strlen(data), RX_pin);
+  if (result.ec != std::errc()) {
+    std::cerr << "failed to parse RX_pin.\n";
+    return;
+  }
+
+  data = result.ptr + 1;
+  result = std::from_chars(data, data + std::strlen(data), TX_pin);
+  if (result.ec != std::errc()) {
+    std::cerr << "failed to parse TX_pin from: " << result.ptr << "\n";
+    return;
+  }
+
+  puts("Creating UART handle.");
+
+  data = result.ptr + 1;
+  auto handle = HAL::UART({RX_pin, TX_pin}, 9600,
+                          {HAL::UART::parity::none, HAL::UART::stop_bits::one,
+                           HAL::UART::data_bits::eight},
+                          true);
+  if (handle.initialization_result) {
+    std::cerr << "Failed to initialize UART.\n";
+    return;
+  }
+
+  auto payload = std::span<const uint8_t>{std::bit_cast<const uint8_t *>(data),
+                                          std::strlen(data)};
+  auto send_result = handle.send(payload);
+
+  if (send_result.has_value())
+    std::cout << "successfully sent: '" << data << "' \n";
+  else
+    std::cerr << "calling send() failed with error: " << send_result.error()
+              << "\n";
+
+  uint8_t buffer[32];
+
+  auto receive_result = handle.receive(buffer);
+  std::span<const char> received_string = {
+      std::bit_cast<const char *>(&buffer[0]), receive_result.value()};
+
+  std::cout << "Calling receive ";
+  if (receive_result.has_value()) {
+    std::cout << "succeeded with data: '";
+    for (const char character : received_string)
+      std::cout << character;
+    std::cout << "'\n";
+  }
+
+  else
+    std::cout << "failed with error: " << receive_result.error() << "\n";
+}
+
 void get_string(std::span<char> data) {
   std::size_t index = 0;
   while (index < data.size()) {
@@ -167,7 +225,8 @@ void get_string(std::span<char> data) {
 }
 
 void application::get_arch(const char *) {
-  std::cout << "arch is: " << std::to_underlying(arch::get_architecture()) << "\n";
+  std::cout << "arch is: " << std::to_underlying(arch::get_architecture())
+            << "\n";
 }
 
 application::application(GPIO &LED_handle_)
@@ -201,6 +260,9 @@ application::application(GPIO &LED_handle_)
                                     std::placeholders::_1)},
            named_function{"ROSC.set.frequency ",
                           std::bind(&application::set_ROSC_frequency, this,
+                                    std::placeholders::_1)},
+           named_function{"UART.send.loopback ",
+                          std::bind(&application::UART_send_loopback, this,
                                     std::placeholders::_1)}})
 
 {}

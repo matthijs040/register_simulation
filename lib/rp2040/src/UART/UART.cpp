@@ -261,7 +261,7 @@ HAL::UART::~UART() {
 }
 
 std::expected<std::size_t, std::error_code>
-HAL::UART::send(const std::span<uint8_t> data) {
+HAL::UART::send(const std::span<const uint8_t> data) {
   if (initialization_result)
     return std::unexpected(initialization_result);
   if (data.empty())

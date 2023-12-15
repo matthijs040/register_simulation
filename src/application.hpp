@@ -30,7 +30,9 @@ private:
     void set_ROSC_devisor(const char* devisor);
     void set_ROSC_frequency(const char* frequency);
 
-    std::array<named_function, 10> RPCs;
+    void UART_send_loopback(const char* data);
+
+    std::array<named_function, 11> RPCs;
 
 };
 
