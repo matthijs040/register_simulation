@@ -30,3 +30,9 @@ pico_add_extra_outputs(main)
 
 
 set_target_properties(main PROPERTIES CXX_STANDARD 23)
+
+
+add_executable(UART_snippet UART_snippet.cpp)
+target_link_libraries(UART_snippet PRIVATE HAL rp2040_impl pico_stdlib)
+target_compile_options(UART_snippet PRIVATE -Og -g)
+set_target_properties(UART_snippet PROPERTIES CXX_STANDARD 23)

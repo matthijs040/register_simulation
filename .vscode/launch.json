@@ -9,7 +9,8 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build_tests/tests",
-            "args": [  "--gtest_filter=peripheral_tests.direct_modification_to_mocked_read_only_storage_is_possible"
+            "args": [
+                "--gtest_filter=peripheral_tests.direct_modification_to_mocked_read_only_storage_is_possible"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -34,7 +35,7 @@
             "device": "RP2040",
             "gdbPath": "arm-none-eabi-gdb",
             "cwd": "${workspaceRoot}",
-            "executable": "${workspaceRoot}/build_app/main.elf",
+            "executable": "${workspaceRoot}/build_app/UART_snippet.elf",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "openocd",
@@ -48,6 +49,7 @@
                 "break main",
                 "continue"
             ]
-        }
+        },
+      
     ]
 }

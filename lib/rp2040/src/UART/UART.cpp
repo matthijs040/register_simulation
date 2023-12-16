@@ -87,15 +87,15 @@ void reset_peripheral(UART::ID ID) {
   switch (ID) {
   case UART::ID::first:
     HW_reset.RESET.UART0 = reg::state::enabled;
-    while (HW_reset.RESET_DONE.UART0 == reg::state::cleared) {
+    while (HW_reset.RESET_DONE.UART0 == reg::state::set) {
     }
     HW_reset.RESET.UART0 = reg::state::cleared;
     break;
   case UART::ID::second:
     HW_reset.RESET.UART1 = reg::state::enabled;
-    while (HW_reset.RESET_DONE.UART1 == reg::state::cleared) {
+    while (HW_reset.RESET_DONE.UART1 == reg::state::set) {
     }
-    HW_reset.RESET.UART0 = reg::state::cleared;
+    HW_reset.RESET.UART1 = reg::state::cleared;
     break;
   }
 }
@@ -268,7 +268,7 @@ HAL::UART::send(const std::span<const uint8_t> data) {
     return 0U;
 
   auto &handle = ::UART::get(get_ID_by_pins(used_pins).value());
-  for (const auto &byte : data) {
+  for (const uint8_t byte : data) {
     if (handle.UARTFR.transmit_FIFO_full == reg::state::set)
       return &byte - &data.front();
 
