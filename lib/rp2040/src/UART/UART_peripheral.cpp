@@ -106,7 +106,7 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
 
     // Replace the data in the transfer register.
     if (!buffer.RX_FIFO.empty()) {
-      auto& RX_data = buffer.RX_FIFO.front().value().get();
+      auto &RX_data = buffer.RX_FIFO.front().value().get();
 
       // Do this by assigning the present state...
       UARTDR_storage =
@@ -188,7 +188,7 @@ void UART::operator delete(void *ptr) {
     if (handle == ptr)
       handle = nullptr;
 }
-UART::UART() {}
+UART::UART() : padding__0{}, padding__1{} {}
 
 void *UART::operator new(std::size_t, UART::ID which) {
   using base = simulated_peripheral<UART>;

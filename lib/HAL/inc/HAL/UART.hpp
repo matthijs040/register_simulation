@@ -42,6 +42,7 @@ public:
     UART::stop_bits used_stop_bits;
     UART::data_bits used_data_bits;
   } used_format;
+  const bool loopback_enabled;
 
   UART(pins pins_to_use, std::uint32_t baudrate, format format, bool enable_loopback);
   ~UART();

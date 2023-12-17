@@ -251,9 +251,10 @@ std::error_code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate,
 
 HAL::UART::UART(UART::pins pins_to_use, std::uint32_t baudrate,
                 format format_to_use, bool enable_loopback)
-    : initialization_result(initialize(pins_to_use, baudrate, format_to_use, enable_loopback)),
+    : initialization_result(
+          initialize(pins_to_use, baudrate, format_to_use, enable_loopback)),
       used_pins(pins_to_use), used_baudrate(baudrate),
-      used_format(format_to_use) {}
+      used_format(format_to_use), loopback_enabled(enable_loopback) {}
 
 HAL::UART::~UART() {
   clear_pin_reservations(used_pins,
