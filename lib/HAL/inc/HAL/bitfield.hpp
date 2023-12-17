@@ -24,7 +24,7 @@ struct bitfield {
     return static_cast<bitstate>((value >> offset) & max);
   }
 
-  constexpr bitfield &operator=(const bitstate &v) noexcept {
+  constexpr bitfield &operator=(bitstate v) noexcept {
     // Cannot static assert this without a constexpr way of getting largest enum
     // class value.
     const auto *as_integral = std::bit_cast<register_integral *>(&value);
@@ -48,6 +48,5 @@ struct bitfield {
                                         register_integral>::type;
 
 private:
-  friend std::conditional<uses_simulated_registers, sim_storage, void>::type;
   storage_type value;
 };
