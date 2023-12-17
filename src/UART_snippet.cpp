@@ -2,6 +2,7 @@
 #include <bit>
 #include <cstring>
 #include <iostream>
+#include <rp2040/UART/UART.hpp>
 
 int main(int, char const *[]) {
   volatile bool continue_ = false;
@@ -28,6 +29,9 @@ int main(int, char const *[]) {
 
   auto receive_buffer = std::array<uint8_t, 16>();
   receive_buffer.fill(0u);
+
+  while (::UART::get(UART::ID::first).UARTFR.BUSY == reg::state::set) {
+  }
 
   auto receive_result = handle.receive(receive_buffer);
 

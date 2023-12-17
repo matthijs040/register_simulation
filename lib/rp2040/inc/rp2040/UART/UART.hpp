@@ -24,6 +24,7 @@ public:
   // Taking into account the bytes taken by UARTRSR.
   const std::array<uint8_t, (0x18 - 0x8)> padding__0;
   reg::UARTFR UARTFR;
+  const std::array<uint8_t, 4> padding__1;
   reg::UARTILPR UARTILPR;
   reg::UARTIBRD UARTIBRD;
   reg::UARTFBRD UARTFBRD;
@@ -36,7 +37,7 @@ public:
   reg::UARTICR UARTICR;
   reg::UARTDMACR UARTDMACR;
 
-  const std::array<uint8_t, 0xfe0 - 0x4C> padding__1;
+  const std::array<uint8_t, 0xfe0 - 0x4C> padding__2;
   reg::UARTPERIPHID0 UARTPERIPHID0;
   reg::UARTPERIPHID1 UARTPERIPHID1;
   reg::UARTPERIPHID2 UARTPERIPHID2;

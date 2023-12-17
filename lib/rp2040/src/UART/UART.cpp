@@ -275,7 +275,7 @@ HAL::UART::send(const std::span<const uint8_t> data) {
     if (handle.UARTFR.transmit_FIFO_full == reg::state::set)
       return &byte - &data.front();
 
-    handle.UARTDR.data = byte;
+    handle.UARTDR.data = byte;   
   }
 
   return data.size();

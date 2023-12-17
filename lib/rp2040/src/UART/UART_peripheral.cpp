@@ -188,7 +188,7 @@ void UART::operator delete(void *ptr) {
     if (handle == ptr)
       handle = nullptr;
 }
-UART::UART() : padding__0{}, padding__1{} {}
+UART::UART() : padding__0{}, padding__1{}, padding__2{} {}
 
 void *UART::operator new(std::size_t, UART::ID which) {
   using base = simulated_peripheral<UART>;
