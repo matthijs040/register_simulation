@@ -297,19 +297,21 @@ HAL::UART::receive(std::span<uint8_t> data) {
 
   for (uint8_t &byte : data) {
 
-    // Check for errors in received data before performing the read.
-    // This is because e.g. the Overrun-error bit clears when the FIFO is read
-    // from.
-    if (handle.UARTDR.overrun_error == reg::state::set)
+    // Take a copy by value of the register.
+    // If reading the bitfields directly from the member, the "data"-register is re-read 4 times.
+    // Resulting in three of every four characters received being cleared.
+    auto copy = handle.UARTDR; 
+
+    if (copy.overrun_error == reg::state::set)
       transfer_error = HAL::UART_error::code::receive_buffer_overflown;
-    if (handle.UARTDR.parity_error == reg::state::set)
+    if (copy.parity_error == reg::state::set)
       transfer_error = HAL::UART_error::code::parity_error_in_received_data;
-    if (handle.UARTDR.framing_error == reg::state::set ||
-        handle.UARTDR.break_error == reg::state::set)
+    if (copy.framing_error == reg::state::set ||
+        copy.break_error == reg::state::set)
       transfer_error = HAL::UART_error::code::format_error_in_received_data;
 
     // Read the data byte.
-    byte = handle.UARTDR.data;
+    byte = copy.data;
 
     if (handle.UARTFR.receive_FIFO_empty == reg::state::set) {
       // Change the caller's buffer to data that actually changed.
