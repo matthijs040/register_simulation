@@ -271,11 +271,11 @@ HAL::UART::send(const std::span<const uint8_t> data) {
     return 0U;
 
   auto &handle = ::UART::get(get_ID_by_pins(used_pins).value());
-  for (const uint8_t& byte : data) {
+  for (const uint8_t &byte : data) {
     if (handle.UARTFR.transmit_FIFO_full == reg::state::set)
       return &byte - &data.front();
 
-    handle.UARTDR.data = byte;   
+    handle.UARTDR.data = byte;
   }
 
   return data.size();
@@ -297,33 +297,33 @@ HAL::UART::receive(std::span<uint8_t> data) {
 
   for (uint8_t &byte : data) {
 
-    // Take a copy by value of the register.
-    // If reading the bitfields directly from the member, the "data"-register is re-read 4 times.
-    // Resulting in three of every four characters received being cleared.
-    auto copy = handle.UARTDR; 
-
-    if (copy.overrun_error == reg::state::set)
+    if (handle.UARTRSR.overrun_error == reg::state::set)
       transfer_error = HAL::UART_error::code::receive_buffer_overflown;
-    if (copy.parity_error == reg::state::set)
+    if (handle.UARTRSR.parity_error == reg::state::set)
       transfer_error = HAL::UART_error::code::parity_error_in_received_data;
-    if (copy.framing_error == reg::state::set ||
-        copy.break_error == reg::state::set)
+    if (handle.UARTRSR.framing_error == reg::state::set ||
+        handle.UARTRSR.break_error == reg::state::set)
       transfer_error = HAL::UART_error::code::format_error_in_received_data;
 
     // Read the data byte.
-    byte = copy.data;
+    byte = handle.UARTDR.data;
 
     if (handle.UARTFR.receive_FIFO_empty == reg::state::set) {
+      if (transfer_error) {
+        handle.UARTRSR.overrun_error = reg::state::cleared;
+        return std::unexpected(transfer_error);
+      }
+
       // Change the caller's buffer to data that actually changed.
-      return transfer_error ? std::unexpected(transfer_error)
-                            : std::expected<std::size_t, std::error_code>(
-                                  &byte - &data.front() + 1);
+      return &byte - &data.front() + 1;
     }
   }
 
-  return transfer_error
-             ? std::unexpected(transfer_error)
-             : std::expected<std::size_t, std::error_code>(data.size());
+  if (transfer_error) {
+    handle.UARTRSR.overrun_error = reg::state::cleared;
+    return std::unexpected(transfer_error);
+  }
+  return data.size();
 }
 
 HAL::UART::format HAL::UART::get_active_format() const noexcept {
