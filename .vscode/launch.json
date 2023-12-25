@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build_tests/tests",
             "args": [
-                "--gtest_filter=peripheral_tests.direct_modification_to_mocked_read_only_storage_is_possible"
+                "--gtest_filter=UART_tests.sending_character_with_loopback_enabled_can_be_received"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

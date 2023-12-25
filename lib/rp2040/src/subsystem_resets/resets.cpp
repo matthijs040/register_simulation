@@ -18,8 +18,7 @@ void init_reset_handlers() {
       UART::get(UART::ID::first).UARTLCR_H.BRK = reg::state::disabled;
 
       flush_UART_FIFOs(UART::ID::first);
-      simulated_peripheral<resets>::acquire_field<
-          decltype(reg::RESET_DONE::UART0)>(&handle.RESET_DONE) =
+      simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.UART0) =
           reg::state::set;
     }
   };
@@ -36,8 +35,7 @@ void init_reset_handlers() {
       UART::get(UART::ID::second).UARTLCR_H.BRK = reg::state::disabled;
 
       flush_UART_FIFOs(UART::ID::second);
-      simulated_peripheral<resets>::acquire_field<
-          decltype(reg::RESET_DONE::UART1)>(&handle.RESET_DONE) =
+      simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.UART1) =
           reg::state::set;
     }
   };
@@ -52,10 +50,10 @@ void init_reset_done_handlers() {
     if (read_bits == reg::state::cleared)
       return;
 
-    simulated_peripheral<resets>::acquire_field<decltype(reg::RESET::UART0)>(
-        &handle.RESET) = reg::state::cleared;
-    simulated_peripheral<resets>::acquire_field<
-        decltype(reg::RESET_DONE::UART0)>(&handle.RESET_DONE) = reg::state::set;
+    simulated_peripheral<resets>::acquire_field(handle.RESET.UART0) =
+        reg::state::cleared;
+    simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.UART0) =
+        reg::state::set;
   };
   UART0::sim_storage::set_effect_handlers(&handle.RESET_DONE.UART0,
                                           UART0_handlers);
@@ -64,8 +62,7 @@ void init_reset_done_handlers() {
   auto UART1_handlers = UART1::sim_storage::effect_handlers();
   UART1_handlers.on_read = [&handle](const UART1::stored_bits &read_bits) {
     if (read_bits == reg::state::set) {
-      simulated_peripheral<resets>::acquire_field<
-          decltype(reg::RESET_DONE::UART1)>(&handle.RESET_DONE) =
+      simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.UART1) =
           reg::state::cleared;
     }
   };

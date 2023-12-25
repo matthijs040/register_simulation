@@ -41,10 +41,10 @@ struct simulated_peripheral {
    * @return const void* address of the field to wrap in Bitfield::stored_bits.
    */
   template <typename Bitfield>
-  static inline auto &acquire_field(const void *field_address) {
+  static inline auto &acquire_field(const Bitfield& field_address) {
 
     const off_t offset =
-        std::bit_cast<const register_integral *>(field_address) -
+        std::bit_cast<const register_integral *>(&field_address) -
         std::bit_cast<const register_integral *>(base_address);
     auto &field = simulated_register_storage.at(offset);
 

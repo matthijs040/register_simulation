@@ -94,33 +94,20 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
 
   auto data_handlers = data_type::sim_storage::effect_handlers();
   data_handlers.on_read = [which, &buffer](const data_type::stored_bits &) {
-    auto &UARTFR_storage =
-        simulated_peripheral<UART>::simulated_register_storage.at(
-            std::to_underlying(which) * sizeof(UART) +
-            offsetof(UART, UART::UARTFR) / sizeof(UART::UARTFR));
-
-    auto &UARTDR_storage =
-        simulated_peripheral<UART>::simulated_register_storage.at(
-            std::to_underlying(which) * sizeof(UART) +
-            offsetof(UART, UART::UARTDR) / sizeof(UART::UARTDR));
+    auto &handle = UART::get(which);
 
     // Replace the data in the transfer register.
     if (!buffer.RX_FIFO.empty()) {
-      auto &RX_data = buffer.RX_FIFO.front().value().get();
+      UART_FIFOs::RX_entry &RX_data = buffer.RX_FIFO.front().value().get();
 
-      // Do this by assigning the present state...
-      UARTDR_storage =
-          (((((UARTDR_storage
-               // ... "AND-ed" with the inverse of the shifted data-bitfield ...
-               & ~(decltype(reg::UARTDR::data)::max
-                   << decltype(reg::UARTDR::data)::offset)))
-             // ... and "OR-ed" with the new state of the data from the FIFO.
-             | (RX_data.data << decltype(reg::UARTDR::data)::offset)) &
-            ~(decltype(reg::UARTDR::overrun_error)::max
-              << decltype(reg::UARTDR::overrun_error)::offset))
-           // ... and "OR-ed" with the new state of the data from the FIFO.
-           | (RX_data.overrun_error
-              << decltype(reg::UARTDR::overrun_error)::offset));
+      simulated_peripheral<UART>::acquire_field(handle.UARTDR.overrun_error) =
+          RX_data.overrun_error ? reg::state::set : reg::state::cleared;
+      simulated_peripheral<UART>::acquire_field(handle.UARTDR.parity_error) =
+          RX_data.parity_error ? reg::state::set : reg::state::cleared;
+      simulated_peripheral<UART>::acquire_field(handle.UARTDR.framing_error) =
+          RX_data.framing_error ? reg::state::set : reg::state::cleared;
+      simulated_peripheral<UART>::acquire_field(handle.UARTDR.data) =
+          RX_data.data;
 
       // Then shift the active index in the static FIFO.
       buffer.RX_FIFO.pop();
@@ -129,41 +116,36 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
     // Also, if the static FIFO is/becomes empty by this read,
     // Set the FIFO empty flag in the "Flags Register"
     if (buffer.RX_FIFO.empty()) {
-      UARTFR_storage = UARTFR_storage |
-                       std::to_underlying(reg::state::set)
-                           << decltype(reg::UARTFR::receive_FIFO_empty)::offset;
+      simulated_peripheral<UART>::acquire_field(
+          handle.UARTFR.receive_FIFO_empty) = reg::state::set;
     }
   };
 
-  data_handlers.on_write = [which, &buffer](
-                               data_type::stored_bits,
-                               const data_type::stored_bits &after_write) {
-    auto &UARTFR_storage =
-        simulated_peripheral<UART>::simulated_register_storage.at(
-            std::to_underlying(which) * sizeof(UART) +
-            (offsetof(UART, UART::UARTFR) / sizeof(UART::UARTFR)));
+  data_handlers.on_write =
+      [which, &buffer](data_type::stored_bits,
+                       const data_type::stored_bits &after_write) {
+        auto &handle = UART::get(which);
 
-    // If the LoopBack-Enable register is set don't buffer.
-    // Just send it into the same UART's Receive FIFO.
-    if (UART::get(which).UARTCR.LBE == reg::state::set) {
-      write_to_UART(which, after_write);
-      return;
-    }
+        // If the LoopBack-Enable register is set don't buffer.
+        // Just send it into the same UART's Receive FIFO.
+        if (UART::get(which).UARTCR.LBE == reg::state::set) {
+          write_to_UART(which, after_write);
+          return;
+        }
 
-    // Copy over the data to transfer to the TX_FIFO.
-    if (buffer.TX_FIFO.size() < FIFO_size) {
-      buffer.TX_FIFO.push(after_write);
-    }
+        // Copy over the data to transfer to the TX_FIFO.
+        if (buffer.TX_FIFO.size() < FIFO_size) {
+          buffer.TX_FIFO.push(after_write);
+        }
 
-    // Also, if the FIFO is/becomes full by this write,
-    // Set the FIFO full flag in the "Flags Register"
-    const bool at_capacity = buffer.TX_FIFO.size() == FIFO_size;
-    if (at_capacity) {
-      UARTFR_storage = UARTFR_storage |
-                       std::to_underlying(reg::state::set)
-                           << decltype(reg::UARTFR::transmit_FIFO_full)::offset;
-    }
-  };
+        // Also, if the FIFO is/becomes full by this write,
+        // Set the FIFO full flag in the "Flags Register"
+        const bool at_capacity = buffer.TX_FIFO.size() == FIFO_size;
+        if (at_capacity) {
+          simulated_peripheral<UART>::acquire_field(
+              handle.UARTFR.transmit_FIFO_full) = reg::state::set;
+        }
+      };
 
   data_type::sim_storage::set_effect_handlers(&data_register, data_handlers);
 }

@@ -11,8 +11,8 @@ int main(int, char const *[]) {
 
   constexpr auto RX_pin = 1;
   constexpr auto TX_pin = 0;
-  constexpr auto baudrate = 9600;
-  constexpr auto loopback_enabled = true;
+  constexpr auto baudrate = 115200;
+  constexpr auto loopback_enabled = false;
   constexpr const char *data = "hello world!";
 
   HAL::UART::format format{HAL::UART::parity::none, HAL::UART::stop_bits::one,
@@ -33,14 +33,15 @@ int main(int, char const *[]) {
   while (::UART::get(UART::ID::first).UARTFR.BUSY == reg::state::set) {
   }
 
-  auto receive_result = handle.receive(receive_buffer);
+  // auto receive_result = handle.receive(receive_buffer);
+  //
+  // if (!receive_result.has_value())
+  //   return EXIT_FAILURE;
+  //
+  // volatile char *received_data = std::bit_cast<char
+  // *>(receive_buffer.data());
 
-  if (!receive_result.has_value())
-    return EXIT_FAILURE;
-
-  volatile char *received_data = std::bit_cast<char *>(receive_buffer.data());
-
-  while (received_data) {
+  while (true) {
   }
 
   return EXIT_SUCCESS;

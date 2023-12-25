@@ -8,7 +8,7 @@ TEST(peripheral_tests,
   ASSERT_EQ(handle.RESET_DONE.PIO0, reg::state::cleared);
   static_assert(reg::mock);
   
-  auto& field = simulated_peripheral<resets>::acquire_field<decltype(resets::RESET_DONE.PIO0)>(&handle.RESET_DONE);
+  auto& field = simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.PIO0);
   field = reg::state::set;
   
   ASSERT_EQ(field, reg::state::set);
