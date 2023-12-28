@@ -1,6 +1,7 @@
 #pragma once
 
 #include "error_values.hpp"
+#include <utility>
 
 class error_category {
 public:
@@ -301,9 +302,9 @@ public:
   constexpr error_code(const error_code &other)
       : code_(other.code_), category(other.category) {}
 
-  template <typename errc> constexpr error_code(errc error) {
-    error_code(make_error_code(error));
-  }
+  template <typename errc,
+            std::enable_if_t<std::is_scoped_enum_v<errc>, bool> = true>
+  constexpr error_code(errc error) : error_code(make_error_code(error)) {}
 
   constexpr error_code &operator=(const error_code &other) {
     code_ = other.code_;
@@ -312,6 +313,10 @@ public:
   };
 
   constexpr operator bool() const noexcept { return code_ != 0; }
+
+  constexpr bool operator==(const error_code &other) const noexcept {
+    return &category == &(other.category) && code_ == other.code_;
+  }
 
   constexpr const char *message() const noexcept {
     return category.message(code_);
@@ -324,9 +329,10 @@ public:
   constexpr void clear() noexcept { *this = error_code(); }
 
   template <typename errc>
-  static constexpr error_code make_error_code(errc error);
+  static constexpr error_code make_error_code(errc error) noexcept;
 };
 
-template <> error_code error_code::make_error_code<ec::errc>(ec::errc code) {
+template <>
+inline error_code error_code::make_error_code<ec::errc>(ec::errc code) noexcept {
   return error_code(std::to_underlying(code), standard_category::get());
 }

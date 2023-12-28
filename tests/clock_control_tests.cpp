@@ -19,5 +19,5 @@ TEST(clock_control_tests, each_clock_has_non_empty_name) {
 
 TEST(clock_control_tests, clock_control_initializes) {
   auto handle = clock_control("ref");
-  EXPECT_EQ(handle.initialization_result, std::error_code());
+  EXPECT_EQ(handle.initialization_result, error_code());
 }

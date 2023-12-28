@@ -8,7 +8,7 @@ TEST(ROSC_tests, setting_frequency_while_clock_disabled_fails) {
   auto result =
       handle.set_frequency_Hz(ROSC::get_frequencies_by_power_stage().front());
   ASSERT_FALSE(result.has_value());
-  EXPECT_EQ(result.error(), clock_error::code::disabled);
+  EXPECT_EQ(result.error(), clock_control::errc::disabled);
 }
 
 TEST(ROSC_tests, set_frequency_applies_powerstage_correctly) {

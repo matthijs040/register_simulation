@@ -43,14 +43,12 @@ void *ROSC::operator new(std::size_t size) {
   return std::bit_cast<ROSC *>(base_address);
 }
 
-std::expected<uint32_t, std::error_code>
+std::expected<uint32_t, error_code>
 ROSC::get_frequency_Hz() const noexcept {
-  std::expected<uint32_t, std::error_code> ret;
+  std::expected<uint32_t, error_code> ret;
 
   if (CTRL.ENABLE == reg::ROSC::CTRL::ENABLE_states::disabled) {
-    std::error_code err = clock_error::code::disabled;
-    ret = std::unexpected(err);
-    return ret;
+    return error_code(clock_control::errc::disabled);
   }
 
   return frequencies.at(get_power_stage()) * table_divisor /
@@ -136,10 +134,10 @@ inline void find_closest_match(uint32_t desired_frequency,
   }
 }
 
-std::expected<uint32_t, std::error_code>
+std::expected<uint32_t, error_code>
 ROSC::set_frequency_Hz(std::uint32_t desired_frequency) noexcept {
   if (CTRL.ENABLE == reg::ROSC::CTRL::ENABLE_states::disabled) {
-    std::error_code err = std::error_code(clock_error::code::disabled);
+    error_code err = error_code(clock_control::errc::disabled);
     auto ret = std::unexpected(err);
     return ret;
   }
