@@ -9,43 +9,43 @@
 #include <typeinfo>
 #include <bit>
 
-std::expected<reg::state, std::error_code>
+std::expected<reg::state, error_code>
 is_peripheral_output_enabled(GPIO::pin_number pin_number,
                              reg::CTRL::FUNCSEL_states function) {
-  auto result = std::expected<reg::state, std::error_code>();
+  auto result = std::expected<reg::state, error_code>();
   switch (function) {
   case reg::CTRL::FUNCSEL_states::disabled:
     result = reg::state::disabled;
     break;
   case reg::CTRL::FUNCSEL_states::SPI:
-    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    result = std::unexpected(error_code(ec::errc::not_supported));
     break;
   case reg::CTRL::FUNCSEL_states::UART:
-    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    result = std::unexpected(error_code(ec::errc::not_supported));
     break;
   case reg::CTRL::FUNCSEL_states::I2C:
-    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    result = std::unexpected(error_code(ec::errc::not_supported));
     break;
   case reg::CTRL::FUNCSEL_states::PWM:
-    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    result = std::unexpected(error_code(ec::errc::not_supported));
     break;
   case reg::CTRL::FUNCSEL_states::SIO:
     result = SIO::get().get_pin_OE(pin_number);
     break;
   case reg::CTRL::FUNCSEL_states::PIO0:
-    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    result = std::unexpected(error_code(ec::errc::not_supported));
     break;
   case reg::CTRL::FUNCSEL_states::PIO1:
-    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    result = std::unexpected(error_code(ec::errc::not_supported));
     break;
   case reg::CTRL::FUNCSEL_states::Clock_GPIO:
-    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    result = std::unexpected(error_code(ec::errc::not_supported));
     break;
   case reg::CTRL::FUNCSEL_states::USB:
-    result = std::unexpected(std::make_error_code(std::errc::not_supported));
+    result = std::unexpected(error_code(ec::errc::not_supported));
     break;
   default:
-    result = std::unexpected(std::make_error_code(std::errc::invalid_argument));
+    result = std::unexpected(error_code(ec::errc::invalid_argument));
   }
   return result;
 }

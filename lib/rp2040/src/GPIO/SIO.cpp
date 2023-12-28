@@ -20,9 +20,9 @@ SIO &SIO::get() noexcept {
   return *(handle = new SIO());
 }
 
-std::error_code SIO::set_pin_OE(GPIO::pin_number number,
+error_code SIO::set_pin_OE(GPIO::pin_number number,
                                 reg::state state) noexcept {
-  auto result = std::expected<reg::state, std::error_code>();
+  auto result = std::expected<reg::state, error_code>();
   switch (number) {
   case 0:
     GPIO_OE_SET.GPIO_0 = state;
@@ -115,14 +115,14 @@ std::error_code SIO::set_pin_OE(GPIO::pin_number number,
     GPIO_OE_SET.GPIO_29 = state;
     break;
   default:
-    return std::make_error_code(std::errc::invalid_argument);
+    return error_code(ec::errc::invalid_argument);
   }
-  return std::error_code();
+  return error_code();
 }
 
-std::expected<reg::state, std::error_code>
+std::expected<reg::state, error_code>
 SIO::get_pin_OE(GPIO::pin_number number) const noexcept {
-  auto result = std::expected<reg::state, std::error_code>();
+  auto result = std::expected<reg::state, error_code>();
   switch (number) {
   case 0:
     return result = GPIO_OE_SET.GPIO_0;
@@ -186,6 +186,6 @@ SIO::get_pin_OE(GPIO::pin_number number) const noexcept {
     return result = GPIO_OE_SET.GPIO_29;
   default:
     return result = std::unexpected(
-               std::make_error_code(std::errc::invalid_argument));
+               error_code(ec::errc::invalid_argument));
   }
 }

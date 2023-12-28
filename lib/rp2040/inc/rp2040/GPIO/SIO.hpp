@@ -5,7 +5,7 @@
 #include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
 #include <expected>
-#include <system_error>
+#include <system/error_code.hpp>
 #include <type_traits>
 
 class SIO : public std::conditional<reg::mock, simulated_peripheral<SIO>, void> {
@@ -17,9 +17,9 @@ public:
   ~SIO();
   void operator delete(void *addr);
 
-  std::expected<reg::state, std::error_code>
+  std::expected<reg::state, error_code>
   get_pin_OE(GPIO::pin_number number) const noexcept;
-  std::error_code set_pin_OE(GPIO::pin_number number,
+  error_code set_pin_OE(GPIO::pin_number number,
                              reg::state state) noexcept;
 
   reg::CPUID CPUID;
