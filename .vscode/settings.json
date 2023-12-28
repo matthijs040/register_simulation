@@ -78,7 +78,8 @@
         "typeindex": "cpp",
         "clocks.h": "c",
         "source_location": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "cerrno": "cpp"
     },
     "cmake.configureOnOpen": true,
     "cmake.sourceDirectory": "/home/matthijs/Documents/repos/register_simulation/src",

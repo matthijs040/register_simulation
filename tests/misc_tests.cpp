@@ -17,5 +17,11 @@ TEST(peripheral_tests,
   field = reg::state::cleared;
   ASSERT_EQ(field, reg::state::cleared);
   ASSERT_EQ(handle.RESET_DONE.PIO0, reg::state::cleared);
+}
 
+#include <system/error_code.hpp>
+
+TEST(error_code_test, standard_error_initializes_properly)
+{
+  auto ec = error_code();
 }

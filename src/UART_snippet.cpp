@@ -1,7 +1,6 @@
 #include <HAL/UART.hpp>
 #include <bit>
 #include <cstring>
-#include <iostream>
 #include <rp2040/UART/UART.hpp>
 
 int main(int, char const *[]) {

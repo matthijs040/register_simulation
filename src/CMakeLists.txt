@@ -10,15 +10,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib ${CMAKE_CURRENT_BINARY_DIR}/
 project(application)
 add_executable(main main.cpp application.cpp)
 
-# include(CheckIPOSupported)
-# check_ipo_supported(RESULT supported OUTPUT error)
-# if( supported )
-# message(STATUS "IPO / LTO enabled")
-#     set_target_properties(main PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
-# else()
-#     message(STATUS "IPO / LTO not supported: <${error}>")
-# endif()
-
 target_link_libraries(main PRIVATE HAL rp2040_impl pico_stdlib)
 target_compile_options(main PRIVATE -Og -g)
 pico_enable_stdio_usb(main 1)
@@ -28,11 +19,20 @@ pico_add_extra_outputs(main)
 # 365kB with USB as output.
 # 352kB with UART as output.
 
-
 set_target_properties(main PROPERTIES CXX_STANDARD 23)
 
 
 add_executable(UART_snippet UART_snippet.cpp)
+
+# include(CheckIPOSupported)
+# check_ipo_supported(RESULT supported OUTPUT error)
+# if( supported )
+# message(STATUS "IPO / LTO enabled")
+#     set_target_properties(UART_snippet PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+# else()
+#     message(STATUS "IPO / LTO not supported: <${error}>")
+# endif()
+
 target_link_libraries(UART_snippet PRIVATE HAL rp2040_impl pico_stdlib)
-target_compile_options(UART_snippet PRIVATE -Og -g)
+target_compile_options(UART_snippet PRIVATE -Os)
 set_target_properties(UART_snippet PROPERTIES CXX_STANDARD 23)
