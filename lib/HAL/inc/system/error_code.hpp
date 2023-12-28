@@ -14,266 +14,266 @@ public:
   constexpr virtual const char *name() const noexcept { return "standard"; }
 
   constexpr virtual const char *message(int code) const noexcept {
-    switch (code) {
-    case 0:
+    switch (static_cast<ec::errc>(code)) {
+    case ec::errc::success:
       return "success";
-    case ec::EPERM_:
+    case ec::errc::eperm:
       return "Operation not permitted";
-    case ec::ENOENT_:
+    case ec::errc::enoent:
       return "No such file or directory";
-    case ec::ESRCH_:
+    case ec::errc::esrch:
       return "No such process";
-    case ec::EINTR_:
+    case ec::errc::eintr:
       return "Interrupted system call";
-    case ec::EIO_:
+    case ec::errc::eio:
       return "I/O error";
-    case ec::ENXIO_:
+    case ec::errc::enxio:
       return "No such device or address";
-    case ec::E2BIG_:
+    case ec::errc::e2big:
       return "Argument list too long";
-    case ec::ENOEXEC_:
+    case ec::errc::enoexec:
       return "Exec format error";
-    case ec::EBADF_:
+    case ec::errc::ebadf:
       return "Bad file number";
-    case ec::ECHILD_:
+    case ec::errc::echild:
       return "No child processes";
-    case ec::EAGAIN_:
+    case ec::errc::eagain:
       return "Try again";
-    case ec::ENOMEM_:
+    case ec::errc::enomem:
       return "Out of memory";
-    case ec::EACCES_:
+    case ec::errc::eacces:
       return "Permission denied";
-    case ec::EFAULT_:
+    case ec::errc::efault:
       return "Bad address";
-    case ec::ENOTBLK_:
+    case ec::errc::enotblk:
       return "Block device required";
-    case ec::EBUSY_:
+    case ec::errc::ebusy:
       return "Device or resource busy";
-    case ec::EEXIST_:
+    case ec::errc::eexist:
       return "File exists";
-    case ec::EXDEV_:
+    case ec::errc::exdev:
       return "Cross-device link";
-    case ec::ENODEV_:
+    case ec::errc::enodev:
       return "No such device";
-    case ec::ENOTDIR_:
+    case ec::errc::enotdir:
       return "Not a directory";
-    case ec::EISDIR_:
+    case ec::errc::eisdir:
       return "Is a directory";
-    case ec::EINVAL_:
+    case ec::errc::einval:
       return "Invalid argument";
-    case ec::ENFILE_:
+    case ec::errc::enfile:
       return "File table overflow";
-    case ec::EMFILE_:
+    case ec::errc::emfile:
       return "Too many open files";
-    case ec::ENOTTY_:
+    case ec::errc::enotty:
       return "Not a typewriter";
-    case ec::ETXTBSY_:
+    case ec::errc::etxtbsy:
       return "Text file busy";
-    case ec::EFBIG_:
+    case ec::errc::efbig:
       return "File too large";
-    case ec::ENOSPC_:
+    case ec::errc::enospc:
       return "No space left on device";
-    case ec::ESPIPE_:
+    case ec::errc::espipe:
       return "Illegal seek";
-    case ec::EROFS_:
+    case ec::errc::erofs:
       return "Read-only file system";
-    case ec::EMLINK_:
+    case ec::errc::emlink:
       return "Too many links";
-    case ec::EPIPE_:
+    case ec::errc::epipe:
       return "Broken pipe";
-    case ec::EDOM_:
+    case ec::errc::edom:
       return "Math argument out of domain of func";
-    case ec::ERANGE_:
+    case ec::errc::erange:
       return "Math result not representable";
-    case ec::EDEADLK_:
+    case ec::errc::edeadlk:
       return "Resource deadlock would occur";
-    case ec::ENAMETOOLONG_:
+    case ec::errc::enametoolong:
       return "File name too long";
-    case ec::ENOLCK_:
+    case ec::errc::enolck:
       return "No record locks available";
-    case ec::ENOSYS_:
+    case ec::errc::enosys:
       return "Function not implemented";
-    case ec::ENOTEMPTY_:
+    case ec::errc::enotempty:
       return "Directory not empty";
-    case ec::ELOOP_:
+    case ec::errc::eloop:
       return "Too many symbolic links encountered";
-    case ec::ENOMSG_:
+    case ec::errc::enomsg:
       return "No message of desired type";
-    case ec::EIDRM_:
+    case ec::errc::eidrm:
       return "Identifier removed";
-    case ec::ECHRNG_:
+    case ec::errc::echrng:
       return "Channel number out of range";
-    case ec::EL2NSYNC_:
+    case ec::errc::el2nsync:
       return "Level 2 not synchronized";
-    case ec::EL3HLT_:
+    case ec::errc::el3hlt:
       return "Level 3 halted";
-    case ec::EL3RST_:
+    case ec::errc::el3rst:
       return "Level 3 reset";
-    case ec::ELNRNG_:
+    case ec::errc::elnrng:
       return "Link number out of range";
-    case ec::EUNATCH_:
+    case ec::errc::eunatch:
       return "Protocol driver not attached";
-    case ec::ENOCSI_:
+    case ec::errc::enocsi:
       return "No CSI structure available";
-    case ec::EL2HLT_:
+    case ec::errc::el2hlt:
       return "Level 2 halted";
-    case ec::EBADE_:
+    case ec::errc::ebade:
       return "Invalid exchange";
-    case ec::EBADR_:
+    case ec::errc::ebadr:
       return "Invalid request descriptor";
-    case ec::EXFULL_:
+    case ec::errc::exfull:
       return "Exchange full";
-    case ec::ENOANO_:
+    case ec::errc::enoano:
       return "No anode";
-    case ec::EBADRQC_:
+    case ec::errc::ebadrqc:
       return "Invalid request code";
-    case ec::EBADSLT_:
+    case ec::errc::ebadslt:
       return "Invalid slot";
-    case ec::EBFONT_:
+    case ec::errc::ebfont:
       return "Bad font file format";
-    case ec::ENOSTR_:
+    case ec::errc::enostr:
       return "Device not a stream";
-    case ec::ENODATA_:
+    case ec::errc::enodata:
       return "No data available";
-    case ec::ETIME_:
+    case ec::errc::etime:
       return "Timer expired";
-    case ec::ENOSR_:
+    case ec::errc::enosr:
       return "Out of streams resources";
-    case ec::ENONET_:
+    case ec::errc::enonet:
       return "Machine is not on the network";
-    case ec::ENOPKG_:
+    case ec::errc::enopkg:
       return "Package not installed";
-    case ec::EREMOTE_:
+    case ec::errc::eremote:
       return "Object is remote";
-    case ec::ENOLINK_:
+    case ec::errc::enolink:
       return "Link has been severed";
-    case ec::EADV_:
+    case ec::errc::eadv:
       return "Advertise error";
-    case ec::ESRMNT_:
+    case ec::errc::esrmnt:
       return "Srmount error";
-    case ec::ECOMM_:
+    case ec::errc::ecomm:
       return "Communication error on send";
-    case ec::EPROTO_:
+    case ec::errc::eproto:
       return "Protocol error";
-    case ec::EMULTIHOP_:
+    case ec::errc::emultihop:
       return "Multihop attempted";
-    case ec::EDOTDOT_:
+    case ec::errc::edotdot:
       return "RFS specific error";
-    case ec::EBADMSG_:
+    case ec::errc::ebadmsg:
       return "Not a data message";
-    case ec::EOVERFLOW_:
+    case ec::errc::eoverflow:
       return "Value too large for defined data type";
-    case ec::ENOTUNIQ_:
+    case ec::errc::enotuniq:
       return "Name not unique on network";
-    case ec::EBADFD_:
+    case ec::errc::ebadfd:
       return "File descriptor in bad state";
-    case ec::EREMCHG_:
+    case ec::errc::eremchg:
       return "Remote address changed";
-    case ec::ELIBACC_:
+    case ec::errc::elibacc:
       return "Can not access a needed shared library";
-    case ec::ELIBBAD_:
+    case ec::errc::elibbad:
       return "Accessing a corrupted shared library";
-    case ec::ELIBSCN_:
+    case ec::errc::elibscn:
       return "lib section in a.out corrupted";
-    case ec::ELIBMAX_:
+    case ec::errc::elibmax:
       return "Attempting to link in too many shared libraries";
-    case ec::ELIBEXEC_:
+    case ec::errc::elibexec:
       return "Cannot exec a shared library directly";
-    case ec::EILSEQ_:
+    case ec::errc::eilseq:
       return "Illegal byte sequence";
-    case ec::ERESTART_:
+    case ec::errc::erestart:
       return "Interrupted system call should be restarted";
-    case ec::ESTRPIPE_:
+    case ec::errc::estrpipe:
       return "Streams pipe error";
-    case ec::EUSERS_:
+    case ec::errc::eusers:
       return "Too many users";
-    case ec::ENOTSOCK_:
+    case ec::errc::enotsock:
       return "Socket operation on non-socket";
-    case ec::EDESTADDRREQ_:
+    case ec::errc::edestaddrreq:
       return "Destination address required";
-    case ec::EMSGSIZE_:
+    case ec::errc::emsgsize:
       return "Message too long";
-    case ec::EPROTOTYPE_:
+    case ec::errc::eprototype:
       return "Protocol wrong type for socket";
-    case ec::ENOPROTOOPT_:
+    case ec::errc::enoprotoopt:
       return "Protocol not available";
-    case ec::EPROTONOSUPPORT_:
+    case ec::errc::eprotonosupport:
       return "Protocol not supported";
-    case ec::ESOCKTNOSUPPORT_:
+    case ec::errc::esocktnosupport:
       return "Socket type not supported";
-    case ec::EOPNOTSUPP_:
+    case ec::errc::eopnotsupp:
       return "Operation not supported on transport endpoint";
-    case ec::EPFNOSUPPORT_:
+    case ec::errc::epfnosupport:
       return "Protocol family not supported";
-    case ec::EAFNOSUPPORT_:
+    case ec::errc::eafnosupport:
       return "Address family not supported by protocol";
-    case ec::EADDRINUSE_:
+    case ec::errc::eaddrinuse:
       return "Address already in use";
-    case ec::EADDRNOTAVAIL_:
+    case ec::errc::eaddrnotavail:
       return "Cannot assign requested address";
-    case ec::ENETDOWN_:
+    case ec::errc::enetdown:
       return "Network is down";
-    case ec::ENETUNREACH_:
+    case ec::errc::enetunreach:
       return "Network is unreachable";
-    case ec::ENETRESET_:
+    case ec::errc::enetreset:
       return "Network dropped connection because of reset";
-    case ec::ECONNABORTED_:
+    case ec::errc::econnaborted:
       return "Software caused connection abort";
-    case ec::ECONNRESET_:
+    case ec::errc::econnreset:
       return "Connection reset by peer";
-    case ec::ENOBUFS_:
+    case ec::errc::enobufs:
       return "No buffer space available";
-    case ec::EISCONN_:
+    case ec::errc::eisconn:
       return "Transport endpoint is already connected";
-    case ec::ENOTCONN_:
+    case ec::errc::enotconn:
       return "Transport endpoint is not connected";
-    case ec::ESHUTDOWN_:
+    case ec::errc::eshutdown:
       return "Cannot send after transport endpoint shutdown";
-    case ec::ETOOMANYREFS_:
+    case ec::errc::etoomanyrefs:
       return "Too many references: cannot splice";
-    case ec::ETIMEDOUT_:
+    case ec::errc::etimedout:
       return "Connection timed out";
-    case ec::ECONNREFUSED_:
+    case ec::errc::econnrefused:
       return "Connection refused";
-    case ec::EHOSTDOWN_:
+    case ec::errc::ehostdown:
       return "Host is down";
-    case ec::EHOSTUNREACH_:
+    case ec::errc::ehostunreach:
       return "No route to host";
-    case ec::EALREADY_:
+    case ec::errc::ealready:
       return "Operation already in progress";
-    case ec::EINPROGRESS_:
+    case ec::errc::einprogress:
       return "Operation now in progress";
-    case ec::ESTALE_:
+    case ec::errc::estale:
       return "Stale NFS file handle";
-    case ec::EUCLEAN_:
+    case ec::errc::euclean:
       return "Structure needs cleaning";
-    case ec::ENOTNAM_:
+    case ec::errc::enotnam:
       return "Not a XENIX named type file";
-    case ec::ENAVAIL_:
+    case ec::errc::enavail:
       return "No XENIX semaphores available";
-    case ec::EISNAM_:
+    case ec::errc::eisnam:
       return "Is a named type file";
-    case ec::EREMOTEIO_:
+    case ec::errc::eremoteio:
       return "Remote I/O error";
-    case ec::EDQUOT_:
+    case ec::errc::edquot:
       return "Quota exceeded";
-    case ec::ENOMEDIUM_:
+    case ec::errc::enomedium:
       return "No medium found";
-    case ec::EMEDIUMTYPE_:
+    case ec::errc::emediumtype:
       return "Wrong medium type";
-    case ec::ECANCELED_:
+    case ec::errc::ecanceled:
       return "Operation Canceled";
-    case ec::ENOKEY_:
+    case ec::errc::enokey:
       return "Required key not available";
-    case ec::EKEYEXPIRED_:
+    case ec::errc::ekeyexpired:
       return "Key has expired";
-    case ec::EKEYREVOKED_:
+    case ec::errc::ekeyrevoked:
       return "Key has been revoked";
-    case ec::EKEYREJECTED_:
+    case ec::errc::ekeyrejected:
       return "Key was rejected by service";
-    case ec::EOWNERDEAD_:
+    case ec::errc::eownerdead:
       return "Owner died";
-    case ec::ENOTRECOVERABLE_:
+    case ec::errc::enotrecoverable:
       return "State not recoverable";
     }
     return "Unknown";
@@ -292,10 +292,18 @@ private:
 
 public:
   constexpr error_code() noexcept
-      : code_(ec::success_), category(standard_category::get()) {}
+      : code_(std::to_underlying(ec::errc::success)),
+        category(standard_category::get()) {}
 
   constexpr error_code(int set_code, error_category &cat)
       : code_(set_code), category(cat) {}
+
+  constexpr error_code(const error_code &other)
+      : code_(other.code_), category(other.category) {}
+
+  template <typename errc> constexpr error_code(errc error) {
+    error_code(make_error_code(error));
+  }
 
   constexpr error_code &operator=(const error_code &other) {
     code_ = other.code_;
@@ -314,4 +322,11 @@ public:
   constexpr int code() const noexcept { return code_; }
 
   constexpr void clear() noexcept { *this = error_code(); }
+
+  template <typename errc>
+  static constexpr error_code make_error_code(errc error);
 };
+
+template <> error_code error_code::make_error_code<ec::errc>(ec::errc code) {
+  return error_code(std::to_underlying(code), standard_category::get());
+}
