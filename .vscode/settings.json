@@ -68,8 +68,20 @@
         "charconv": "cpp",
         "format": "cpp",
         "span": "cpp",
-        "expected": "cpp"
+        "expected": "cpp",
+        "ranges": "cpp",
+        "strstream": "cpp",
+        "bitset": "cpp",
+        "cfenv": "cpp",
+        "complex": "cpp",
+        "shared_mutex": "cpp",
+        "typeindex": "cpp",
+        "clocks.h": "c",
+        "source_location": "cpp",
+        "*.ipp": "cpp",
+        "cerrno": "cpp"
     },
     "cmake.configureOnOpen": true,
+    "cmake.sourceDirectory": "/home/matthijs/Documents/repos/register_simulation/src",
     // "cmake.configureArgs": ["-DCMAKE_TOOLCHAIN_FILE=build/rp2040_toolchain.cmake"]
 }

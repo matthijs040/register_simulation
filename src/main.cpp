@@ -1,28 +1,26 @@
 #include <HAL/GPIO.hpp>
-#include <cstdlib>
-#include <iostream>
 #include <pico/stdlib.h>
+#include <pico/stdio.h>
+#include <iostream>
 #include <utility>
+#include "application.hpp"
 
-int main(int argc, char const *argv[]) {
-  const auto LED_pin = PICO_DEFAULT_LED_PIN;
+constexpr uint8_t LED_pin = PICO_DEFAULT_LED_PIN;
 
-  auto instance = GPIO(LED_pin);
-  if (instance.initialization_result)
+int main(int, char const *[])
+{
+  if (!stdio_init_all())
     return EXIT_FAILURE;
 
-  auto mode = instance.get_pin_mode();
-  auto error = instance.set_pin_mode(GPIO::mode::output_only);
-  if (error)
+  auto handle = GPIO(LED_pin);
+  if (handle.initialization_result)
+  {
+    std::cerr << "LED pin failed to initialize with error: " << handle.initialization_result << '\n';
     return EXIT_FAILURE;
-
-  while (true) {
-    auto error = instance.set_pin_state(
-        instance.get_pin_state() == GPIO::state::high ? GPIO::state::low
-                                                      : GPIO::state::high);
-    if (error)
-      return EXIT_FAILURE;
-    sleep_ms(1000);
   }
+
+  auto application_instance = application(handle);
+  application_instance.run();
+
   return EXIT_SUCCESS;
 }

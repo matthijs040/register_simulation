@@ -4,11 +4,10 @@
 #include <HAL/simulated_peripheral.hpp>
 
 #include "registers.hpp"
-#include <memory>
 #include <optional>
 
-class user_IO : std::conditional<USE_SIMULATED_REGISTERS,
-                                 simulated_peripheral<user_IO>, void> {
+class user_IO
+    : public std::conditional<reg::mock, simulated_peripheral<user_IO>, void> {
 public:
   static user_IO &get() noexcept;
 

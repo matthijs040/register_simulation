@@ -2,6 +2,7 @@
 
 #include "device_register.hpp"
 
+#include <bit>
 #include <functional>
 #include <iostream>
 #include <map>
@@ -10,13 +11,15 @@ template <class Underlying> class simulated_device_register {
 public:
   simulated_device_register() {}
 
-  simulated_device_register(Underlying initial_value)
-      : value(initial_value) {}
+  simulated_device_register(Underlying initial_value) : value(initial_value) {}
   // ---------------- Accessors ----------------
 
   operator register_integral() const {
+    // Perform a copy before a potential read handler is called.
+    // Read handlers can mutate the (to be) observed memory.
+    auto ret = *std::bit_cast<const register_integral *>(&value);
     on_read();
-    return reinterpret_cast<const register_integral&>(value);
+    return ret;
   }
 
   void operator=(Underlying v) {
