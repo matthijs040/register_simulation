@@ -3,10 +3,10 @@
 #include "system/error_code.hpp"
 #include <HAL/GPIO.hpp>
 
-class SPI {
-private:
-  /* data */
+template <typename Platform> class SPI {
 public:
+  const error_code initialization_result;
+
   const struct pins {
     GPIO::pin_number clock_pin;
     GPIO::pin_number chip_select_pin;
@@ -16,6 +16,6 @@ public:
 
   const enum class mode { Motorola, TI_synchronous, Microwire } used_mode;
 
-  SPI();
+  SPI(pins pins_to_use, mode mode_to_use);
   ~SPI();
 };

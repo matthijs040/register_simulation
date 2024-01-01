@@ -1,7 +1,6 @@
 #pragma once
 
 #include <HAL/bitfield.hpp>
-#include <rp2040/SPI/SPI_peripheral.hpp>
 #include <rp2040/shared_types.hpp>
 
 namespace reg {
@@ -42,7 +41,7 @@ union SSPCR0 {
     data_bits_13 = 0b1100,
     data_bits_14 = 0b1101,
     data_bits_15 = 0b1110,
-    data_bits_15 = 0b1111,
+    data_bits_16 = 0b1111,
   };
   bitfield<uint8_t, 0, 4, reg::mock> DSS;
 };
@@ -133,25 +132,12 @@ union SSPDMACR {
 };
 
 union SSPPERIPHID0 {
-  // Only enable the initializer for non-native builds.
-  // Otherwise this value is written to read-only storage.
-  template <bool init = reg::mock, std::enable_if_t<init, int> = 0>
-  SSPPERIPHID0() : PARTNUMBER0(0x22) {}
-
-  template <bool init = reg::mock, std::enable_if_t<!init, int> = 0>
   SSPPERIPHID0() {}
 
   const bitfield<uint8_t, 0, 8, reg::mock> PARTNUMBER0;
 };
 
 union SSPPERIPHID1 {
-
-  // Only enable the initializer for non-native builds.
-  // Otherwise this value is written to read-only storage.
-  template <bool init = reg::mock, std::enable_if_t<init, int> = 0>
-  SSPPERIPHID1() : DESIGNER0(0x1) {}
-
-  template <bool init = reg::mock, std::enable_if_t<!init, int> = 0>
   SSPPERIPHID1() {}
 
   const bitfield<uint8_t, 4, 4, reg::mock> DESIGNER0;
@@ -163,14 +149,6 @@ union SSPPERIPHID2 {
 
   const bitfield<uint8_t, 4, 4, reg::mock> REVISION;
   const bitfield<uint8_t, 0, 4, reg::mock> DESIGNER1;
-
-  SSPPERIPHID2() {
-    if constexpr (!reg::mock)
-      return;
-
-    simulated_peripheral<SPI_peripheral>::acquire_field(REVISION) = 0x3;
-    simulated_peripheral<SPI_peripheral>::acquire_field(DESIGNER1) = 0x4;
-  }
 };
 
 union SSPPERIPHID3 {
@@ -180,41 +158,24 @@ union SSPPERIPHID3 {
 };
 
 union SSPPCELLID0 {
-  template <bool init = reg::mock, std::enable_if_t<init, int> = 0>
-  SSPPCELLID0() : cell_ID(0x0D) {}
-
-  template <bool init = reg::mock, std::enable_if_t<!init, int> = 0>
   SSPPCELLID0() {}
 
   const bitfield<uint8_t, 0, 8, reg::mock> cell_ID;
 };
 
 union SSPPCELLID1 {
-  template <bool init = reg::mock, std::enable_if_t<init, int> = 0>
-  SSPPCELLID1() : cell_ID(0xF0) {}
-
-  template <bool init = reg::mock, std::enable_if_t<!init, int> = 0>
   SSPPCELLID1() {}
 
   const bitfield<uint8_t, 0, 8, reg::mock> cell_ID;
 };
 
 union SSPPCELLID2 {
-  template <bool init = reg::mock, std::enable_if_t<init, int> = 0>
-  SSPPCELLID2() : cell_ID(0x05) {}
-
-  template <bool init = reg::mock, std::enable_if_t<!init, int> = 0>
   SSPPCELLID2() {}
 
   const bitfield<uint8_t, 0, 8, reg::mock> cell_ID;
 };
 
 union SSPPCELLID3 {
-
-  template <bool init = reg::mock, std::enable_if_t<init, int> = 0>
-  SSPPCELLID3() : cell_ID(0xB1) {}
-
-  template <bool init = reg::mock, std::enable_if_t<init, int> = 0>
   SSPPCELLID3() {}
 
   const bitfield<uint8_t, 0, 8, reg::mock> cell_ID;

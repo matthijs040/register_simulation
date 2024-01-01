@@ -2,6 +2,10 @@
 
 #include <system/architecture.hpp>
 
+// Empty struct to have a type-tag that allows specialization of HAL template
+// classes.
+struct rp2040 {};
+
 namespace reg {
 
 constexpr bool mock = arch::get_architecture() != arch::architectures::ARM6;
