@@ -2,14 +2,13 @@
 
 #include "registers/SPI.hpp"
 #include <HAL/simulated_peripheral.hpp>
+#include <cstdint>
 #include <rp2040/shared_types.hpp>
+#include <type_traits>
 
 constexpr size_t num_SPI_peripherals = 2;
 
-class SPI_peripheral
-    : std::conditional_t<
-          reg::mock, simulated_peripheral<SPI_peripheral, num_SPI_peripherals>,
-          void> {
+class SPI_peripheral {
 public:
   static constexpr uintptr_t base_address_0 = 0x4003c000;
   static constexpr uintptr_t base_address_1 = 0x40040000;
@@ -90,5 +89,3 @@ void *SPI_peripheral::operator new(std::size_t, SPI_peripheral::ID which) {
     std::abort();
   }
 }
-
-using rp2040_SPI = SPI_peripheral;
