@@ -38,7 +38,7 @@ reg::GPIO &get_pad_register(GPIO::pin_number pin) {
 error::code reserve_pin(const GPIO::pin_number pin,
                             reg::CTRL::FUNCSEL_states function) {
   if (GPIO::is_pin_reserved(pin))
-    return error::make_code(error::standard_value::device_or_resource_busy);
+    return error::standard_value::device_or_resource_busy;
   auto &ctrl = get_control_register(pin);
   ctrl.FUNCSEL = function;
   return error::code();
@@ -66,7 +66,7 @@ bool GPIO::is_pin_reserved(pin_number number) noexcept {
 
 error::code GPIO::set_pin_mode(GPIO::mode mode) {
   if (initialization_result)
-    return error::make_code(error::standard_value::operation_not_permitted);
+    return error::standard_value::operation_not_permitted;
 
   auto &ctrl_reg = get_control_register(acquired_pin);
   auto &pad_reg = get_pad_register(acquired_pin);
@@ -103,7 +103,7 @@ error::code GPIO::set_pin_mode(GPIO::mode mode) {
   }
   case GPIO::mode::reserved: {
     // Setting to reserved is not to be done through this public interface.
-    return error::make_code(error::standard_value::operation_not_permitted);
+    return error::standard_value::operation_not_permitted;
   }
   }
   return error::code();

@@ -22,7 +22,6 @@ SIO &SIO::get() noexcept {
 
 error::code SIO::set_pin_OE(GPIO::pin_number number,
                             reg::state state) noexcept {
-  auto result = std::expected<reg::state, error::code>();
   switch (number) {
   case 0:
     GPIO_OE_SET.GPIO_0 = state;
@@ -115,77 +114,75 @@ error::code SIO::set_pin_OE(GPIO::pin_number number,
     GPIO_OE_SET.GPIO_29 = state;
     break;
   default:
-    return error::make_code(error::standard_value::invalid_argument);
+    return error::standard_value::invalid_argument;
   }
-  return error::code();
+  return {};
 }
 
 std::expected<reg::state, error::code>
 SIO::get_pin_OE(GPIO::pin_number number) const noexcept {
-  auto result = std::expected<reg::state, error::code>();
   switch (number) {
   case 0:
-    return result = GPIO_OE_SET.GPIO_0;
+    return GPIO_OE_SET.GPIO_0;
   case 1:
-    return result = GPIO_OE_SET.GPIO_1;
+    return GPIO_OE_SET.GPIO_1;
   case 2:
-    return result = GPIO_OE_SET.GPIO_2;
+    return GPIO_OE_SET.GPIO_2;
   case 3:
-    return result = GPIO_OE_SET.GPIO_3;
+    return GPIO_OE_SET.GPIO_3;
   case 4:
-    return result = GPIO_OE_SET.GPIO_4;
+    return GPIO_OE_SET.GPIO_4;
   case 5:
-    return result = GPIO_OE_SET.GPIO_5;
+    return GPIO_OE_SET.GPIO_5;
   case 6:
-    return result = GPIO_OE_SET.GPIO_6;
+    return GPIO_OE_SET.GPIO_6;
   case 7:
-    return result = GPIO_OE_SET.GPIO_7;
+    return GPIO_OE_SET.GPIO_7;
   case 8:
-    return result = GPIO_OE_SET.GPIO_8;
+    return GPIO_OE_SET.GPIO_8;
   case 9:
-    return result = GPIO_OE_SET.GPIO_9;
+    return GPIO_OE_SET.GPIO_9;
   case 10:
-    return result = GPIO_OE_SET.GPIO_10;
+    return GPIO_OE_SET.GPIO_10;
   case 11:
-    return result = GPIO_OE_SET.GPIO_11;
+    return GPIO_OE_SET.GPIO_11;
   case 12:
-    return result = GPIO_OE_SET.GPIO_12;
+    return GPIO_OE_SET.GPIO_12;
   case 13:
-    return result = GPIO_OE_SET.GPIO_13;
+    return GPIO_OE_SET.GPIO_13;
   case 14:
-    return result = GPIO_OE_SET.GPIO_14;
+    return GPIO_OE_SET.GPIO_14;
   case 15:
-    return result = GPIO_OE_SET.GPIO_15;
+    return GPIO_OE_SET.GPIO_15;
   case 16:
-    return result = GPIO_OE_SET.GPIO_16;
+    return GPIO_OE_SET.GPIO_16;
   case 17:
-    return result = GPIO_OE_SET.GPIO_17;
+    return GPIO_OE_SET.GPIO_17;
   case 18:
-    return result = GPIO_OE_SET.GPIO_18;
+    return GPIO_OE_SET.GPIO_18;
   case 19:
-    return result = GPIO_OE_SET.GPIO_19;
+    return GPIO_OE_SET.GPIO_19;
   case 20:
-    return result = GPIO_OE_SET.GPIO_20;
+    return GPIO_OE_SET.GPIO_20;
   case 21:
-    return result = GPIO_OE_SET.GPIO_21;
+    return GPIO_OE_SET.GPIO_21;
   case 22:
-    return result = GPIO_OE_SET.GPIO_22;
+    return GPIO_OE_SET.GPIO_22;
   case 23:
-    return result = GPIO_OE_SET.GPIO_23;
+    return GPIO_OE_SET.GPIO_23;
   case 24:
-    return result = GPIO_OE_SET.GPIO_24;
+    return GPIO_OE_SET.GPIO_24;
   case 25:
-    return result = GPIO_OE_SET.GPIO_25;
+    return GPIO_OE_SET.GPIO_25;
   case 26:
-    return result = GPIO_OE_SET.GPIO_26;
+    return GPIO_OE_SET.GPIO_26;
   case 27:
-    return result = GPIO_OE_SET.GPIO_27;
+    return GPIO_OE_SET.GPIO_27;
   case 28:
-    return result = GPIO_OE_SET.GPIO_28;
+    return GPIO_OE_SET.GPIO_28;
   case 29:
-    return result = GPIO_OE_SET.GPIO_29;
+    return GPIO_OE_SET.GPIO_29;
   default:
-    return result = std::unexpected(
-               error::make_code(error::standard_value::invalid_argument));
+    return std::unexpected(error::standard_value::invalid_argument);
   }
 }

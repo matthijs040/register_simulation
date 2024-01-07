@@ -18,43 +18,34 @@ is_peripheral_output_enabled(GPIO::pin_number pin_number,
     result = reg::state::disabled;
     break;
   case reg::CTRL::FUNCSEL_states::SPI:
-    result =
-        std::unexpected(error::make_code(error::standard_value::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::UART:
-    result =
-        std::unexpected(error::make_code(error::standard_value::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::I2C:
-    result =
-        std::unexpected(error::make_code(error::standard_value::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::PWM:
-    result =
-        std::unexpected(error::make_code(error::standard_value::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::SIO:
     result = SIO::get().get_pin_OE(pin_number);
     break;
   case reg::CTRL::FUNCSEL_states::PIO0:
-    result =
-        std::unexpected(error::make_code(error::standard_value::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::PIO1:
-    result =
-        std::unexpected(error::make_code(error::standard_value::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::Clock_GPIO:
-    result =
-        std::unexpected(error::make_code(error::standard_value::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::USB:
-    result =
-        std::unexpected(error::make_code(error::standard_value::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   default:
-    result = std::unexpected(
-        error::make_code(error::standard_value::invalid_argument));
+    result = std::unexpected(error::standard_value::invalid_argument);
   }
   return result;
 }
