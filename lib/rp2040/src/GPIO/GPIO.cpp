@@ -135,17 +135,17 @@ GPIO::mode GPIO::get_pin_mode() {
 
 error::code GPIO::set_pin_state(GPIO::state state) {
   if (initialization_result)
-    return error::make_code(error::standard_value::operation_not_permitted);
+    return error::standard_value::operation_not_permitted;
 
   const auto mode = get_pin_mode();
   if (mode == GPIO::mode::input_only || mode == GPIO::mode::disabled)
-    return error::make_code(error::standard_value::operation_not_permitted);
+    return error::standard_value::operation_not_permitted;
 
   auto &ctrl_reg = get_control_register(acquired_pin);
 
   switch (state) {
   case GPIO::state::floating: {
-    return error::make_code(error::standard_value::operation_not_supported);
+    return error::standard_value::operation_not_supported;
   }
   case GPIO::state::high: {
     ctrl_reg.OUTOVER = reg::CTRL::OUTOVER_states::driven_high;

@@ -113,30 +113,3 @@ std::size_t clock_control::get_num_clocks() noexcept {
 std::span<const char *const> clock_control::get_clock_names() noexcept {
   return std::span(clock_names).subspan(0, clock_names.size());
 }
-
-error::code error::make_code(clock_control::errc e) noexcept {
-  static struct : category {
-    virtual const char *name() const noexcept override {
-      return "Clock control";
-    }
-    virtual const char *message(int code) const noexcept override {
-      switch (static_cast<clock_control::errc>(code)) {
-      case clock_control::errc::success:
-        return "Success";
-      case clock_control::errc::disabled:
-        return "Clock disabled";
-      case clock_control::errc::invalid_configuration:
-        return "Clock in invalid state";
-      case clock_control::errc::name_not_found:
-        return "Clock not found";
-      case clock_control::errc::busy:
-        return "Clock irresponsive";
-      case clock_control::errc::invalid_pin:
-        return "Invalid clock-pin";
-      }
-      return "Unknown";
-    }
-  } category;
-
-  return code(std::to_underlying(e), category);
-}

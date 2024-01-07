@@ -60,7 +60,37 @@ public:
 
 namespace error {
 
-extern code make_code(clock_control::errc e) noexcept;
+template <> inline code make_code(clock_control::errc e) noexcept {
+  struct clock_error_cat : category {
+    virtual const char *name() const noexcept override {
+      return "Clock control";
+    }
+    virtual const char *message(int code) const noexcept override {
+      switch (static_cast<clock_control::errc>(code)) {
+      case clock_control::errc::success:
+        return "Success";
+      case clock_control::errc::disabled:
+        return "Clock disabled";
+      case clock_control::errc::invalid_configuration:
+        return "Clock in invalid state";
+      case clock_control::errc::name_not_found:
+        return "Clock not found";
+      case clock_control::errc::busy:
+        return "Clock irresponsive";
+      case clock_control::errc::invalid_pin:
+        return "Invalid clock-pin";
+      }
+      return "Unknown";
+    }
+
+    static clock_error_cat &get() noexcept {
+      static clock_error_cat instance;
+      return instance;
+    }
+  };
+
+  return code(std::to_underlying(e), clock_error_cat::get());
+}
 
 template <>
 struct is_error_value<clock_control::errc> : public std::true_type {};

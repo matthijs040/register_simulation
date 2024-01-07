@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build_tests/tests",
             "args": [
-                "--gtest_filter=UART_tests.sending_character_with_loopback_enabled_can_be_received"
+               //  "--gtest_filter=UART_tests.sending_character_with_loopback_enabled_can_be_received"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
