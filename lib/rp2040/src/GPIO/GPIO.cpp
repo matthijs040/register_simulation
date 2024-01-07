@@ -35,13 +35,13 @@ reg::GPIO &get_pad_register(GPIO::pin_number pin) {
   return *((register_block + first_offset) + (pin * register_spacing));
 }
 
-error_code reserve_pin(const GPIO::pin_number pin,
+error::code reserve_pin(const GPIO::pin_number pin,
                             reg::CTRL::FUNCSEL_states function) {
   if (GPIO::is_pin_reserved(pin))
-    return error_code(ec::errc::device_or_resource_busy);
+    return error::make_code(error::standard_value::device_or_resource_busy);
   auto &ctrl = get_control_register(pin);
   ctrl.FUNCSEL = function;
-  return error_code();
+  return error::code();
 }
 
 GPIO::GPIO(const pin_number number)
@@ -64,9 +64,9 @@ bool GPIO::is_pin_reserved(pin_number number) noexcept {
   return reg.FUNCSEL != reg::CTRL::FUNCSEL_states::disabled;
 }
 
-error_code GPIO::set_pin_mode(GPIO::mode mode) {
+error::code GPIO::set_pin_mode(GPIO::mode mode) {
   if (initialization_result)
-    return error_code(ec::errc::operation_not_permitted);
+    return error::make_code(error::standard_value::operation_not_permitted);
 
   auto &ctrl_reg = get_control_register(acquired_pin);
   auto &pad_reg = get_pad_register(acquired_pin);
@@ -103,10 +103,10 @@ error_code GPIO::set_pin_mode(GPIO::mode mode) {
   }
   case GPIO::mode::reserved: {
     // Setting to reserved is not to be done through this public interface.
-    return error_code::make_error_code(ec::errc::operation_not_permitted);
+    return error::make_code(error::standard_value::operation_not_permitted);
   }
   }
-  return error_code();
+  return error::code();
 }
 
 GPIO::mode GPIO::get_pin_mode() {
@@ -133,19 +133,19 @@ GPIO::mode GPIO::get_pin_mode() {
   return GPIO::mode::disabled;
 }
 
-error_code GPIO::set_pin_state(GPIO::state state) {
+error::code GPIO::set_pin_state(GPIO::state state) {
   if (initialization_result)
-    return error_code(ec::errc::operation_not_permitted);
+    return error::make_code(error::standard_value::operation_not_permitted);
 
   const auto mode = get_pin_mode();
   if (mode == GPIO::mode::input_only || mode == GPIO::mode::disabled)
-    return error_code(ec::errc::operation_not_permitted);
+    return error::make_code(error::standard_value::operation_not_permitted);
 
   auto &ctrl_reg = get_control_register(acquired_pin);
 
   switch (state) {
   case GPIO::state::floating: {
-    return error_code(ec::errc::operation_not_supported);
+    return error::make_code(error::standard_value::operation_not_supported);
   }
   case GPIO::state::high: {
     ctrl_reg.OUTOVER = reg::CTRL::OUTOVER_states::driven_high;
@@ -156,7 +156,7 @@ error_code GPIO::set_pin_state(GPIO::state state) {
     break;
   }
   }
-  return error_code();
+  return error::code();
 }
 
 GPIO::state GPIO::get_pin_state() {

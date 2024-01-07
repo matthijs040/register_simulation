@@ -1,7 +1,7 @@
 #pragma once
 
-#include "system/error_code.hpp"
 #include "GPIO.hpp"
+#include "system/error_code.hpp"
 #include <expected>
 #include <optional>
 #include <span>
@@ -23,7 +23,7 @@ enum class code {
 
 class UART {
 public:
-  const error_code initialization_result;
+  const error::code initialization_result;
   const struct pins {
     GPIO::pin_number RX;
     GPIO::pin_number TX;
@@ -47,42 +47,21 @@ public:
        bool enable_loopback);
   ~UART();
 
-  std::expected<std::size_t, error_code>
+  std::expected<std::size_t, error::code>
   send(const std::span<const uint8_t> data);
 
-  std::expected<std::size_t, error_code> receive(std::span<uint8_t> data);
+  std::expected<std::size_t, error::code> receive(std::span<uint8_t> data);
 
   format get_active_format() const noexcept;
 };
 
 } // namespace HAL
 
-template <>
-inline error_code error_code::make_error_code(HAL::UART_error::code e) noexcept {
-  static struct : public error_category {
-    constexpr virtual const char *name() const noexcept override {
-      return "UART";
-    }
-    constexpr virtual const char *message(int code) const noexcept override {
-      switch (static_cast<HAL::UART_error::code>(code)) {
-      case HAL::UART_error::code::success:
-        return "Success";
-      case HAL::UART_error::code::unsupported_pin_configuration:
-        return "Unsupported pin configuration";
-      case HAL::UART_error::code::unsupported_parity_configuration:
-        return "Unsupported parity configuration";
-      case HAL::UART_error::code::invalid_format_configuration:
-        return "Invalid format configuration";
-      case HAL::UART_error::code::receive_buffer_overflown:
-        return "Receive buffer overflown";
-      case HAL::UART_error::code::parity_error_in_received_data:
-        return "Parity error in received data";
-      case HAL::UART_error::code::format_error_in_received_data:
-        return "Format error in received data";
-      }
-      return "Unknown";
-    }
-  } category;
+namespace error {
 
-  return error_code(std::to_underlying(e), category);
-}
+extern code make_code(HAL::UART_error::code e) noexcept;
+
+template <>
+struct is_error_value<HAL::UART_error::code> : public std::true_type {};
+
+} // namespace error

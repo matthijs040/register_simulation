@@ -1,5 +1,5 @@
-#include <rp2040/GPIO/SIO.hpp>
 #include <bit>
+#include <rp2040/GPIO/SIO.hpp>
 
 SIO::~SIO() {}
 
@@ -20,9 +20,9 @@ SIO &SIO::get() noexcept {
   return *(handle = new SIO());
 }
 
-error_code SIO::set_pin_OE(GPIO::pin_number number,
-                                reg::state state) noexcept {
-  auto result = std::expected<reg::state, error_code>();
+error::code SIO::set_pin_OE(GPIO::pin_number number,
+                            reg::state state) noexcept {
+  auto result = std::expected<reg::state, error::code>();
   switch (number) {
   case 0:
     GPIO_OE_SET.GPIO_0 = state;
@@ -115,14 +115,14 @@ error_code SIO::set_pin_OE(GPIO::pin_number number,
     GPIO_OE_SET.GPIO_29 = state;
     break;
   default:
-    return error_code(ec::errc::invalid_argument);
+    return error::make_code(error::standard_value::invalid_argument);
   }
-  return error_code();
+  return error::code();
 }
 
-std::expected<reg::state, error_code>
+std::expected<reg::state, error::code>
 SIO::get_pin_OE(GPIO::pin_number number) const noexcept {
-  auto result = std::expected<reg::state, error_code>();
+  auto result = std::expected<reg::state, error::code>();
   switch (number) {
   case 0:
     return result = GPIO_OE_SET.GPIO_0;
@@ -186,6 +186,6 @@ SIO::get_pin_OE(GPIO::pin_number number) const noexcept {
     return result = GPIO_OE_SET.GPIO_29;
   default:
     return result = std::unexpected(
-               error_code(ec::errc::invalid_argument));
+               error::make_code(error::standard_value::invalid_argument));
   }
 }

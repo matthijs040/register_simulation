@@ -5,23 +5,25 @@
 #include <rp2040/GPIO/GPIO.hpp>
 #include <rp2040/SPI/SPI_peripheral.hpp>
 #include <rp2040/shared_types.hpp>
+#include <rp2040/subsystem_resets/resets.hpp>
+#include <system/error_code.hpp>
 
 class rp2040_SPI : public SPI::handle<rp2040_SPI> {
 public:
   rp2040_SPI(SPI::pins pins_to_use, SPI::mode mode_to_use);
   ~rp2040_SPI();
 
-  error_code send(std::span<const uint16_t> &bytes_to_transfer);
+  error::code send(std::span<const uint16_t> &bytes_to_transfer);
 
-  error_code receive(std::span<uint16_t> &bytes_read);
+  error::code receive(std::span<uint16_t> &bytes_read);
 
 private:
-  error_code initialize(SPI::pins pins_to_use, SPI::mode mode_to_use);
+  error::code initialize(SPI::pins pins_to_use, SPI::mode mode_to_use);
 
   std::optional<SPI_peripheral::ID>
   get_peripheral_handle_for_pins(const SPI::pins &pins);
 
-  error_code reserve_pins(const SPI::pins &pins_to_use);
+  error::code reserve_pins(const SPI::pins &pins_to_use);
 };
 
 std::optional<SPI_peripheral::ID>
@@ -48,15 +50,15 @@ rp2040_SPI::get_peripheral_handle_for_pins(const SPI::pins &pins) {
   return std::nullopt;
 }
 
-error_code rp2040_SPI::reserve_pins(const SPI::pins &pins_to_use) {
+error::code rp2040_SPI::reserve_pins(const SPI::pins &pins_to_use) {
   if (get_peripheral_handle_for_pins(pins_to_use) == std::nullopt)
-    return error_code(ec::errc::invalid_argument);
+    return error::code(error::standard_value::invalid_argument);
 
   if (GPIO::is_pin_reserved(pins_to_use.receive_pin) ||
       GPIO::is_pin_reserved(pins_to_use.transmit_pin) ||
       GPIO::is_pin_reserved(pins_to_use.chip_select_pin) ||
       GPIO::is_pin_reserved(pins_to_use.clock_pin)) {
-    return error_code(ec::errc::device_or_resource_busy);
+    return error::code(error::standard_value::resource_unavailable_try_again);
   }
 
   reserve_pin(pins_to_use.receive_pin, reg::CTRL::FUNCSEL_states::SPI);
@@ -78,13 +80,53 @@ void clear_pin_reservations(SPI::pins pins) {
       reg::CTRL::FUNCSEL_states::disabled;
 }
 
-error_code rp2040_SPI::initialize(SPI::pins pins_to_use,
-                                  SPI::mode mode_to_use) {
+void reset_peripheral(SPI_peripheral::ID ID) {
+  auto &HW_reset = resets::get();
+  switch (ID) {
+  case SPI_peripheral::ID::first:
+    HW_reset.RESET.SPI0 = reg::state::enabled;
+    HW_reset.RESET.SPI0 = reg::state::cleared;
+    while (HW_reset.RESET_DONE.SPI0 == reg::state::cleared) {
+    }
+
+    break;
+  case SPI_peripheral::ID::second:
+    HW_reset.RESET.SPI1 = reg::state::enabled;
+    HW_reset.RESET.SPI1 = reg::state::cleared;
+    while (HW_reset.RESET_DONE.SPI1 == reg::state::cleared) {
+    }
+
+    break;
+  }
+}
+
+void set_format(SPI_peripheral &handle, SPI::mode mode) {
+  switch (mode) {
+  case SPI::mode::Motorola:
+    handle.SSPCR0.FRF = reg::SPI::SSPCR0::FRF_states::Motorola_format;
+    break;
+  case SPI::mode::TI_synchronous:
+    handle.SSPCR0.FRF = reg::SPI::SSPCR0::FRF_states::Texas_Instruments_format;
+    break;
+  case SPI::mode::Microwire:
+    handle.SSPCR0.FRF = reg::SPI::SSPCR0::FRF_states::National_Microwire_format;
+    break;
+  }
+}
+
+error::code rp2040_SPI::initialize(SPI::pins pins_to_use,
+                                   SPI::mode mode_to_use) {
 
   if (auto error_ocurred = reserve_pins(pins_to_use))
     return error_ocurred;
 
-  
+  const auto ID = get_peripheral_handle_for_pins(pins_to_use).value();
+  auto periph = SPI_peripheral::get(ID);
+  if (periph.SSPCR1.SSE == reg::state::set) {
+    clear_pin_reservations(pins_to_use);
+    return error::standard_value::resource_unavailable_try_again;
+  }
+  reset_peripheral(ID);
 
   return {};
 }
@@ -93,14 +135,18 @@ rp2040_SPI::rp2040_SPI(SPI::pins pins_to_use, SPI::mode mode_to_use)
     : SPI::handle<rp2040_SPI>(initialize(pins_to_use, mode_to_use), pins_to_use,
                               mode_to_use) {}
 
-rp2040_SPI::~rp2040_SPI() { clear_pin_reservations(used_pins); }
+rp2040_SPI::~rp2040_SPI() {
+  if (initialization_result)
+    return;
+  clear_pin_reservations(used_pins);
+}
 
-error_code rp2040_SPI::send(std::span<const uint16_t> &bytes_to_transfer) {
+error::code rp2040_SPI::send(std::span<const uint16_t> &bytes_to_transfer) {
   (void)bytes_to_transfer;
   return {};
 }
 
-error_code rp2040_SPI::receive(std::span<uint16_t> &bytes_read) {
+error::code rp2040_SPI::receive(std::span<uint16_t> &bytes_read) {
   (void)bytes_read;
   return {};
 }

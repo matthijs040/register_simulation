@@ -20,8 +20,8 @@ TEST(UART_tests, UART_initializes_when_given_valid_pins) {
   constexpr auto baudrate = 115200;
   constexpr auto allowed_error = 5;
   HAL::UART instance = HAL::UART(default_pins, baudrate, default_format, false);
-  error_code init_result = instance.initialization_result;
-  EXPECT_EQ(init_result, error_code());
+  error::code init_result = instance.initialization_result;
+  EXPECT_EQ(init_result, error::code());
   EXPECT_TRUE(is_within(instance.used_baudrate, baudrate - allowed_error,
                         baudrate + allowed_error));
 }
@@ -66,12 +66,12 @@ TEST(UART_tests, UART_cleans_its_pin_reservations_after_destruction) {
     // here...
     GPIO instance = GPIO(default_pins.RX);
     EXPECT_EQ(instance.initialization_result,
-              ec::errc::device_or_resource_busy);
+              error::standard_value::device_or_resource_busy);
   }
 
   // ...And be valid here.
   GPIO instance = GPIO(default_pins.RX);
-  EXPECT_EQ(instance.initialization_result, error_code());
+  EXPECT_EQ(instance.initialization_result, {});
 }
 
 TEST(UART_tests, a_transmitted_character_is_put_in_the_right_transmit_FIFO) {

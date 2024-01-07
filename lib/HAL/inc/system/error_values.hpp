@@ -1,7 +1,7 @@
 #pragma once
 
-namespace ec {
-enum class errc : int {
+namespace error {
+enum class standard_value : int {
   // No error
   success = 0,
   // Operation not permitted
@@ -344,4 +344,4 @@ enum class errc : int {
   wrong_protocol_type = eprototype
 };
 
-} // namespace ec
+} // namespace error
