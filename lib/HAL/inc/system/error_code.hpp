@@ -53,7 +53,7 @@ public:
   operator bool() const noexcept { return value_ != 0; }
 
   bool operator==(const code &other) const noexcept {
-    return &category == &(other.category) && value_ == other.value_;
+    return category == other.category && value_ == other.value_;
   }
 
   const char *message() const noexcept { return category->message(value_); }

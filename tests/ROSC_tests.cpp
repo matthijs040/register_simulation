@@ -8,9 +8,7 @@ TEST(ROSC_tests, setting_frequency_while_clock_disabled_fails) {
   auto result =
       handle.set_frequency_Hz(ROSC::get_frequencies_by_power_stage().front());
   ASSERT_FALSE(result.has_value());
-
-  const bool compare_result = result.error() == clock_control::errc::disabled;
-  EXPECT_TRUE(compare_result);
+  EXPECT_EQ(result.error(), clock_control::errc::disabled);
 }
 
 TEST(ROSC_tests, set_frequency_applies_powerstage_correctly) {
