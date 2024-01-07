@@ -61,7 +61,7 @@ namespace error {
 
 template <>
 inline code make_code<HAL::UART_error::code>(HAL::UART_error::code e) noexcept {
-  struct UART_error_cat : public category {
+  static struct : public category {
     constexpr virtual const char *name() const noexcept override {
       return "UART";
     }
@@ -84,14 +84,9 @@ inline code make_code<HAL::UART_error::code>(HAL::UART_error::code e) noexcept {
       }
       return "Unknown";
     }
+  } instance;
 
-    static UART_error_cat &get() noexcept {
-      static UART_error_cat instance;
-      return instance;
-    }
-  };
-
-  return error::code(std::to_underlying(e), UART_error_cat::get());
+  return error::code(std::to_underlying(e), instance);
 }
 
 template <>

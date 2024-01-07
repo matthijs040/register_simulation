@@ -61,7 +61,7 @@ public:
 namespace error {
 
 template <> inline code make_code(clock_control::errc e) noexcept {
-  struct clock_error_cat : category {
+  static struct : category {
     virtual const char *name() const noexcept override {
       return "Clock control";
     }
@@ -82,14 +82,9 @@ template <> inline code make_code(clock_control::errc e) noexcept {
       }
       return "Unknown";
     }
+  } instance;
 
-    static clock_error_cat &get() noexcept {
-      static clock_error_cat instance;
-      return instance;
-    }
-  };
-
-  return code(std::to_underlying(e), clock_error_cat::get());
+  return code(std::to_underlying(e), instance);
 }
 
 template <>
