@@ -36,3 +36,26 @@ TEST(SPI_tests, SPI_handle_will_not_initialize_if_already_active) {
   ASSERT_EQ(second_handle.initialization_result,
             error::standard_value::resource_unavailable_try_again);
 }
+
+TEST(SPI_tests, SPI_handle_can_initialize_two_seperate_handles) {
+  constexpr auto SPI1_pins = default_pins;
+  auto first_handle =
+      rp2040_SPI(SPI1_pins, SPI::mode::Motorola, SPI::role::main, true);
+  ASSERT_EQ(first_handle.initialization_result, error::standard_value::success);
+
+  constexpr auto SPI2_pins = SPI::pins{8, 11, 9, 10};
+  auto second_handle =
+      rp2040_SPI(SPI2_pins, SPI::mode::Motorola, SPI::role::main, true);
+  ASSERT_EQ(second_handle.initialization_result,
+            error::standard_value::success);
+}
+
+TEST(SPI_tests, SPI_handle_clears_resources_and_reinitializes) {
+  {
+    auto handle =
+        rp2040_SPI(default_pins, SPI::mode::Motorola, SPI::role::main, true);
+  }
+  auto handle =
+      rp2040_SPI(default_pins, SPI::mode::Motorola, SPI::role::main, true);
+  ASSERT_EQ(handle.initialization_result, error::standard_value::success);
+}
