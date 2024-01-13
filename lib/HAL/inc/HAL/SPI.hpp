@@ -7,10 +7,10 @@
 namespace SPI {
 
 struct pins {
-  GPIO::pin_number clock_pin;
-  GPIO::pin_number chip_select_pin;
-  GPIO::pin_number transmit_pin;
   GPIO::pin_number receive_pin;
+  GPIO::pin_number transmit_pin;
+  GPIO::pin_number chip_select_pin;
+  GPIO::pin_number clock_pin;
 };
 
 enum class mode { Motorola, TI_synchronous, Microwire };
