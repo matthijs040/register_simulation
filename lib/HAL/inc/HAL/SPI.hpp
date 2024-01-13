@@ -15,16 +15,21 @@ struct pins {
 
 enum class mode { Motorola, TI_synchronous, Microwire };
 
+enum class role { main, sub };
+
 template <typename Impl> class handle {
 public:
   const error::code initialization_result;
   const SPI::pins used_pins;
   const SPI::mode used_mode;
+  const SPI::role used_role;
+  const bool loopback_enabled;
 
   handle(error::code initialization_result, SPI::pins pins_to_use,
-         SPI::mode mode_to_use)
+         SPI::mode mode_to_use, SPI::role role_to_have, bool enable_loopback)
       : initialization_result(initialization_result), used_pins(pins_to_use),
-        used_mode(mode_to_use) {}
+        used_mode(mode_to_use), used_role(role_to_have),
+        loopback_enabled(enable_loopback) {}
 
   ~handle() = default;
 

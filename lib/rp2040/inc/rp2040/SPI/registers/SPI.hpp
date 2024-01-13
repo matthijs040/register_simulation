@@ -43,7 +43,7 @@ union SSPCR0 {
     data_bits_15 = 0b1110,
     data_bits_16 = 0b1111,
   };
-  bitfield<uint8_t, 0, 4, reg::mock> DSS;
+  bitfield<DSS_states, 0, 4, reg::mock> DSS;
 };
 
 union SSPCR1 {

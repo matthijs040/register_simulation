@@ -10,7 +10,8 @@
 
 class rp2040_SPI : public SPI::handle<rp2040_SPI> {
 public:
-  rp2040_SPI(SPI::pins pins_to_use, SPI::mode mode_to_use);
+  rp2040_SPI(SPI::pins pins_to_use, SPI::mode mode_to_use,
+             SPI::role role_to_have, bool enable_loopback);
   ~rp2040_SPI();
 
   error::code send(std::span<const uint16_t> &bytes_to_transfer);
@@ -18,7 +19,8 @@ public:
   error::code receive(std::span<uint16_t> &bytes_read);
 
 private:
-  error::code initialize(SPI::pins pins_to_use, SPI::mode mode_to_use);
+  error::code initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
+                         SPI::role role_to_have, bool enable_loopback);
 
   std::optional<SPI_peripheral::ID>
   get_peripheral_handle_for_pins(const SPI::pins &pins);
@@ -114,26 +116,68 @@ void set_format(SPI_peripheral &handle, SPI::mode mode) {
   }
 }
 
-error::code rp2040_SPI::initialize(SPI::pins pins_to_use,
-                                   SPI::mode mode_to_use) {
+error::code rp2040_SPI::initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
+                                   SPI::role role_to_have,
+                                   bool enable_loopback) {
 
   if (auto error_ocurred = reserve_pins(pins_to_use))
     return error_ocurred;
 
   const auto ID = get_peripheral_handle_for_pins(pins_to_use).value();
   auto periph = SPI_peripheral::get(ID);
+
+  // If the desired peripheral is already enabled.
+  // This is still possible as there are valid pin combinations that don't
+  // overlap.
   if (periph.SSPCR1.SSE == reg::state::set) {
     clear_pin_reservations(pins_to_use);
     return error::standard_value::resource_unavailable_try_again;
   }
   reset_peripheral(ID);
 
-  return {};
+  // Placeholder values for bitrate.
+  // For now this just makes it 4x the periph source clock.
+  periph.SSPCR0.SCR = 1;
+  periph.SSPCPSR.CPSDVSR = 2;
+
+  switch (mode_to_use) {
+  case SPI::mode::Motorola:
+    periph.SSPCR0.FRF = reg::SPI::SSPCR0::FRF_states::Motorola_format;
+    break;
+  case SPI::mode::Microwire:
+    periph.SSPCR0.FRF = reg::SPI::SSPCR0::FRF_states::National_Microwire_format;
+    break;
+  case SPI::mode::TI_synchronous:
+    periph.SSPCR0.FRF = reg::SPI::SSPCR0::FRF_states::Texas_Instruments_format;
+    break;
+  }
+
+  if (mode_to_use == SPI::mode::Motorola) {
+    periph.SSPCR0.SPH = reg::state::disabled;
+    periph.SSPCR0.SPO = reg::state::disabled;
+  }
+
+  periph.SSPCR0.DSS = reg::SPI::SSPCR0::DSS_states::data_bits_8;
+  switch (used_role) {
+  case SPI::role::main:
+    periph.SSPCR1.MS = reg::state::set;
+    break;
+  case SPI::role::sub:
+    periph.SSPCR1.MS = reg::state::set;
+    break;
+  }
+
+  periph.SSPCR1.LBM = enable_loopback ? reg::state::set : reg::state::cleared;
+  periph.SSPCR1.SSE = reg::state::set;
+
+  return error::standard_value::success;
 }
 
-rp2040_SPI::rp2040_SPI(SPI::pins pins_to_use, SPI::mode mode_to_use)
-    : SPI::handle<rp2040_SPI>(initialize(pins_to_use, mode_to_use), pins_to_use,
-                              mode_to_use) {}
+rp2040_SPI::rp2040_SPI(SPI::pins pins_to_use, SPI::mode mode_to_use,
+                       SPI::role role_to_have, bool enable_loopback)
+    : SPI::handle<rp2040_SPI>(
+          initialize(pins_to_use, mode_to_use, role_to_have, enable_loopback),
+          pins_to_use, mode_to_use, role_to_have, enable_loopback) {}
 
 rp2040_SPI::~rp2040_SPI() {
   if (initialization_result)
