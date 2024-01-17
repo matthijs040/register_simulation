@@ -27,4 +27,4 @@ target_link_options(tests PRIVATE -lgcov --coverage)
 target_link_libraries(tests PRIVATE rp2040_impl GTest::gtest_main)
 set_target_properties(tests PROPERTIES CXX_STANDARD 23)
 
-add_test(NAME run_tests COMMAND ./rop)
+add_test(NAME run_tests COMMAND tests)
