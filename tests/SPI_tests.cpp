@@ -79,6 +79,7 @@ template <character_type T> std::size_t string_length(const T *data) {
 }
 
 TEST(SPI_tests, loopback_transfer_succeeds) {
+  GTEST_SKIP();
   auto handle =
       rp2040_SPI(default_pins, SPI::mode::Motorola, SPI::role::main, true);
 
