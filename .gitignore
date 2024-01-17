@@ -1,4 +1,4 @@
-build*
+build*/*
 *.md
 !README.md
 .vscode/settings.json
