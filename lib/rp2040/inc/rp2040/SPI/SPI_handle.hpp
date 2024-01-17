@@ -14,9 +14,9 @@ public:
              SPI::role role_to_have, bool enable_loopback);
   ~rp2040_SPI();
 
-  error::code send(std::span<const uint16_t> &bytes_to_transfer);
+  error::code send(std::span<const uint8_t> &bytes_to_transfer);
 
-  error::code receive(std::span<uint16_t> &bytes_read);
+  error::code receive(std::span<uint8_t> &bytes_read);
 
 private:
   error::code initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
@@ -185,12 +185,12 @@ rp2040_SPI::~rp2040_SPI() {
   clear_pin_reservations(used_pins);
 }
 
-error::code rp2040_SPI::send(std::span<const uint16_t> &bytes_to_transfer) {
+error::code rp2040_SPI::send(std::span<const uint8_t> &bytes_to_transfer) {
   (void)bytes_to_transfer;
   return {};
 }
 
-error::code rp2040_SPI::receive(std::span<uint16_t> &bytes_read) {
+error::code rp2040_SPI::receive(std::span<uint8_t> &bytes_read) {
   (void)bytes_read;
   return {};
 }

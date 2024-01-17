@@ -33,13 +33,13 @@ public:
 
   ~handle() = default;
 
-  error::code send(std::span<const uint16_t> &bytes_to_transfer) {
+  error::code send(std::span<const uint8_t> &bytes_to_transfer) {
     if (initialization_result)
       return initialization_result;
     return static_cast<Impl &>(*this).send(bytes_to_transfer);
   }
 
-  error::code receive(std::span<uint16_t> &bytes_read) {
+  error::code receive(std::span<uint8_t> &bytes_read) {
     if (initialization_result)
       return initialization_result;
     return static_cast<Impl &>(*this).receive(bytes_read);
