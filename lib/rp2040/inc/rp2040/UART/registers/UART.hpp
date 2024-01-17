@@ -1,4 +1,5 @@
 #pragma once
+
 #include <HAL/bitfield.hpp>
 #include <rp2040/shared_types.hpp>
 

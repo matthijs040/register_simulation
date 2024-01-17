@@ -10,10 +10,9 @@
                 "${workspaceFolder}/build_app/generated/pico_base"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/gcc",
             "cStandard": "c23",
-            "cppStandard": "gnu++23",
-            "intelliSenseMode": "linux-gcc-x64"
+            "cppStandard": "c++23",
+            "compilerPath": "/usr/bin/g++"
         }
     ],
     "version": 4

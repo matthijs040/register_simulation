@@ -1,7 +1,7 @@
 #pragma once
 
-#include "system/error_code.hpp"
 #include "GPIO.hpp"
+#include "system/error_code.hpp"
 #include <expected>
 #include <optional>
 #include <span>
@@ -23,7 +23,7 @@ enum class code {
 
 class UART {
 public:
-  const error_code initialization_result;
+  const error::code initialization_result;
   const struct pins {
     GPIO::pin_number RX;
     GPIO::pin_number TX;
@@ -47,19 +47,21 @@ public:
        bool enable_loopback);
   ~UART();
 
-  std::expected<std::size_t, error_code>
+  std::expected<std::size_t, error::code>
   send(const std::span<const uint8_t> data);
 
-  std::expected<std::size_t, error_code> receive(std::span<uint8_t> data);
+  std::expected<std::size_t, error::code> receive(std::span<uint8_t> data);
 
   format get_active_format() const noexcept;
 };
 
 } // namespace HAL
 
+namespace error {
+
 template <>
-inline error_code error_code::make_error_code(HAL::UART_error::code e) noexcept {
-  static struct : public error_category {
+inline code make_code<HAL::UART_error::code>(HAL::UART_error::code e) noexcept {
+  static struct : public category {
     constexpr virtual const char *name() const noexcept override {
       return "UART";
     }
@@ -82,7 +84,12 @@ inline error_code error_code::make_error_code(HAL::UART_error::code e) noexcept 
       }
       return "Unknown";
     }
-  } category;
+  } instance;
 
-  return error_code(std::to_underlying(e), category);
+  return error::code(std::to_underlying(e), instance);
 }
+
+template <>
+struct is_error_value<HAL::UART_error::code> : public std::true_type {};
+
+} // namespace error

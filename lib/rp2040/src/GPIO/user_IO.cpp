@@ -3,49 +3,49 @@
 #include <rp2040/GPIO/user_IO.hpp>
 #include <rp2040/shared_types.hpp>
 
+#include <bit>
 #include <expected>
 #include <iostream>
 #include <new>
 #include <typeinfo>
-#include <bit>
 
-std::expected<reg::state, error_code>
+std::expected<reg::state, error::code>
 is_peripheral_output_enabled(GPIO::pin_number pin_number,
                              reg::CTRL::FUNCSEL_states function) {
-  auto result = std::expected<reg::state, error_code>();
+  auto result = std::expected<reg::state, error::code>();
   switch (function) {
   case reg::CTRL::FUNCSEL_states::disabled:
     result = reg::state::disabled;
     break;
   case reg::CTRL::FUNCSEL_states::SPI:
-    result = std::unexpected(error_code(ec::errc::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::UART:
-    result = std::unexpected(error_code(ec::errc::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::I2C:
-    result = std::unexpected(error_code(ec::errc::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::PWM:
-    result = std::unexpected(error_code(ec::errc::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::SIO:
     result = SIO::get().get_pin_OE(pin_number);
     break;
   case reg::CTRL::FUNCSEL_states::PIO0:
-    result = std::unexpected(error_code(ec::errc::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::PIO1:
-    result = std::unexpected(error_code(ec::errc::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::Clock_GPIO:
-    result = std::unexpected(error_code(ec::errc::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   case reg::CTRL::FUNCSEL_states::USB:
-    result = std::unexpected(error_code(ec::errc::not_supported));
+    result = std::unexpected(error::standard_value::not_supported);
     break;
   default:
-    result = std::unexpected(error_code(ec::errc::invalid_argument));
+    result = std::unexpected(error::standard_value::invalid_argument);
   }
   return result;
 }
@@ -211,8 +211,6 @@ void *user_IO::operator new(std::size_t size) {
     return simulated_peripheral<user_IO>::operator new(size);
   return std::bit_cast<user_IO *>(base_address);
 }
-
-
 
 user_IO &user_IO::get() noexcept {
   static user_IO *handle;

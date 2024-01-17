@@ -20,7 +20,7 @@ void clear_pin_reservations(HAL::UART::pins pins,
         reg::CTRL::FUNCSEL_states::disabled;
 }
 
-error_code set_reserved_pins(HAL::UART::pins pins) {
+error::code set_reserved_pins(HAL::UART::pins pins) {
   if (auto error = reserve_pin(pins.RX, reg::CTRL::FUNCSEL_states::UART)) {
     clear_pin_reservations(pins, 0);
     return error;
@@ -131,8 +131,7 @@ uint32_t set_baudrate(UART &handle, uint32_t baudrate,
   return (4 * clock_rate_Hz) / (64 * baud_ibrd + baud_fbrd);
 }
 
-error_code set_format(UART &handle,
-                           const HAL::UART::format &format_to_apply) {
+error::code set_format(UART &handle, const HAL::UART::format &format_to_apply) {
   if (format_to_apply.used_data_bits == HAL::UART::data_bits::nine ||
       format_to_apply.used_stop_bits == HAL::UART::stop_bits::one_and_a_half)
     return HAL::UART_error::code::invalid_format_configuration;
@@ -199,11 +198,11 @@ HAL::UART::format get_format(const ::UART &handle) {
           : HAL::UART::data_bits::eight};
 }
 
-error_code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate,
-                           const HAL::UART::format &format_to_use,
-                           bool enable_loopback) {
+error::code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate,
+                       const HAL::UART::format &format_to_use,
+                       bool enable_loopback) {
   if (baudrate == 0)
-    return error_code(ec::errc::invalid_argument);
+    return error::code(error::standard_value::invalid_argument);
 
   auto ID = get_ID_by_pins(pins);
   // Combination of pins do not map to one peripheral.
@@ -248,7 +247,7 @@ error_code initialize(HAL::UART::pins &pins, std::uint32_t &baudrate,
   handle.UARTDMACR.TXDMAE = reg::state::enabled;
   handle.UARTDMACR.RXDMAE = reg::state::enabled;
 
-  return error_code();
+  return error::code();
 }
 
 HAL::UART::UART(UART::pins pins_to_use, std::uint32_t baudrate,
@@ -263,7 +262,7 @@ HAL::UART::~UART() {
                          has_additional_control_flow(used_pins) ? 4 : 2);
 }
 
-std::expected<std::size_t, error_code>
+std::expected<std::size_t, error::code>
 HAL::UART::send(const std::span<const uint8_t> data) {
   if (initialization_result)
     return std::unexpected(initialization_result);
@@ -281,7 +280,7 @@ HAL::UART::send(const std::span<const uint8_t> data) {
   return data.size();
 }
 
-std::expected<std::size_t, error_code>
+std::expected<std::size_t, error::code>
 HAL::UART::receive(std::span<uint8_t> data) {
   if (data.empty())
     return 0U;
@@ -293,7 +292,7 @@ HAL::UART::receive(std::span<uint8_t> data) {
   if (handle.UARTFR.receive_FIFO_empty == reg::state::set)
     return (data = std::span<uint8_t>()).size();
 
-  error_code transfer_error;
+  error::code transfer_error;
 
   for (uint8_t &byte : data) {
 

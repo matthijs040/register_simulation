@@ -17,11 +17,11 @@ public:
 
   std::uint32_t get_power_stage() const noexcept;
   void set_power_stage(uint32_t) noexcept;
-  static std::span<const unsigned int> get_frequencies_by_power_stage() noexcept;
+  static std::span<const unsigned int>
+  get_frequencies_by_power_stage() noexcept;
 
-  std::expected<uint32_t, error_code> get_frequency_Hz() const noexcept;
-  std::expected<uint32_t, error_code>
-      set_frequency_Hz(std::uint32_t) noexcept;
+  std::expected<uint32_t, error::code> get_frequency_Hz() const noexcept;
+  std::expected<uint32_t, error::code> set_frequency_Hz(std::uint32_t) noexcept;
 
   reg::ROSC::CTRL CTRL;
   reg::ROSC::FREQA FREQA;
