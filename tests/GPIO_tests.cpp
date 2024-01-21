@@ -32,15 +32,15 @@ TEST(GPIO_tests, setting_state_with_wrong_modes_is_rejected) {
 
   handle.set_pin_mode(GPIO::mode::input_only);
   EXPECT_EQ(handle.set_pin_state(GPIO::state::high),
-            ec::errc::operation_not_permitted);
+            error::standard_value::operation_not_permitted);
   EXPECT_EQ(handle.set_pin_state(GPIO::state::low),
-            ec::errc::operation_not_permitted);
+            error::standard_value::operation_not_permitted);
 
   handle.set_pin_mode(GPIO::mode::disabled);
   EXPECT_EQ(handle.set_pin_state(GPIO::state::high),
-            ec::errc::operation_not_permitted);
+            error::standard_value::operation_not_permitted);
   EXPECT_EQ(handle.set_pin_state(GPIO::state::low),
-            ec::errc::operation_not_permitted);
+            error::standard_value::operation_not_permitted);
 }
 
 TEST(GPIO_tests, setting_state_with_correct_modes_is_accepted) {
@@ -49,11 +49,11 @@ TEST(GPIO_tests, setting_state_with_correct_modes_is_accepted) {
     auto handle = GPIO(pin);
 
   handle.set_pin_mode(GPIO::mode::output_only);
-  EXPECT_EQ(handle.set_pin_state(GPIO::state::high), error_code());
+  EXPECT_EQ(handle.set_pin_state(GPIO::state::high), error::code());
   EXPECT_EQ(handle.get_pin_state(), GPIO::state::high);
-  EXPECT_EQ(handle.set_pin_state(GPIO::state::low), error_code());
+  EXPECT_EQ(handle.set_pin_state(GPIO::state::low), error::code());
   EXPECT_EQ(handle.get_pin_state(), GPIO::state::low);
 
-  if (handle.set_pin_state(GPIO::state::floating) == error_code())
+  if (handle.set_pin_state(GPIO::state::floating) == error::code())
     EXPECT_EQ(handle.get_pin_state(), GPIO::state::floating);
 }

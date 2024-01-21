@@ -19,7 +19,7 @@ public:
   using pin_number = std::size_t;
 
   const pin_number acquired_pin;
-  const error_code initialization_result;
+  const error::code initialization_result;
 
   GPIO(const pin_number pin);
 
@@ -29,11 +29,11 @@ public:
 
   static bool is_pin_reserved(pin_number number) noexcept;
 
-  error_code set_pin_mode(GPIO::mode mode);
+  error::code set_pin_mode(GPIO::mode mode);
 
   GPIO::mode get_pin_mode();
 
-  error_code set_pin_state(GPIO::state state);
+  error::code set_pin_state(GPIO::state state);
 
   GPIO::state get_pin_state();
 };

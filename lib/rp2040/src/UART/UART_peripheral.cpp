@@ -164,7 +164,9 @@ UART &UART::get(UART::ID which) noexcept {
     initialize_UART_handlers(*instance, which);
   return *instance;
 }
+
 UART::~UART() {}
+
 void UART::operator delete(void *ptr) {
   for (auto *handle : handles)
     if (handle == ptr)

@@ -1,4 +1,6 @@
-build*
+build*/*
 *.md
 !README.md
 .vscode/settings.json
+coverage.info
+coverage_report_dir/

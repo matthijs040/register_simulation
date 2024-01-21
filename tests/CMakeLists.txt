@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.25)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -11,16 +11,16 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib ${CMAKE_CURRENT_BINARY_DIR}/
 project(unit_tests)
 include(CTest)
 
-add_executable(tests GPIO_tests.cpp clock_control_tests.cpp UART_tests.cpp ROSC_tests.cpp misc_tests.cpp)
+add_executable(tests GPIO_tests.cpp clock_control_tests.cpp UART_tests.cpp ROSC_tests.cpp misc_tests.cpp SPI_tests.cpp)
 
-# include(CheckIPOSupported)
-# check_ipo_supported(RESULT supported OUTPUT error)
-# if( supported )
-# message(STATUS "IPO / LTO enabled")
-#     set_target_properties(tests PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
-# else()
-#     message(STATUS "IPO / LTO not supported: <${error}>")
-# endif()
+include(CheckIPOSupported)
+check_ipo_supported(RESULT supported OUTPUT error)
+if( supported )
+message(STATUS "IPO / LTO enabled")
+    set_target_properties(tests PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+else()
+    message(STATUS "IPO / LTO not supported: <${error}>")
+endif()
 
 target_compile_options(tests PRIVATE -fprofile-arcs -ftest-coverage -O0 -g)
 target_link_options(tests PRIVATE -lgcov --coverage)

@@ -23,5 +23,5 @@ TEST(peripheral_tests,
 
 TEST(error_code_test, standard_error_initializes_properly)
 {
-  auto ec = error_code();
+  auto ec = error::code();
 }
