@@ -9,7 +9,7 @@ on:
 env:
   # Options: (Release, Debug, RelWithDebInfo)
   BUILD_TYPE: Debug
-  LINE_COVERAGE_PERCENTAGE: 60
+  LINE_COVERAGE_PERCENTAGE: 70
 
 jobs:
   build:
