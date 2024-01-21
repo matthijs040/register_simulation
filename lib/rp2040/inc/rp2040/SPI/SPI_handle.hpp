@@ -11,7 +11,8 @@
 class rp2040_SPI : public SPI::handle<rp2040_SPI> {
 public:
   rp2040_SPI(SPI::pins pins_to_use, SPI::mode mode_to_use,
-             SPI::role role_to_have, bool enable_loopback);
+             SPI::role role_to_have, SPI::bitrate bitrate_to_use,
+             bool enable_loopback);
   ~rp2040_SPI();
 
   error::code send(std::span<const uint8_t> &bytes_to_transfer);
@@ -20,7 +21,8 @@ public:
 
 private:
   error::code initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
-                         SPI::role role_to_have, bool enable_loopback);
+                         SPI::role role_to_have, SPI::bitrate &bitrate_to_use,
+                         bool enable_loopback);
 
   std::optional<SPI_peripheral::ID>
   get_peripheral_handle_for_pins(const SPI::pins &pins);
@@ -118,6 +120,7 @@ void set_format(SPI_peripheral &handle, SPI::mode mode) {
 
 error::code rp2040_SPI::initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
                                    SPI::role role_to_have,
+                                   SPI::bitrate &bitrate_to_use,
                                    bool enable_loopback) {
 
   if (auto error_ocurred = reserve_pins(pins_to_use))
@@ -174,10 +177,12 @@ error::code rp2040_SPI::initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
 }
 
 rp2040_SPI::rp2040_SPI(SPI::pins pins_to_use, SPI::mode mode_to_use,
-                       SPI::role role_to_have, bool enable_loopback)
-    : SPI::handle<rp2040_SPI>(
-          initialize(pins_to_use, mode_to_use, role_to_have, enable_loopback),
-          pins_to_use, mode_to_use, role_to_have, enable_loopback) {}
+                       SPI::role role_to_have, SPI::bitrate bitrate_to_use,
+                       bool enable_loopback)
+    : SPI::handle<rp2040_SPI>(initialize(pins_to_use, mode_to_use, role_to_have,
+                                         bitrate_to_use, enable_loopback),
+                              pins_to_use, mode_to_use, role_to_have,
+                              bitrate_to_use, enable_loopback) {}
 
 rp2040_SPI::~rp2040_SPI() {
   if (initialization_result)
@@ -186,7 +191,14 @@ rp2040_SPI::~rp2040_SPI() {
 }
 
 error::code rp2040_SPI::send(std::span<const uint8_t> &bytes_to_transfer) {
-  (void)bytes_to_transfer;
+  if (initialization_result)
+    return initialization_result;
+
+  auto &handle =
+      SPI_peripheral::get(get_peripheral_handle_for_pins(used_pins).value());
+  if (handle.SSPSR.TNF == reg::state::cleared)
+    return SPI::error_code::transmit_buffer_full;
+
   return {};
 }
 

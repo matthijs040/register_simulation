@@ -7,11 +7,19 @@
 #include <cstring>
 
 constexpr SPI::pins default_pins = SPI::pins{0, 3, 1, 2};
+constexpr auto default_bitrate = 2400;
+
+rp2040_SPI make_handle(SPI::pins pins = default_pins,
+                       SPI::mode mode = SPI::mode::Motorola,
+                       SPI::role role = SPI::role::main,
+                       uint32_t bitrate = default_bitrate,
+                       bool enable_loopback = true) {
+  return rp2040_SPI(pins, mode, role, bitrate, enable_loopback);
+}
 
 TEST(SPI_tests, SPI_handle_with_valid_configuration_will_initialize) {
   auto periph = SPI_peripheral::get(SPI_peripheral::ID::first);
-  auto handle =
-      rp2040_SPI(default_pins, SPI::mode::Motorola, SPI::role::main, true);
+  auto handle = make_handle();
   ASSERT_EQ(handle.initialization_result, error::standard_value::success);
 }
 
@@ -20,8 +28,7 @@ TEST(SPI_tests, SPI_handle_with_invalid_pins_will_error) {
   // The pins here are invalid as the TX and RX pins are swapped.
   const auto invalid_pins = SPI::pins{3, 0, 1, 2};
 
-  auto handle =
-      rp2040_SPI(invalid_pins, SPI::mode::Motorola, SPI::role::main, true);
+  auto handle = make_handle(invalid_pins);
   ASSERT_EQ(handle.initialization_result,
             error::standard_value::invalid_argument);
 }
@@ -29,36 +36,28 @@ TEST(SPI_tests, SPI_handle_with_invalid_pins_will_error) {
 TEST(SPI_tests, SPI_handle_will_not_initialize_if_already_active) {
   auto periph = SPI_peripheral::get(SPI_peripheral::ID::first);
 
-  auto first_handle =
-      rp2040_SPI(default_pins, SPI::mode::Motorola, SPI::role::main, true);
+  auto first_handle = make_handle();
   ASSERT_EQ(first_handle.initialization_result, error::standard_value::success);
 
-  auto second_handle =
-      rp2040_SPI(default_pins, SPI::mode::Motorola, SPI::role::main, true);
+  auto second_handle = make_handle();
   ASSERT_EQ(second_handle.initialization_result,
             error::standard_value::resource_unavailable_try_again);
 }
 
 TEST(SPI_tests, SPI_handle_can_initialize_two_seperate_handles) {
   constexpr auto SPI1_pins = default_pins;
-  auto first_handle =
-      rp2040_SPI(SPI1_pins, SPI::mode::Motorola, SPI::role::main, true);
+  auto first_handle = make_handle(SPI1_pins);
   ASSERT_EQ(first_handle.initialization_result, error::standard_value::success);
 
   constexpr auto SPI2_pins = SPI::pins{8, 11, 9, 10};
-  auto second_handle =
-      rp2040_SPI(SPI2_pins, SPI::mode::Motorola, SPI::role::main, true);
+  auto second_handle = make_handle(SPI2_pins);
   ASSERT_EQ(second_handle.initialization_result,
             error::standard_value::success);
 }
 
 TEST(SPI_tests, SPI_handle_clears_resources_and_reinitializes) {
-  {
-    auto handle =
-        rp2040_SPI(default_pins, SPI::mode::Motorola, SPI::role::main, true);
-  }
-  auto handle =
-      rp2040_SPI(default_pins, SPI::mode::Motorola, SPI::role::main, true);
+  { auto handle = make_handle(); }
+  auto handle = make_handle();
   ASSERT_EQ(handle.initialization_result, error::standard_value::success);
 }
 
@@ -79,9 +78,7 @@ template <character_type T> std::size_t string_length(const T *data) {
 }
 
 TEST(SPI_tests, loopback_transfer_succeeds) {
-  GTEST_SKIP();
-  auto handle =
-      rp2040_SPI(default_pins, SPI::mode::Motorola, SPI::role::main, true);
+  auto handle = make_handle();
 
   const char *data = "Hello world!";
   const auto str_len = std::strlen(data);

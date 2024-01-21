@@ -3,7 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "build_tests/_deps/googletest-src/googletest/include/**",
+                "build_directory/_deps/googletest-src/googletest/include/**",
                 "build_app/_deps/pico_sdk-src/src/**",
                 "lib/HAL/inc",
                 "lib/rp2040/inc",
