@@ -32,7 +32,7 @@ jobs:
 
     - name: Create coverage data
       working-directory: ${{github.workspace}}
-      run: lcov --directory . --capture --output-file coverage.info --keep-going --demangle-cpp --no-external --exclude build_directory/
+      run: lcov --directory . --capture --output-file coverage.info --ignore-errors mismatch --no-external --exclude build_directory/
 
     - name: Evaluate coverage data
       working-directory: ${{github.workspace}}
