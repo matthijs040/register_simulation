@@ -8,7 +8,8 @@ on:
 
 env:
   # Options: (Release, Debug, RelWithDebInfo)
-  BUILD_TYPE: Release
+  BUILD_TYPE: Debug
+  LINE_COVERAGE_PERCENTAGE: 60
 
 jobs:
   build:
@@ -18,11 +19,32 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Configure CMake
-      run: cmake tests -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      working-directory: ${{github.workspace}}    
+      run: cmake tests -B ./build_directory -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      working-directory: ${{github.workspace}}
+      run: cmake --build ./build_directory --config ${{env.BUILD_TYPE}}
 
     - name: Test
-      working-directory: ${{github.workspace}}/build
-      run: ctest --verbose --build-config ${{env.BUILD_TYPE}} --test-dir .
+      working-directory: ${{github.workspace}}
+      run: ctest --verbose --build-config ${{env.BUILD_TYPE}} --test-dir ./build_directory
+
+    - name: Create coverage data
+      working-directory: ${{github.workspace}}
+      run: lcov --directory . --capture --output-file coverage.info --keep-going --demangle-cpp --no-external --exclude build_directory/
+
+    - name: Evaluate coverage data
+      working-directory: ${{github.workspace}}
+
+      # An "lcov --summary" output looks like:
+        # Summary coverage rate:
+        #   lines......: 64.7% (1278 of 1975 lines)
+        #   functions..: 78.9% (832 of 1055 functions)
+        #   branches...: no data found
+      # This is then filtered into the "lines"-line by grep.
+      # The percentage value of which is compared by awk to be greater than "LINE_COVERAGE_PERCENTAGE"
+      run: lcov --summary coverage.info | grep lines | awk '{if(int($2) > ${{env.LINE_COVERAGE_PERCENTAGE}}){ exit(0)} else{ exit(1)}}'
+
+
+            
