@@ -48,43 +48,31 @@ void write_to_UART(UART::ID which, uint8_t data) {
   auto &FIFOs = get_FIFO_storage()[std::to_underlying(which)];
   FIFOs.write_to_RX_FIFO(data);
 
-  auto &UARTFR_storage =
-      simulated_peripheral<UART>::simulated_register_storage.at(
-          std::to_underlying(which) * sizeof(UART) +
-          offsetof(UART, UART::UARTFR) / sizeof(UART::UARTFR));
-
-  // Clear the receive-FIFO-empty flag if the FIFO has been empty.
-  UARTFR_storage =
-      UARTFR_storage & std::to_underlying(reg::state::cleared)
-                           << decltype(reg::UARTFR::receive_FIFO_empty)::offset;
+  auto &handle = UART::get(which);
+  // Clear the receive-FIFO-empty flag in case the FIFO has been empty.
+  simulated_peripheral<UART>::acquire_field(handle.UARTFR.receive_FIFO_empty) =
+      reg::state::cleared;
 
   // Also, set receive-full flag if the RX fifo is at capacity.
-  UARTFR_storage = UARTFR_storage &
-                   ((FIFOs.RX_FIFO.size() == FIFO_size + shift_register_size)
-                    << decltype(reg::UARTFR::receive_FIFO_full)::offset);
+  simulated_peripheral<UART>::acquire_field(handle.UARTFR.receive_FIFO_full) =
+      FIFOs.RX_FIFO.size() == FIFO_size + shift_register_size
+          ? reg::state::set
+          : reg::state::cleared;
 }
 
 void flush_UART_FIFOs(UART::ID which) {
   UART_FIFOs &buffer = get_FIFO_storage()[std::to_underlying(which)];
   buffer.flush_FIFOs();
 
-  auto &UARTFR_storage =
-      simulated_peripheral<UART>::simulated_register_storage.at(
-          std::to_underlying(which) * sizeof(UART) +
-          offsetof(UART, UART::UARTFR) / sizeof(UART::UARTFR));
-
-  UARTFR_storage =
-      UARTFR_storage | std::to_underlying(reg::state::set)
-                           << decltype(reg::UARTFR::receive_FIFO_empty)::offset;
-  UARTFR_storage =
-      UARTFR_storage & std::to_underlying(reg::state::cleared)
-                           << decltype(reg::UARTFR::receive_FIFO_full)::offset;
-  UARTFR_storage = UARTFR_storage |
-                   std::to_underlying(reg::state::set)
-                       << decltype(reg::UARTFR::transmit_FIFO_empty)::offset;
-  UARTFR_storage =
-      UARTFR_storage & std::to_underlying(reg::state::cleared)
-                           << decltype(reg::UARTFR::transmit_FIFO_full)::offset;
+  auto &handle = UART::get(which);
+  simulated_peripheral<UART>::acquire_field(handle.UARTFR.receive_FIFO_empty) =
+      reg::state::set;
+  simulated_peripheral<UART>::acquire_field(handle.UARTFR.receive_FIFO_full) =
+      reg::state::cleared;
+  simulated_peripheral<UART>::acquire_field(handle.UARTFR.transmit_FIFO_empty) =
+      reg::state::set;
+  simulated_peripheral<UART>::acquire_field(handle.UARTFR.transmit_FIFO_full) =
+      reg::state::cleared;
 }
 
 void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {

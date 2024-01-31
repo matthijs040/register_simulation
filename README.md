@@ -20,7 +20,7 @@ Once you have configured the type of artifacts you want CMake to produce, they c
 ## Examples:
 When going to (re)configure an out-of-source build directory, going for a debug configuration. The following command could be used:
 ``` bash
-cmake --fresh tests -B ./build_directory -DCMAKE_BUILD_TYPE=DEBUG
+cmake --fresh tests -B ./<build_directory> -DCMAKE_BUILD_TYPE=DEBUG
 ```
 The "--fresh" clears any existing cmake artifacts and cached data.
 The "../tests/" path refers to the root "CMakeLists.txt" file that begins listing targets and their dependencies.
@@ -28,12 +28,12 @@ The "-DCMAKE_BUILD_TYPE" flag forwards a three-state parameter to the configurat
 
 Next it can be built using:
 ``` bash
-cmake --build ./build_directory --config Debug
+cmake --build ./<build_directory> --config Debug
 ```
 
 Once built, CMake/CTest can run unit tests by calling:
 ``` bash
-ctest --verbose -C Debug --test-dir ./build_directory
+ctest --verbose -C Debug --test-dir ./<build_directory>
 ```
 
 # Code coverage:
@@ -41,7 +41,7 @@ ctest --verbose -C Debug --test-dir ./build_directory
 After building and running the unit tests CMake will have produced ".gcda" and ".gcno" in the "<build_dir>/CMakeFiles/tests.dir/" 
 directory. These are processed using "lcov" with the invocation:
 ``` bash
-lcov --directory . --capture --output-file ./coverage.info --keep-going --demangle-cpp --exclude build_directory/ --no-external
+lcov --directory . --capture --output-file ./coverage.info --keep-going --demangle-cpp --exclude <build_directory>/ --no-external
 ```
 Note that the . directory refers to the root of the workspace. This path is needed for lcov to know the project's sources.
 Next it is converted to an html report using

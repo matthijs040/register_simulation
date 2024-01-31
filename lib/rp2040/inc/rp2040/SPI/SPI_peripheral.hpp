@@ -78,5 +78,10 @@ private:
     }
   }
 
-  void initialize_SPI_handlers(SPI_peripheral::ID) {}
+  void initialize_DR_handlers(SPI_peripheral::ID) {}
+
+  void initialize_SPI_handlers(SPI_peripheral::ID) {
+    if constexpr (!reg::mock)
+      return;
+  }
 };

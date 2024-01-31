@@ -196,13 +196,39 @@ error::code rp2040_SPI::send(std::span<const uint8_t> &bytes_to_transfer) {
 
   auto &handle =
       SPI_peripheral::get(get_peripheral_handle_for_pins(used_pins).value());
-  if (handle.SSPSR.TNF == reg::state::cleared)
-    return SPI::error_code::transmit_buffer_full;
+
+  for (const auto &byte : bytes_to_transfer) {
+    if (handle.SSPSR.TNF == reg::state::cleared) {
+      const auto offset = &byte - &bytes_to_transfer.front();
+      const auto new_size = bytes_to_transfer.size() - offset;
+      bytes_to_transfer = bytes_to_transfer.subspan(offset, new_size);
+      return SPI::error_code::transmit_buffer_full;
+    }
+
+    // Assuming little-endianness when writing:
+    // The 8-bit bytes transferred should be appropriately justified.
+    handle.SSPDR.DATA = byte;
+  }
 
   return {};
 }
 
 error::code rp2040_SPI::receive(std::span<uint8_t> &bytes_read) {
-  (void)bytes_read;
+  if (initialization_result)
+    return initialization_result;
+
+  auto &handle =
+      SPI_peripheral::get(get_peripheral_handle_for_pins(used_pins).value());
+
+  for (auto &byte : bytes_read) {
+    if (handle.SSPSR.RNE == reg::state::cleared) {
+      const auto num_read = &byte - &bytes_read.front();
+      bytes_read = bytes_read.subspan(0, num_read);
+      return SPI::error_code::receive_buffer_empty;
+    }
+
+    byte = static_cast<uint8_t>(handle.SSPDR.DATA);
+  }
+
   return {};
 }

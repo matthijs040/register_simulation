@@ -20,6 +20,7 @@ enum class role { main, sub };
 enum class error_code {
   success = 0,
   transmit_buffer_full,
+  receive_buffer_empty,
 };
 
 using bitrate = uint32_t;

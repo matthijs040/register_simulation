@@ -67,6 +67,8 @@ union SSPDR {
    * justified.
    */
   bitfield<uint16_t, 0, 16, reg::mock> DATA;
+
+  static void read_handler() {}
 };
 
 union SSPSR {
