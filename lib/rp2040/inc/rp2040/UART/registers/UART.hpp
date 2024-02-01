@@ -7,53 +7,53 @@ namespace reg {
 union UARTDR {
   UARTDR() {}
 
-  const bitfield<reg::state, 11, 1, reg::mock> overrun_error;
-  const bitfield<reg::state, 10, 1, reg::mock> break_error;
-  const bitfield<reg::state, 9, 1, reg::mock> parity_error;
-  const bitfield<reg::state, 8, 1, reg::mock> framing_error;
-  bitfield<uint8_t, 0, 8, reg::mock> data;
+  const reg::field<reg::state, 11, 1> overrun_error;
+  const reg::field<reg::state, 10, 1> break_error;
+  const reg::field<reg::state, 9, 1> parity_error;
+  const reg::field<reg::state, 8, 1> framing_error;
+  reg::field<uint8_t, 0, 8> data;
 };
 
 union UARTRSR {
   UARTRSR() {}
 
-  bitfield<reg::state, 3, 1, reg::mock> overrun_error;
-  bitfield<reg::state, 2, 1, reg::mock> break_error;
-  bitfield<reg::state, 1, 1, reg::mock> parity_error;
-  bitfield<reg::state, 0, 1, reg::mock> framing_error;
+  reg::field<reg::state, 3, 1> overrun_error;
+  reg::field<reg::state, 2, 1> break_error;
+  reg::field<reg::state, 1, 1> parity_error;
+  reg::field<reg::state, 0, 1> framing_error;
 };
 
 union UARTFR {
   UARTFR() {}
-  const bitfield<reg::state, 8, 1, reg::mock> ring_indicator;
-  const bitfield<reg::state, 7, 1, reg::mock> transmit_FIFO_empty;
-  const bitfield<reg::state, 6, 1, reg::mock> receive_FIFO_full;
-  const bitfield<reg::state, 5, 1, reg::mock> transmit_FIFO_full;
-  const bitfield<reg::state, 4, 1, reg::mock> receive_FIFO_empty;
-  const bitfield<reg::state, 3, 1, reg::mock> BUSY;
-  const bitfield<reg::state, 2, 1, reg::mock> data_carrier_detect;
-  const bitfield<reg::state, 1, 1, reg::mock> data_set_ready;
-  const bitfield<reg::state, 0, 1, reg::mock> clear_to_send;
+  const reg::field<reg::state, 8, 1> ring_indicator;
+  const reg::field<reg::state, 7, 1> transmit_FIFO_empty;
+  const reg::field<reg::state, 6, 1> receive_FIFO_full;
+  const reg::field<reg::state, 5, 1> transmit_FIFO_full;
+  const reg::field<reg::state, 4, 1> receive_FIFO_empty;
+  const reg::field<reg::state, 3, 1> BUSY;
+  const reg::field<reg::state, 2, 1> data_carrier_detect;
+  const reg::field<reg::state, 1, 1> data_set_ready;
+  const reg::field<reg::state, 0, 1> clear_to_send;
 };
 
 union UARTILPR {
   UARTILPR() {}
-  bitfield<uint8_t, 0, 8, reg::mock> ILPDVSR;
+  reg::field<uint8_t, 0, 8> ILPDVSR;
 };
 
 union UARTIBRD {
   UARTIBRD() {}
-  bitfield<uint16_t, 0, 16, reg::mock> BAUD_DIVINT;
+  reg::field<uint16_t, 0, 16> BAUD_DIVINT;
 };
 
 union UARTFBRD {
   UARTFBRD() {}
-  bitfield<uint8_t, 0, 6, reg::mock> BAUD_DIVFRAC;
+  reg::field<uint8_t, 0, 6> BAUD_DIVFRAC;
 };
 
 union UARTLCR_H {
   UARTLCR_H() {}
-  bitfield<reg::state, 7, 1, reg::mock> SPS;
+  reg::field<reg::state, 7, 1> SPS;
 
   enum class WLEN_states {
     data_bits_8 = 0b11,
@@ -61,28 +61,28 @@ union UARTLCR_H {
     data_bits_6 = 0b01,
     data_bits_5 = 0b00
   };
-  bitfield<WLEN_states, 5, 2, reg::mock> WLEN;
-  bitfield<reg::state, 4, 1, reg::mock> FEN;
-  bitfield<reg::state, 3, 1, reg::mock> STP2;
-  bitfield<reg::state, 2, 1, reg::mock> EPS;
-  bitfield<reg::state, 1, 1, reg::mock> PEN;
-  bitfield<reg::state, 0, 1, reg::mock> BRK;
+  reg::field<WLEN_states, 5, 2> WLEN;
+  reg::field<reg::state, 4, 1> FEN;
+  reg::field<reg::state, 3, 1> STP2;
+  reg::field<reg::state, 2, 1> EPS;
+  reg::field<reg::state, 1, 1> PEN;
+  reg::field<reg::state, 0, 1> BRK;
 };
 
 union UARTCR {
   UARTCR() {}
-  bitfield<reg::state, 15, 1, reg::mock> CTSEN;
-  bitfield<reg::state, 14, 1, reg::mock> RTSEN;
-  bitfield<reg::state, 13, 1, reg::mock> OUT2;
-  bitfield<reg::state, 12, 1, reg::mock> OUT1;
-  bitfield<reg::state, 11, 1, reg::mock> RTS;
-  bitfield<reg::state, 10, 1, reg::mock> DTR;
-  bitfield<reg::state, 9, 1, reg::mock> RXE;
-  bitfield<reg::state, 8, 1, reg::mock> TXE;
-  bitfield<reg::state, 7, 1, reg::mock> LBE;
-  bitfield<reg::state, 2, 1, reg::mock> SIRLP;
-  bitfield<reg::state, 1, 1, reg::mock> SIREN;
-  bitfield<reg::state, 0, 1, reg::mock> UARTEN;
+  reg::field<reg::state, 15, 1> CTSEN;
+  reg::field<reg::state, 14, 1> RTSEN;
+  reg::field<reg::state, 13, 1> OUT2;
+  reg::field<reg::state, 12, 1> OUT1;
+  reg::field<reg::state, 11, 1> RTS;
+  reg::field<reg::state, 10, 1> DTR;
+  reg::field<reg::state, 9, 1> RXE;
+  reg::field<reg::state, 8, 1> TXE;
+  reg::field<reg::state, 7, 1> LBE;
+  reg::field<reg::state, 2, 1> SIRLP;
+  reg::field<reg::state, 1, 1> SIREN;
+  reg::field<reg::state, 0, 1> UARTEN;
 };
 
 union UARTIFLS {
@@ -95,7 +95,7 @@ union UARTIFLS {
     three_quarters_full = 0b011,
     seven_eighths_full = 0b100
   };
-  bitfield<RXIFLSEL_states, 3, 3, reg::mock> RXIFLSEL;
+  reg::field<RXIFLSEL_states, 3, 3> RXIFLSEL;
 
   enum class TXIFLSEL_states {
     eighth_full = 0b000,
@@ -104,117 +104,117 @@ union UARTIFLS {
     three_quarters_full = 0b011,
     seven_eighths_full = 0b100
   };
-  bitfield<RXIFLSEL_states, 0, 3, reg::mock> TXIFLSEL;
+  reg::field<RXIFLSEL_states, 0, 3> TXIFLSEL;
 };
 
 union UARTIMSC {
   UARTIMSC() {}
 
-  bitfield<reg::state, 10, 1, reg::mock> OEIM;
-  bitfield<reg::state, 9, 1, reg::mock> BEIM;
-  bitfield<reg::state, 8, 1, reg::mock> PEIM;
-  bitfield<reg::state, 7, 1, reg::mock> FEIM;
-  bitfield<reg::state, 6, 1, reg::mock> RTIM;
-  bitfield<reg::state, 5, 1, reg::mock> TXIM;
-  bitfield<reg::state, 4, 1, reg::mock> RXIM;
-  bitfield<reg::state, 3, 1, reg::mock> DSRMIM;
-  bitfield<reg::state, 2, 1, reg::mock> DCDMIM;
-  bitfield<reg::state, 1, 1, reg::mock> CTSMIM;
-  bitfield<reg::state, 0, 1, reg::mock> RIMIM;
+  reg::field<reg::state, 10, 1> OEIM;
+  reg::field<reg::state, 9, 1> BEIM;
+  reg::field<reg::state, 8, 1> PEIM;
+  reg::field<reg::state, 7, 1> FEIM;
+  reg::field<reg::state, 6, 1> RTIM;
+  reg::field<reg::state, 5, 1> TXIM;
+  reg::field<reg::state, 4, 1> RXIM;
+  reg::field<reg::state, 3, 1> DSRMIM;
+  reg::field<reg::state, 2, 1> DCDMIM;
+  reg::field<reg::state, 1, 1> CTSMIM;
+  reg::field<reg::state, 0, 1> RIMIM;
 };
 
 union UARTRIS {
   UARTRIS() {}
-  const bitfield<reg::state, 10, 1, reg::mock> OERIS;
-  const bitfield<reg::state, 9, 1, reg::mock> BERIS;
-  const bitfield<reg::state, 8, 1, reg::mock> PERIS;
-  const bitfield<reg::state, 7, 1, reg::mock> FERIS;
-  const bitfield<reg::state, 6, 1, reg::mock> RTRIS;
-  const bitfield<reg::state, 5, 1, reg::mock> TXRIS;
-  const bitfield<reg::state, 4, 1, reg::mock> RXRIS;
-  const bitfield<reg::state, 3, 1, reg::mock> DSRRMIS;
-  const bitfield<reg::state, 2, 1, reg::mock> DCDRMIS;
-  const bitfield<reg::state, 1, 1, reg::mock> CTSRMIS;
-  const bitfield<reg::state, 0, 1, reg::mock> RIRMIS;
+  const reg::field<reg::state, 10, 1> OERIS;
+  const reg::field<reg::state, 9, 1> BERIS;
+  const reg::field<reg::state, 8, 1> PERIS;
+  const reg::field<reg::state, 7, 1> FERIS;
+  const reg::field<reg::state, 6, 1> RTRIS;
+  const reg::field<reg::state, 5, 1> TXRIS;
+  const reg::field<reg::state, 4, 1> RXRIS;
+  const reg::field<reg::state, 3, 1> DSRRMIS;
+  const reg::field<reg::state, 2, 1> DCDRMIS;
+  const reg::field<reg::state, 1, 1> CTSRMIS;
+  const reg::field<reg::state, 0, 1> RIRMIS;
 };
 
 union UARTMIS {
   UARTMIS() {}
-  const bitfield<reg::state, 10, 1, reg::mock> OEMIS;
-  const bitfield<reg::state, 9, 1, reg::mock> BEMIS;
-  const bitfield<reg::state, 8, 1, reg::mock> PEMIS;
-  const bitfield<reg::state, 7, 1, reg::mock> FEMIS;
-  const bitfield<reg::state, 6, 1, reg::mock> RTMIS;
-  const bitfield<reg::state, 5, 1, reg::mock> TXMIS;
-  const bitfield<reg::state, 4, 1, reg::mock> RXMIS;
-  const bitfield<reg::state, 3, 1, reg::mock> DSRMMIS;
-  const bitfield<reg::state, 2, 1, reg::mock> DCDMMIS;
-  const bitfield<reg::state, 1, 1, reg::mock> CTSMMIS;
-  const bitfield<reg::state, 0, 1, reg::mock> RIMMIS;
+  const reg::field<reg::state, 10, 1> OEMIS;
+  const reg::field<reg::state, 9, 1> BEMIS;
+  const reg::field<reg::state, 8, 1> PEMIS;
+  const reg::field<reg::state, 7, 1> FEMIS;
+  const reg::field<reg::state, 6, 1> RTMIS;
+  const reg::field<reg::state, 5, 1> TXMIS;
+  const reg::field<reg::state, 4, 1> RXMIS;
+  const reg::field<reg::state, 3, 1> DSRMMIS;
+  const reg::field<reg::state, 2, 1> DCDMMIS;
+  const reg::field<reg::state, 1, 1> CTSMMIS;
+  const reg::field<reg::state, 0, 1> RIMMIS;
 };
 
 union UARTICR {
   UARTICR() {}
 
-  bitfield<reg::state, 10, 1, reg::mock> OEIC;
-  bitfield<reg::state, 9, 1, reg::mock> BEIC;
-  bitfield<reg::state, 8, 1, reg::mock> PEIC;
-  bitfield<reg::state, 7, 1, reg::mock> FEIC;
-  bitfield<reg::state, 6, 1, reg::mock> RTIC;
-  bitfield<reg::state, 5, 1, reg::mock> TXIC;
-  bitfield<reg::state, 4, 1, reg::mock> RXIC;
-  bitfield<reg::state, 3, 1, reg::mock> DSRMIC;
-  bitfield<reg::state, 2, 1, reg::mock> DCDIC;
-  bitfield<reg::state, 1, 1, reg::mock> CTSIC;
-  bitfield<reg::state, 0, 1, reg::mock> RIIC;
+  reg::field<reg::state, 10, 1> OEIC;
+  reg::field<reg::state, 9, 1> BEIC;
+  reg::field<reg::state, 8, 1> PEIC;
+  reg::field<reg::state, 7, 1> FEIC;
+  reg::field<reg::state, 6, 1> RTIC;
+  reg::field<reg::state, 5, 1> TXIC;
+  reg::field<reg::state, 4, 1> RXIC;
+  reg::field<reg::state, 3, 1> DSRMIC;
+  reg::field<reg::state, 2, 1> DCDIC;
+  reg::field<reg::state, 1, 1> CTSIC;
+  reg::field<reg::state, 0, 1> RIIC;
 };
 
 union UARTDMACR {
   UARTDMACR() {}
-  bitfield<reg::state, 2, 1, reg::mock> DMAONERR;
-  bitfield<reg::state, 1, 1, reg::mock> TXDMAE;
-  bitfield<reg::state, 0, 1, reg::mock> RXDMAE;
+  reg::field<reg::state, 2, 1> DMAONERR;
+  reg::field<reg::state, 1, 1> TXDMAE;
+  reg::field<reg::state, 0, 1> RXDMAE;
 };
 
 union UARTPERIPHID0 {
   UARTPERIPHID0() {}
-  const bitfield<uint8_t, 0, 8, reg::mock> PARTNUMBER0;
+  const reg::field<uint8_t, 0, 8> PARTNUMBER0;
 };
 
 union UARTPERIPHID1 {
   UARTPERIPHID1() {}
-  const bitfield<uint8_t, 4, 4, reg::mock> DESIGNER0;
-  const bitfield<uint8_t, 0, 4, reg::mock> PARTNUMBER1;
+  const reg::field<uint8_t, 4, 4> DESIGNER0;
+  const reg::field<uint8_t, 0, 4> PARTNUMBER1;
 };
 
 union UARTPERIPHID2 {
   UARTPERIPHID2() {}
-  const bitfield<uint8_t, 4, 4, reg::mock> REVISION;
-  const bitfield<uint8_t, 0, 4, reg::mock> DESIGNER1;
+  const reg::field<uint8_t, 4, 4> REVISION;
+  const reg::field<uint8_t, 0, 4> DESIGNER1;
 };
 
 union UARTPERIPHID3 {
   UARTPERIPHID3() {}
-  const bitfield<uint8_t, 0, 8, reg::mock> CONFIGURATION;
+  const reg::field<uint8_t, 0, 8> CONFIGURATION;
 };
 
 union UARTPCELLID0 {
   UARTPCELLID0() {}
-  const bitfield<uint8_t, 0, 8, reg::mock> PCELLID0;
+  const reg::field<uint8_t, 0, 8> PCELLID0;
 };
 
 union UARTPCELLID1 {
   UARTPCELLID1() {}
-  const bitfield<uint8_t, 0, 8, reg::mock> PCELLID1;
+  const reg::field<uint8_t, 0, 8> PCELLID1;
 };
 
 union UARTPCELLID2 {
   UARTPCELLID2() {}
-  const bitfield<uint8_t, 0, 8, reg::mock> PCELLID2;
+  const reg::field<uint8_t, 0, 8> PCELLID2;
 };
 
 union UARTPCELLID3 {
   UARTPCELLID3() {}
-  const bitfield<uint8_t, 0, 8, reg::mock> PCELLID3;
+  const reg::field<uint8_t, 0, 8> PCELLID3;
 };
 } // namespace reg

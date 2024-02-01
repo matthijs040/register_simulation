@@ -52,8 +52,8 @@ is_peripheral_output_enabled(GPIO::pin_number pin_number,
 
 void init_FUNCSEL_handlers(GPIO::pin_number pin, reg::CTRL &ctrl, reg::STATUS &,
                            std::ostream &logging_handle) {
-  using FUNCSEL = decltype(reg::CTRL::FUNCSEL);
-  auto FUNCSEL_handlers = FUNCSEL::sim_storage::effect_handlers();
+  using FUNCSEL = decltype(reg::CTRL::FUNCSEL)::stored_type;
+  auto FUNCSEL_handlers = FUNCSEL::effect_handlers();
   FUNCSEL_handlers.on_read = [pin, &logging_handle](
                                  const FUNCSEL::stored_bits &read_value) {
     logging_handle << "Function of pin: " << pin << " was read as: "
@@ -67,13 +67,13 @@ void init_FUNCSEL_handlers(GPIO::pin_number pin, reg::CTRL &ctrl, reg::STATUS &,
                    << std::to_underlying<reg::CTRL::FUNCSEL_states>(after_write)
                    << " .\n";
   };
-  FUNCSEL::sim_storage::set_effect_handlers(&ctrl, FUNCSEL_handlers);
+  FUNCSEL::set_effect_handlers(&ctrl, FUNCSEL_handlers);
 }
 
 void init_OEOVER_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
                           reg::STATUS &status, std::ostream &logging_handle) {
-  using OEOVER = decltype(reg::CTRL::OEOVER);
-  auto OEOVER_handlers = OEOVER::sim_storage::effect_handlers();
+  using OEOVER = decltype(reg::CTRL::OEOVER)::stored_type;
+  auto OEOVER_handlers = OEOVER::effect_handlers();
   OEOVER_handlers.on_read = [pin, &logging_handle](
                                 const OEOVER::stored_bits &read_value) {
     logging_handle << "OEOVER for pin: " << pin << " at: " << &read_value
@@ -115,13 +115,13 @@ void init_OEOVER_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
       break;
     }
   };
-  OEOVER::sim_storage::set_effect_handlers(&ctrl, OEOVER_handlers);
+  OEOVER::set_effect_handlers(&ctrl, OEOVER_handlers);
 }
 
 void init_OETOPAD_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
                            reg::STATUS &status, std::ostream &logging_handle) {
-  using OETOPAD = decltype(status.OETOPAD);
-  auto OETOPAD_handlers = OETOPAD::sim_storage::effect_handlers();
+  using OETOPAD = decltype(status.OETOPAD)::stored_type;
+  auto OETOPAD_handlers = OETOPAD::effect_handlers();
   OETOPAD_handlers.on_read = [pin, &ctrl, &status, &logging_handle](
                                  const OETOPAD::stored_bits &read_value) {
     logging_handle << "OETOPAD for pin: " << pin
@@ -135,13 +135,13 @@ void init_OETOPAD_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
                        << " was written to, setting value: "
                        << std::to_underlying<reg::state>(after) << "\n";
       };
-  OETOPAD::sim_storage::set_effect_handlers(&status, OETOPAD_handlers);
+  OETOPAD::set_effect_handlers(&status, OETOPAD_handlers);
 }
 
 void init_OUTOVER_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
                            reg::STATUS &status, std::ostream &logging_handle) {
-  using OUTOVER = decltype(reg::CTRL::OUTOVER);
-  auto OUTOVER_handlers = OUTOVER::sim_storage::effect_handlers();
+  using OUTOVER = decltype(reg::CTRL::OUTOVER)::stored_type;
+  auto OUTOVER_handlers = OUTOVER::effect_handlers();
 
   OUTOVER_handlers.on_read = [pin, &logging_handle](
                                  const OUTOVER::stored_bits &read_value) {
@@ -176,7 +176,8 @@ void init_OUTOVER_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
     }
     return;
   };
-  OUTOVER::sim_storage::set_effect_handlers(&ctrl, OUTOVER_handlers);
+  
+  OUTOVER::set_effect_handlers(&ctrl, OUTOVER_handlers);
 }
 
 void initialize_handlers() {

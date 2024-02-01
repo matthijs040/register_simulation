@@ -18,7 +18,7 @@ struct simulated_peripheral {
   enum class stub : register_integral {};
   static_assert(num_peripherals > 0);
   static_assert(sizeof(register_integral) ==
-                sizeof(bitfield<stub, 2, 2, true>));
+                sizeof(bitfield<stub, 2, 2, register_integral>));
   // static_assert(std::is_layout_compatible_v< register_integral,
   // simulated_device_register<register_integral>>);
 
@@ -48,7 +48,7 @@ struct simulated_peripheral {
         std::bit_cast<const register_integral *>(base_address);
     auto &field = simulated_register_storage.at(offset);
 
-    using stored_bits = Bitfield::stored_bits;
+    using stored_bits = Bitfield::stored_type::stored_bits;
     auto* sub_field = std::bit_cast<stored_bits*>(&field);
     return *sub_field;
   }

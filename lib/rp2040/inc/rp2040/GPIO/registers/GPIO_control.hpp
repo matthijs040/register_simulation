@@ -5,14 +5,14 @@
 namespace reg {
 union STATUS {
   STATUS() {}
-  bitfield<reg::state, 26, 1, reg::mock> IRQTOPROC;
-  bitfield<reg::state, 24, 1, reg::mock> IRQFROMPAD;
-  bitfield<reg::state, 19, 1, reg::mock> INTOPERI;
-  bitfield<reg::state, 17, 1, reg::mock> INFROMPAD;
-  bitfield<reg::state, 13, 1, reg::mock> OETOPAD;
-  bitfield<reg::state, 12, 1, reg::mock> OEFROMPERI;
-  bitfield<reg::state, 9, 1, reg::mock> OUTTOPAD;
-  bitfield<reg::state, 8, 1, reg::mock> OUTFROMPERI;
+  reg::field<reg::state, 26, 1> IRQTOPROC;
+  reg::field<reg::state, 24, 1> IRQFROMPAD;
+  reg::field<reg::state, 19, 1> INTOPERI;
+  reg::field<reg::state, 17, 1> INFROMPAD;
+  reg::field<reg::state, 13, 1> OETOPAD;
+  reg::field<reg::state, 12, 1> OEFROMPERI;
+  reg::field<reg::state, 9, 1> OUTTOPAD;
+  reg::field<reg::state, 8, 1> OUTFROMPERI;
 };
 
 union CTRL {
@@ -24,7 +24,7 @@ union CTRL {
     driven_low,
     driven_high
   };
-  bitfield<IRQOVER_states, 28, 2, reg::mock> IRQOVER;
+  reg::field<IRQOVER_states, 28, 2> IRQOVER;
 
   enum class INOVER_states : register_integral {
     unaffected,
@@ -32,7 +32,7 @@ union CTRL {
     driven_low,
     driven_high
   };
-  bitfield<INOVER_states, 16, 2, reg::mock> INOVER;
+  reg::field<INOVER_states, 16, 2> INOVER;
 
   enum class OEOVER_states : register_integral {
     FUNCSEL_defined,
@@ -40,7 +40,7 @@ union CTRL {
     disabled,
     enabled,
   };
-  bitfield<OEOVER_states, 12, 2, reg::mock> OEOVER;
+  reg::field<OEOVER_states, 12, 2> OEOVER;
 
   enum class OUTOVER_states : register_integral {
     FUNCSEL_defined,
@@ -48,7 +48,7 @@ union CTRL {
     driven_low,
     driven_high,
   };
-  bitfield<OUTOVER_states, 8, 2, reg::mock> OUTOVER;
+  reg::field<OUTOVER_states, 8, 2> OUTOVER;
 
   enum class FUNCSEL_states : register_integral {
     XIP,
@@ -63,6 +63,6 @@ union CTRL {
     USB,
     disabled = 0x1F
   };
-  bitfield<FUNCSEL_states, 0, 5, reg::mock> FUNCSEL;
+  reg::field<FUNCSEL_states, 0, 5> FUNCSEL;
 };
 } // namespace reg

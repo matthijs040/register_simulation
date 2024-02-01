@@ -76,11 +76,11 @@ void flush_UART_FIFOs(UART::ID which) {
 }
 
 void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
-  using data_type = decltype(reg::UARTDR::data);
+  using data_type = decltype(reg::UARTDR::data)::stored_type;
 
   UART_FIFOs &buffer = get_FIFO_storage()[std::to_underlying(which)];
 
-  auto data_handlers = data_type::sim_storage::effect_handlers();
+  auto data_handlers = data_type::effect_handlers();
   data_handlers.on_read = [which, &buffer](const data_type::stored_bits &) {
     auto &handle = UART::get(which);
 
@@ -135,7 +135,7 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
         }
       };
 
-  data_type::sim_storage::set_effect_handlers(&data_register, data_handlers);
+  data_type::set_effect_handlers(&data_register, data_handlers);
 }
 
 void initialize_UART_handlers(UART &handle, UART::ID which) {

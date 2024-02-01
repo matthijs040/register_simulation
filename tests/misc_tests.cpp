@@ -7,10 +7,11 @@ TEST(peripheral_tests,
   resets &handle = resets::get();
   ASSERT_EQ(handle.RESET_DONE.PIO0, reg::state::cleared);
   static_assert(reg::mock);
-  
-  auto& field = simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.PIO0);
+
+  auto &field =
+      simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.PIO0);
   field = reg::state::set;
-  
+
   ASSERT_EQ(field, reg::state::set);
   ASSERT_EQ(handle.RESET_DONE.PIO0, reg::state::set);
 
@@ -21,7 +22,6 @@ TEST(peripheral_tests,
 
 #include <system/error_code.hpp>
 
-TEST(error_code_test, standard_error_initializes_properly)
-{
+TEST(error_code_test, standard_error_initializes_properly) {
   auto ec = error::code();
 }

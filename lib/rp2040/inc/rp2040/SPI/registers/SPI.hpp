@@ -16,9 +16,9 @@ union SSPCR0 {
    * an even value from 2-254, programmed through the
    * SSPCPSR register and SCR is a value from 0-255.
    */
-  bitfield<uint8_t, 8, 8, reg::mock> SCR;
-  bitfield<reg::state, 7, 1, reg::mock> SPH;
-  bitfield<reg::state, 6, 1, reg::mock> SPO;
+  reg::field<uint8_t, 8, 8> SCR;
+  reg::field<reg::state, 7, 1> SPH;
+  reg::field<reg::state, 6, 1> SPO;
 
   enum class FRF_states {
     Motorola_format = 0b00,
@@ -26,7 +26,7 @@ union SSPCR0 {
     National_Microwire_format = 0b10,
   };
 
-  bitfield<FRF_states, 4, 2, reg::mock> FRF;
+  reg::field<FRF_states, 4, 2> FRF;
 
   enum class DSS_states {
     data_bits_4 = 0b0011,
@@ -43,16 +43,16 @@ union SSPCR0 {
     data_bits_15 = 0b1110,
     data_bits_16 = 0b1111,
   };
-  bitfield<DSS_states, 0, 4, reg::mock> DSS;
+  reg::field<DSS_states, 0, 4> DSS;
 };
 
 union SSPCR1 {
   SSPCR1() {}
 
-  bitfield<reg::state, 3, 1, reg::mock> SOD;
-  bitfield<reg::state, 2, 1, reg::mock> MS;
-  bitfield<reg::state, 1, 1, reg::mock> SSE;
-  bitfield<reg::state, 0, 1, reg::mock> LBM;
+  reg::field<reg::state, 3, 1> SOD;
+  reg::field<reg::state, 2, 1> MS;
+  reg::field<reg::state, 1, 1> SSE;
+  reg::field<reg::state, 0, 1> LBM;
 };
 
 union SSPDR {
@@ -66,7 +66,7 @@ union SSPDR {
    * transmit logic. The receive logic automatically right-
    * justified.
    */
-  bitfield<uint16_t, 0, 16, reg::mock> DATA;
+  reg::field<uint16_t, 0, 16> DATA;
 
   static void read_handler() {}
 };
@@ -74,11 +74,11 @@ union SSPDR {
 union SSPSR {
   SSPSR() {}
 
-  const bitfield<reg::state, 4, 1, reg::mock> BSY;
-  const bitfield<reg::state, 3, 1, reg::mock> RFF;
-  const bitfield<reg::state, 2, 1, reg::mock> RNE;
-  const bitfield<reg::state, 1, 1, reg::mock> TNF;
-  const bitfield<reg::state, 0, 1, reg::mock> TFE;
+  const reg::field<reg::state, 4, 1> BSY;
+  const reg::field<reg::state, 3, 1> RFF;
+  const reg::field<reg::state, 2, 1> RNE;
+  const reg::field<reg::state, 1, 1> TNF;
+  const reg::field<reg::state, 0, 1> TFE;
 };
 
 union SSPCPSR {
@@ -89,98 +89,98 @@ union SSPCPSR {
    * 254, depending on the frequency of SSPCLK. The least
    * significant bit always returns zero on reads.
    */
-  bitfield<uint8_t, 0, 8, reg::mock> CPSDVSR;
+  reg::field<uint8_t, 0, 8> CPSDVSR;
 };
 
 union SSPIMSC {
   SSPIMSC() {}
 
-  bitfield<reg::state, 3, 1, reg::mock> TXIM;
-  bitfield<reg::state, 2, 1, reg::mock> RXIM;
-  bitfield<reg::state, 1, 1, reg::mock> RTIM;
-  bitfield<reg::state, 0, 1, reg::mock> RORIM;
+  reg::field<reg::state, 3, 1> TXIM;
+  reg::field<reg::state, 2, 1> RXIM;
+  reg::field<reg::state, 1, 1> RTIM;
+  reg::field<reg::state, 0, 1> RORIM;
 };
 
 union SSPRIS {
   SSPRIS() {}
 
-  const bitfield<reg::state, 3, 1, reg::mock> TXRIS;
-  const bitfield<reg::state, 2, 1, reg::mock> RXRIS;
-  const bitfield<reg::state, 1, 1, reg::mock> RTRIS;
-  const bitfield<reg::state, 0, 1, reg::mock> RORRIS;
+  const reg::field<reg::state, 3, 1> TXRIS;
+  const reg::field<reg::state, 2, 1> RXRIS;
+  const reg::field<reg::state, 1, 1> RTRIS;
+  const reg::field<reg::state, 0, 1> RORRIS;
 };
 
 union SSPMIS {
   SSPMIS() {}
 
-  const bitfield<reg::state, 3, 1, reg::mock> TXMIS;
-  const bitfield<reg::state, 2, 1, reg::mock> RXMIS;
-  const bitfield<reg::state, 1, 1, reg::mock> RTMIS;
-  const bitfield<reg::state, 0, 1, reg::mock> RORMIS;
+  const reg::field<reg::state, 3, 1> TXMIS;
+  const reg::field<reg::state, 2, 1> RXMIS;
+  const reg::field<reg::state, 1, 1> RTMIS;
+  const reg::field<reg::state, 0, 1> RORMIS;
 };
 
 union SSPICR {
   SSPICR() {}
 
-  bitfield<reg::state, 1, 1, reg::mock> RTIC;
-  bitfield<reg::state, 0, 1, reg::mock> RORIC;
+  reg::field<reg::state, 1, 1> RTIC;
+  reg::field<reg::state, 0, 1> RORIC;
 };
 
 union SSPDMACR {
   SSPDMACR() {}
 
-  bitfield<reg::state, 1, 1, reg::mock> TXDMAE;
-  bitfield<reg::state, 0, 1, reg::mock> RXDMAE;
+  reg::field<reg::state, 1, 1> TXDMAE;
+  reg::field<reg::state, 0, 1> RXDMAE;
 };
 
 union SSPPERIPHID0 {
   SSPPERIPHID0() {}
 
-  const bitfield<uint8_t, 0, 8, reg::mock> PARTNUMBER0;
+  const reg::field<uint8_t, 0, 8> PARTNUMBER0;
 };
 
 union SSPPERIPHID1 {
   SSPPERIPHID1() {}
 
-  const bitfield<uint8_t, 4, 4, reg::mock> DESIGNER0;
-  const bitfield<uint8_t, 0, 4, reg::mock> PARTNUMBER1;
+  const reg::field<uint8_t, 4, 4> DESIGNER0;
+  const reg::field<uint8_t, 0, 4> PARTNUMBER1;
 };
 
 union SSPPERIPHID2 {
   SSPPERIPHID2() {}
 
-  const bitfield<uint8_t, 4, 4, reg::mock> REVISION;
-  const bitfield<uint8_t, 0, 4, reg::mock> DESIGNER1;
+  const reg::field<uint8_t, 4, 4> REVISION;
+  const reg::field<uint8_t, 0, 4> DESIGNER1;
 };
 
 union SSPPERIPHID3 {
   SSPPERIPHID3() {}
 
-  const bitfield<uint8_t, 0, 8, reg::mock> CONFIGURATION;
+  const reg::field<uint8_t, 0, 8> CONFIGURATION;
 };
 
 union SSPPCELLID0 {
   SSPPCELLID0() {}
 
-  const bitfield<uint8_t, 0, 8, reg::mock> cell_ID;
+  const reg::field<uint8_t, 0, 8> cell_ID;
 };
 
 union SSPPCELLID1 {
   SSPPCELLID1() {}
 
-  const bitfield<uint8_t, 0, 8, reg::mock> cell_ID;
+  const reg::field<uint8_t, 0, 8> cell_ID;
 };
 
 union SSPPCELLID2 {
   SSPPCELLID2() {}
 
-  const bitfield<uint8_t, 0, 8, reg::mock> cell_ID;
+  const reg::field<uint8_t, 0, 8> cell_ID;
 };
 
 union SSPPCELLID3 {
   SSPPCELLID3() {}
 
-  const bitfield<uint8_t, 0, 8, reg::mock> cell_ID;
+  const reg::field<uint8_t, 0, 8> cell_ID;
 };
 
 } // namespace SPI

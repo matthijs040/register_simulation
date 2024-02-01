@@ -6,14 +6,11 @@
 #include <utility>
 
 template <typename bitstate, std::size_t offset_, std::size_t num_bits,
-          bool uses_simulated_registers>
+          typename storage_type>
 struct bitfield {
-  template <typename U = bitstate>
-  constexpr bitfield(
-      std::enable_if_t<std::is_scoped_enum_v<U>, U> initial_value)
-      : value(initial_value) {}
+  using stored_type = storage_type;
 
-  constexpr bitfield(bitstate initial_value)
+  constexpr bitfield(auto initial_value)
       : value(static_cast<storage_type>(initial_value)) {}
 
   static constexpr auto offset = offset_;
@@ -21,31 +18,24 @@ struct bitfield {
   static constexpr auto bitrange = max << offset;
 
   constexpr operator bitstate() const noexcept {
-    return static_cast<bitstate>((value >> offset) & max);
+    const unsigned val = std::bit_cast<const unsigned>(value); 
+    return static_cast<bitstate>((val >> offset) & max);
   }
 
   constexpr bitfield &operator=(bitstate v) noexcept {
     // Cannot static assert this without a constexpr way of getting largest enum
     // class value.
-    const auto *as_integral = std::bit_cast<register_integral *>(&value);
-    const register_integral shifted_value = [&] {
+    const unsigned as_integral = std::bit_cast<const unsigned>(value);
+    const unsigned shifted_value = [&] {
       if constexpr (std::is_scoped_enum_v<bitstate>)
         return std::to_underlying(v) << offset;
       else
         return v << offset;
     }();
-    const auto masked_value = (*as_integral & ~bitrange) | shifted_value;
-    if constexpr (uses_simulated_registers)
-      value = std::bit_cast<stored_bits>(masked_value);
-    else
-      value = masked_value;
+    const unsigned masked_value = (as_integral & ~bitrange) | shifted_value;
+    value = std::bit_cast<storage_type>(masked_value);
     return *this;
   }
-
-  using stored_bits = bitfield<bitstate, offset, num_bits, false>;
-  using sim_storage = simulated_device_register<stored_bits>;
-  using storage_type = std::conditional<uses_simulated_registers, sim_storage,
-                                        register_integral>::type;
 
 private:
   storage_type value;

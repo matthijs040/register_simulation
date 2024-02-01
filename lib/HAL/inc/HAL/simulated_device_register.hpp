@@ -7,24 +7,25 @@
 #include <iostream>
 #include <map>
 
-template <class Underlying> class simulated_device_register {
+template <class storage_type> class simulated_device_register {
 public:
   simulated_device_register() {}
 
-  simulated_device_register(Underlying initial_value) : value(initial_value) {}
+  simulated_device_register(storage_type initial_value)
+      : value(initial_value) {}
   // ---------------- Accessors ----------------
 
-  operator register_integral() const {
+  operator storage_type() const {
     // Perform a copy before a potential read handler is called.
     // Read handlers can mutate the (to be) observed memory.
-    auto ret = *std::bit_cast<const register_integral *>(&value);
+    auto ret = *std::bit_cast<const storage_type *>(&value);
     on_read();
     return ret;
   }
 
-  void operator=(Underlying v) {
+  void operator=(storage_type v) {
     on_read();
-    const auto old_value = static_cast<Underlying>(value);
+    const auto old_value = static_cast<storage_type>(value);
     value = v;
     on_write(old_value);
   }
@@ -35,15 +36,15 @@ public:
       func(value);
   }
 
-  inline void on_write(Underlying before_write) const {
+  inline void on_write(storage_type before_write) const {
     if (auto func = get_write_handler(this))
       func(before_write, value);
   }
 
   // ---------------- Effect handler logic ----------------
 
-  using read_handler = std::function<void(const Underlying &)>;
-  using write_handler = std::function<void(Underlying, const Underlying &)>;
+  using read_handler = std::function<void(const storage_type &)>;
+  using write_handler = std::function<void(storage_type, const storage_type &)>;
   struct effect_handlers {
     read_handler on_read;
     write_handler on_write;
@@ -74,7 +75,9 @@ public:
     return nullptr;
   }
 
+  using stored_bits = storage_type;
+
 private:
-  Underlying value;
+  storage_type value;
   friend effect_handlers;
 };

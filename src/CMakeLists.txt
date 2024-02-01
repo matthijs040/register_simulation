@@ -3,11 +3,13 @@ cmake_minimum_required(VERSION 3.25)
 # Pull in SDK (must be before project)
 set(PICO_SDK_FETCH_FROM_GIT on)
 include(pico_sdk_import.cmake)
-pico_sdk_init()
+
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
 project(application)
+
+pico_sdk_init()
 add_executable(main main.cpp application.cpp)
 
 target_link_libraries(main PRIVATE HAL rp2040_impl pico_stdlib)
