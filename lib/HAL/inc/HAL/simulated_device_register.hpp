@@ -23,9 +23,9 @@ public:
     return ret;
   }
 
-  void operator=(storage_type v) {
+  void operator=(const storage_type &v) {
     on_read();
-    const auto old_value = static_cast<storage_type>(value);
+    const auto old_value = value;
     value = v;
     on_write(old_value);
   }
@@ -76,6 +76,19 @@ public:
   }
 
   using stored_bits = storage_type;
+
+  const storage_type operator&(const auto &mask) const noexcept {
+    return value & mask;
+  }
+
+  const storage_type operator>>(const auto &shift) const noexcept {
+    return value >> shift;
+  }
+
+  const storage_type operator|(const auto &mask) const noexcept {
+    return value | mask;
+  }
+
 
 private:
   storage_type value;

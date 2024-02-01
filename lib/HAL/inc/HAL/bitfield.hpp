@@ -18,23 +18,35 @@ struct bitfield {
   static constexpr auto bitrange = max << offset;
 
   constexpr operator bitstate() const noexcept {
-    const unsigned val = std::bit_cast<const unsigned>(value); 
-    return static_cast<bitstate>((val >> offset) & max);
+    const register_integral *val =
+        std::bit_cast<const register_integral *>(&value);
+    return static_cast<bitstate>((*val >> offset) & max);
   }
 
   constexpr bitfield &operator=(bitstate v) noexcept {
     // Cannot static assert this without a constexpr way of getting largest enum
     // class value.
-    const unsigned as_integral = std::bit_cast<const unsigned>(value);
-    const unsigned shifted_value = [&] {
+    const auto shifted_value = [&] {
       if constexpr (std::is_scoped_enum_v<bitstate>)
         return std::to_underlying(v) << offset;
       else
         return v << offset;
     }();
-    const unsigned masked_value = (as_integral & ~bitrange) | shifted_value;
-    value = std::bit_cast<storage_type>(masked_value);
+    const auto masked_value = (value & ~bitrange) | shifted_value;
+    value = masked_value;
     return *this;
+  }
+
+  constexpr bitfield operator&(const auto &mask) const noexcept {
+    return value & mask;
+  }
+
+  constexpr bitfield operator|(const auto &mask) const noexcept {
+    return value | mask;
+  }
+
+  constexpr bitfield operator>>(const auto shift) const noexcept {
+    return value >> shift;
   }
 
 private:
