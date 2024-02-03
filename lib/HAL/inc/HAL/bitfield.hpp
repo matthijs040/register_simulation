@@ -11,16 +11,14 @@ struct bitfield {
   using stored_type = storage_type;
 
   constexpr bitfield(auto initial_value)
-      : value(static_cast<storage_type>(initial_value)) {}
+      : value(std::bit_cast<storage_type>(initial_value)) {}
 
   static constexpr auto offset = offset_;
   static constexpr auto max = (0b1 << num_bits) - 1;
   static constexpr auto bitrange = max << offset;
 
   constexpr operator bitstate() const noexcept {
-    const register_integral *val =
-        std::bit_cast<const register_integral *>(&value);
-    return static_cast<bitstate>((*val >> offset) & max);
+    return static_cast<bitstate>((value & bitrange) >> offset);
   }
 
   constexpr bitfield &operator=(bitstate v) noexcept {

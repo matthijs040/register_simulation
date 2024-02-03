@@ -7,7 +7,8 @@
 #include <iostream>
 #include <map>
 
-template <class storage_type> class simulated_device_register {
+template <typename field_type, typename storage_type>
+class simulated_device_register {
 public:
   simulated_device_register() {}
 
@@ -18,7 +19,7 @@ public:
   operator storage_type() const {
     // Perform a copy before a potential read handler is called.
     // Read handlers can mutate the (to be) observed memory.
-    auto ret = *std::bit_cast<const storage_type *>(&value);
+    auto ret = value;
     on_read();
     return ret;
   }
@@ -43,8 +44,8 @@ public:
 
   // ---------------- Effect handler logic ----------------
 
-  using read_handler = std::function<void(const storage_type &)>;
-  using write_handler = std::function<void(storage_type, const storage_type &)>;
+  using read_handler = std::function<void(const field_type &)>;
+  using write_handler = std::function<void(field_type, const field_type &)>;
   struct effect_handlers {
     read_handler on_read;
     write_handler on_write;
@@ -75,7 +76,8 @@ public:
     return nullptr;
   }
 
-  using stored_bits = storage_type;
+  using stored_type = storage_type;
+  using stored_bits = field_type;
 
   const storage_type operator&(const auto &mask) const noexcept {
     return value & mask;
@@ -89,8 +91,7 @@ public:
     return value | mask;
   }
 
-
 private:
-  storage_type value;
+  stored_type value;
   friend effect_handlers;
 };

@@ -110,7 +110,8 @@ TEST(UART_tests, sending_character_with_loopback_enabled_can_be_received) {
 
   std::array<uint8_t, rp2040_UART_FIFO_size> received_data;
   result = instance.receive(received_data);
-  ASSERT_TRUE(result.has_value() && result.value() == sent_data.size());
+  ASSERT_TRUE(result.has_value());
+  ASSERT_EQ(result.value(), sent_data.size());
 
   for (const auto &byte : sent_data)
     EXPECT_EQ(byte, received_data.at(&byte - &sent_data.front()));
