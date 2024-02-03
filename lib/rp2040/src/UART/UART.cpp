@@ -282,11 +282,11 @@ HAL::UART::send(const std::span<const uint8_t> data) {
 
 std::expected<std::size_t, error::code>
 HAL::UART::receive(std::span<uint8_t> data) {
-  if (data.empty())
-    return 0U;
-
   if (initialization_result)
     return std::unexpected(initialization_result);
+
+  if (data.empty())
+    return 0U;
 
   auto &handle = ::UART::get(get_ID_by_pins(used_pins).value());
   if (handle.UARTFR.receive_FIFO_empty == reg::state::set)

@@ -106,7 +106,8 @@ TEST(UART_tests, sending_character_with_loopback_enabled_can_be_received) {
       HAL::UART(default_pins, default_baudrate, default_format, true);
 
   auto result = instance.send(sent_data);
-  ASSERT_TRUE(result.has_value() && result.value() == sent_data.size());
+  ASSERT_TRUE(result.has_value());
+  ASSERT_EQ(result.value(), sent_data.size());
 
   std::array<uint8_t, rp2040_UART_FIFO_size> received_data;
   result = instance.receive(received_data);

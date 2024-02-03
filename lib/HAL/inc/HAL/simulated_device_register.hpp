@@ -79,18 +79,6 @@ public:
   using stored_type = storage_type;
   using stored_bits = field_type;
 
-  const storage_type operator&(const auto &mask) const noexcept {
-    return value & mask;
-  }
-
-  const storage_type operator>>(const auto &shift) const noexcept {
-    return value >> shift;
-  }
-
-  const storage_type operator|(const auto &mask) const noexcept {
-    return value | mask;
-  }
-
 private:
   stored_type value;
   friend effect_handlers;

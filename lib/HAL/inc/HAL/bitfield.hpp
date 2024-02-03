@@ -35,18 +35,6 @@ struct bitfield {
     return *this;
   }
 
-  constexpr bitfield operator&(const auto &mask) const noexcept {
-    return value & mask;
-  }
-
-  constexpr bitfield operator|(const auto &mask) const noexcept {
-    return value | mask;
-  }
-
-  constexpr bitfield operator>>(const auto shift) const noexcept {
-    return value >> shift;
-  }
-
 private:
   storage_type value;
 };
