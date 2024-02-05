@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <expected>
 
-template <typename elem_type, std::size_t capacity> class fixed_capacity_queue {
+template <typename elem_type, std::size_t capacity_> class fixed_capacity_queue {
 
 public:
   fixed_capacity_queue(/* args */) : storage{}, stored_elements(0) {}
@@ -30,7 +30,8 @@ public:
     return storage.front();
   }
 
-  std::expected<std::reference_wrapper<const elem_type>, bool> front() const noexcept {
+  std::expected<std::reference_wrapper<const elem_type>, bool>
+  front() const noexcept {
     if (empty())
       return std::unexpected{false};
     return storage.front();
@@ -41,6 +42,8 @@ public:
   bool empty() const noexcept { return stored_elements == 0; }
 
   size_t size() const noexcept { return stored_elements; }
+
+  size_t capacity() const noexcept { return storage.size(); }
 
   void clear() noexcept { stored_elements = 0; }
 
@@ -61,6 +64,6 @@ public:
   }
 
 private:
-  std::array<elem_type, capacity> storage;
+  std::array<elem_type, capacity_> storage;
   std::size_t stored_elements;
 };

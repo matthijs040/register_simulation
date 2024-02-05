@@ -4,6 +4,7 @@
 #include <HAL/simulated_peripheral.hpp>
 #include <cstdint>
 #include <rp2040/shared_types.hpp>
+#include <system/fixed_capacity_queue.hpp>
 #include <type_traits>
 
 constexpr size_t num_SPI_peripherals = 2;
@@ -78,10 +79,71 @@ private:
     }
   }
 
-  void initialize_DR_handlers(SPI_peripheral::ID) {}
+  void initialize_DR_handlers(SPI_peripheral::ID which) {
+    using data_type = decltype(reg::SPI::SSPDR::DATA)::stored_type;
 
-  void initialize_SPI_handlers(SPI_peripheral::ID) {
-    if constexpr (!reg::mock)
-      return;
+    struct SPI_buffer {
+      fixed_capacity_queue<uint16_t, 8> TX_FIFO;
+      fixed_capacity_queue<uint16_t, 8> RX_FIFO;
+    };
+
+    static std::array<SPI_buffer, SPI_peripheral::handles.size()> buffers;
+    auto &buffer = buffers.at(std::to_underlying(which));
+    auto &handle = SPI_peripheral::get(which);
+
+    auto data_handlers = data_type::effect_handlers();
+    data_handlers.on_read = [&handle, &buffer](const data_type::stored_bits &) {
+      using periph_type = simulated_peripheral<SPI_peripheral>;
+
+      if (buffer.RX_FIFO.empty())
+        // Doing nothing here will keep the old value.
+        // Should it be cleared or is the clearing of "RNE" enough?
+        return;
+
+      auto &RX_data = buffer.RX_FIFO.front().value().get();
+      // Replace the data in the transfer register.
+      periph_type::acquire_field(handle.SSPDR.DATA) = RX_data;
+      // Then shift the active index in the static FIFO.
+      buffer.RX_FIFO.pop();
+
+      // Also, if the static FIFO is/becomes empty by this read,
+      // Set the FIFO empty flag in the "Flags Register"
+      if (buffer.RX_FIFO.empty())
+        periph_type::acquire_field(handle.SSPSR.RNE) = reg::state::cleared;
+
+      // And, regardless of the state of the FIFO before. It certainly isn't
+      // full now.
+      periph_type::acquire_field(handle.SSPSR.RFF) = reg::state::cleared;
+    };
+
+    data_handlers.on_write = [&handle, &buffer](
+                                 data_type::stored_bits,
+                                 const data_type::stored_bits &after_write) {
+      // If the LoopBack-Enable register is set don't buffer.
+      // Just send it into the same UART's Receive FIFO.
+      if (handle.SSPCR1.LBM == reg::state::set) {
+        if (handle.SSPSR.RFF == reg::state::set)
+          return;
+        return;
+      }
+
+      // Copy over the data to transfer to the TX_FIFO.
+      if (buffer.TX_FIFO.size() < buffer.TX_FIFO.capacity()) {
+        buffer.TX_FIFO.push(after_write);
+      }
+
+      // Also, if the FIFO is/becomes full by this write,
+      // Set the FIFO full flag in the "Flags Register"
+      if (buffer.TX_FIFO.size() == buffer.TX_FIFO.capacity()) {
+        simulated_peripheral<SPI_peripheral>::acquire_field(handle.SSPSR.TNF) =
+            reg::state::cleared;
+      }
+    };
+
+    data_type::set_effect_handlers(&handle.SSPDR, data_handlers);
+  }
+
+  void initialize_SPI_handlers(SPI_peripheral::ID which) {
+    initialize_DR_handlers(which);
   }
 };
