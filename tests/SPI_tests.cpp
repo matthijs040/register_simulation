@@ -80,14 +80,15 @@ template <character_type T> std::size_t string_length(const T *data) {
 TEST(SPI_tests, loopback_transfer_succeeds) {
   auto handle = make_handle();
 
-  const char *data = "Hello world!";
-  const auto str_len = std::strlen(data);
-  auto string_view =
-      std::span<const uint8_t>(std::bit_cast<const uint8_t *>(data), str_len);
-  auto transmit_result = handle.send(string_view);
-  ASSERT_EQ(transmit_result, error::standard_value::success);
-  ASSERT_EQ(*(string_view.data()), *(string_view.end()));
+  const uint8_t sent_data = 42;
+  auto sent_view = std::span<const uint8_t>(&sent_data, sizeof(sent_data));
+  auto transmit_result = handle.send(sent_view);
+  ASSERT_EQ(transmit_result, error::code());
 
-  constexpr int8_t val = -1;
-  static_assert(std::bit_cast<const uint8_t>(val) == uint8_t{UINT8_MAX});
+  uint8_t received_data = 0;
+  auto received_view =
+      std::span<uint8_t>(&received_data, sizeof(received_data));
+  auto receive_result = handle.receive(received_view);
+  EXPECT_EQ(transmit_result, error::code());
+  EXPECT_EQ(sent_data, received_data);
 }

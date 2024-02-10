@@ -15,7 +15,17 @@ void init_SPI_reset_handlers() {
     if (before == reg::state::cleared && after_write == reg::state::set) {
       // Force de/con-structor calls by delete and re-get().
       delete &SPI_peripheral::get(SPI_peripheral::ID::first);
-      SPI_peripheral::get(SPI_peripheral::ID::first);
+      auto &SPI_handle = SPI_peripheral::get(SPI_peripheral::ID::first);
+
+      simulated_peripheral<SPI_peripheral>::acquire_field(
+          SPI_handle.SSPSR.TNF) = reg::state::set;
+      simulated_peripheral<SPI_peripheral>::acquire_field(
+          SPI_handle.SSPSR.TFE) = reg::state::set;
+      simulated_peripheral<SPI_peripheral>::acquire_field(
+          SPI_handle.SSPSR.RFF) = reg::state::cleared;
+      simulated_peripheral<SPI_peripheral>::acquire_field(
+          SPI_handle.SSPSR.RNE) = reg::state::cleared;      
+                   
 
       simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.SPI0) =
           reg::state::set;
@@ -52,8 +62,7 @@ void init_SPI_reset_done_handlers() {
     simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.SPI0) =
         reg::state::set;
   };
-  SPI0::set_effect_handlers(&handle.RESET_DONE.SPI0,
-                                         SPI0_handlers);
+  SPI0::set_effect_handlers(&handle.RESET_DONE.SPI0, SPI0_handlers);
 
   using SPI1 = decltype(reg::RESET_DONE::SPI1)::stored_type;
   auto SPI1_handlers = SPI1::effect_handlers();
@@ -63,8 +72,7 @@ void init_SPI_reset_done_handlers() {
           reg::state::cleared;
     }
   };
-  SPI1::set_effect_handlers(&handle.RESET_DONE.SPI1,
-                                         SPI1_handlers);
+  SPI1::set_effect_handlers(&handle.RESET_DONE.SPI1, SPI1_handlers);
 }
 
 void init_UART_reset_handlers() {
@@ -115,8 +123,7 @@ void init_UART_reset_done_handlers() {
     simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.UART0) =
         reg::state::set;
   };
-  UART0::set_effect_handlers(&handle.RESET_DONE.UART0,
-                                          UART0_handlers);
+  UART0::set_effect_handlers(&handle.RESET_DONE.UART0, UART0_handlers);
 
   using UART1 = decltype(reg::RESET_DONE::UART1)::stored_type;
   auto UART1_handlers = UART1::effect_handlers();
@@ -126,8 +133,7 @@ void init_UART_reset_done_handlers() {
           reg::state::cleared;
     }
   };
-  UART1::set_effect_handlers(&handle.RESET_DONE.UART1,
-                                          UART1_handlers);
+  UART1::set_effect_handlers(&handle.RESET_DONE.UART1, UART1_handlers);
 }
 
 void init_reset_handlers() {

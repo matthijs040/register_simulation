@@ -119,11 +119,13 @@ private:
     data_handlers.on_write = [&handle, &buffer](
                                  data_type::stored_bits,
                                  const data_type::stored_bits &after_write) {
-      // If the LoopBack-Enable register is set don't buffer.
+      // If the loopback-enable register is set don't buffer.
       // Just send it into the same UART's Receive FIFO.
       if (handle.SSPCR1.LBM == reg::state::set) {
         if (handle.SSPSR.RFF == reg::state::set)
           return;
+
+        // TODO: Write to RX buffer.
         return;
       }
 

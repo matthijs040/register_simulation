@@ -25,7 +25,6 @@ public:
   }
 
   void operator=(const storage_type &v) {
-    on_read();
     const auto old_value = value;
     value = v;
     on_write(old_value);
