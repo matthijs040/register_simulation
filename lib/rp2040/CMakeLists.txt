@@ -21,8 +21,16 @@ else()
     message(STATUS "IPO / LTO not supported: <${error}>")
 endif()
 
-target_compile_options(rp2040_impl PRIVATE -O0 -g -Wall -Wextra -Wpedantic -Werror -fprofile-arcs -ftest-coverage)
-target_link_options(rp2040_impl PRIVATE -lgcov --coverage)
+target_compile_options(rp2040_impl PRIVATE -O0 -g -Wall -Wextra -Wpedantic -Werror)
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux" 
+OR ${CMAKE_SYSTEM_NAME} STREQUAL "Windows" 
+OR ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" )    
+    target_compile_options(rp2040_impl PRIVATE -fprofile-arcs -ftest-coverage)
+    target_link_options(rp2040_impl PRIVATE -lgcov --coverage)
+endif()
+
+
 set_target_properties(rp2040_impl PROPERTIES CXX_STANDARD 23)
 target_link_libraries(rp2040_impl PUBLIC HAL)
 target_include_directories(rp2040_impl PUBLIC inc)

@@ -80,7 +80,7 @@ private:
   }
 
   void initialize_DR_handlers(SPI_peripheral::ID which) {
-    using data_type = decltype(reg::SPI::SSPDR::DATA)::stored_type;
+    using data_type = decltype(reg::SPI::SSPDR::DATA)::simulated_type;
 
     struct SPI_buffer {
       fixed_capacity_queue<uint16_t, 8> TX_FIFO;

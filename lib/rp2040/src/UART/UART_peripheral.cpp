@@ -76,7 +76,7 @@ void flush_UART_FIFOs(UART::ID which) {
 }
 
 void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
-  using data_type = decltype(reg::UARTDR::data)::stored_type;
+  using data_type = decltype(reg::UARTDR::data)::simulated_type;
 
   UART_FIFOs &buffer = get_FIFO_storage()[std::to_underlying(which)];
 

@@ -8,7 +8,7 @@ extern void flush_UART_FIFOs(UART::ID which);
 
 void init_SPI_reset_handlers() {
   auto &handle = resets::get();
-  using SPI0 = decltype(reg::RESET::SPI0)::stored_type;
+  using SPI0 = decltype(reg::RESET::SPI0)::simulated_type;
   auto SPI0_handlers = SPI0::effect_handlers();
   SPI0_handlers.on_write = [&handle](SPI0::stored_bits before,
                                      const SPI0::stored_bits &after_write) {
@@ -33,7 +33,7 @@ void init_SPI_reset_handlers() {
   };
   SPI0::set_effect_handlers(&handle.RESET.SPI0, SPI0_handlers);
 
-  using SPI1 = decltype(reg::RESET::SPI1)::stored_type;
+  using SPI1 = decltype(reg::RESET::SPI1)::simulated_type;
   auto SPI1_handlers = SPI1::effect_handlers();
   SPI1_handlers.on_write = [&handle](SPI1::stored_bits before,
                                      const SPI1::stored_bits &after_write) {
@@ -51,7 +51,7 @@ void init_SPI_reset_handlers() {
 
 void init_SPI_reset_done_handlers() {
   auto &handle = resets::get();
-  using SPI0 = decltype(reg::RESET_DONE::SPI0)::stored_type;
+  using SPI0 = decltype(reg::RESET_DONE::SPI0)::simulated_type;
   auto SPI0_handlers = SPI0::effect_handlers();
   SPI0_handlers.on_read = [&handle](const SPI0::stored_bits &read_bits) {
     if (read_bits == reg::state::cleared)
@@ -64,7 +64,7 @@ void init_SPI_reset_done_handlers() {
   };
   SPI0::set_effect_handlers(&handle.RESET_DONE.SPI0, SPI0_handlers);
 
-  using SPI1 = decltype(reg::RESET_DONE::SPI1)::stored_type;
+  using SPI1 = decltype(reg::RESET_DONE::SPI1)::simulated_type;
   auto SPI1_handlers = SPI1::effect_handlers();
   SPI1_handlers.on_read = [&handle](const SPI1::stored_bits &read_bits) {
     if (read_bits == reg::state::set) {
@@ -77,7 +77,7 @@ void init_SPI_reset_done_handlers() {
 
 void init_UART_reset_handlers() {
   auto &handle = resets::get();
-  using UART0 = decltype(reg::RESET::UART0)::stored_type;
+  using UART0 = decltype(reg::RESET::UART0)::simulated_type;
   auto UART0_handlers = UART0::effect_handlers();
   UART0_handlers.on_write = [&handle](UART0::stored_bits before,
                                       const UART0::stored_bits &after_write) {
@@ -93,7 +93,7 @@ void init_UART_reset_handlers() {
   };
   UART0::set_effect_handlers(&handle.RESET.UART0, UART0_handlers);
 
-  using UART1 = decltype(reg::RESET::UART1)::stored_type;
+  using UART1 = decltype(reg::RESET::UART1)::simulated_type;
   auto UART1_handlers = UART1::effect_handlers();
   UART1_handlers.on_write = [&handle](UART1::stored_bits before,
                                       const UART1::stored_bits &after_write) {
@@ -112,7 +112,7 @@ void init_UART_reset_handlers() {
 
 void init_UART_reset_done_handlers() {
   auto &handle = resets::get();
-  using UART0 = decltype(reg::RESET_DONE::UART0)::stored_type;
+  using UART0 = decltype(reg::RESET_DONE::UART0)::simulated_type;
   auto UART0_handlers = UART0::effect_handlers();
   UART0_handlers.on_read = [&handle](const UART0::stored_bits &read_bits) {
     if (read_bits == reg::state::cleared)
@@ -125,7 +125,7 @@ void init_UART_reset_done_handlers() {
   };
   UART0::set_effect_handlers(&handle.RESET_DONE.UART0, UART0_handlers);
 
-  using UART1 = decltype(reg::RESET_DONE::UART1)::stored_type;
+  using UART1 = decltype(reg::RESET_DONE::UART1)::simulated_type;
   auto UART1_handlers = UART1::effect_handlers();
   UART1_handlers.on_read = [&handle](const UART1::stored_bits &read_bits) {
     if (read_bits == reg::state::set) {
