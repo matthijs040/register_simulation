@@ -53,7 +53,7 @@ is_peripheral_output_enabled(GPIO::pin_number pin_number,
 
 void init_FUNCSEL_handlers(GPIO::pin_number pin, reg::CTRL &ctrl, reg::STATUS &,
                            std::ostream &logging_handle) {
-  using FUNCSEL = decltype(reg::CTRL::FUNCSEL)::simulated_type;
+  using FUNCSEL = decltype(reg::CTRL::FUNCSEL)::stored_type;
   auto FUNCSEL_handlers = FUNCSEL::effect_handlers();
   FUNCSEL_handlers.on_read = [pin, &logging_handle](
                                  const FUNCSEL::field_type &read_value) {
@@ -73,7 +73,7 @@ void init_FUNCSEL_handlers(GPIO::pin_number pin, reg::CTRL &ctrl, reg::STATUS &,
 
 void init_OEOVER_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
                           reg::STATUS &status, std::ostream &logging_handle) {
-  using OEOVER = decltype(reg::CTRL::OEOVER)::simulated_type;
+  using OEOVER = decltype(reg::CTRL::OEOVER)::stored_type;
   auto OEOVER_handlers = OEOVER::effect_handlers();
   OEOVER_handlers.on_read = [pin, &logging_handle](
                                 const OEOVER::field_type &read_value) {
@@ -122,7 +122,7 @@ void init_OEOVER_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
 void init_OETOPAD_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
                            reg::STATUS &status, std::ostream &logging_handle) {
 
-  using OETOPAD = decltype(status.OETOPAD)::simulated_type;
+  using OETOPAD = decltype(status.OETOPAD)::stored_type;
   auto OETOPAD_handlers = OETOPAD::effect_handlers();
   OETOPAD_handlers.on_read = [pin, &ctrl, &status, &logging_handle](
                                  const OETOPAD::field_type &read_value) {
@@ -143,7 +143,7 @@ void init_OETOPAD_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
 void init_OUTOVER_handlers(GPIO::pin_number pin, auto &ctrl,
                            reg::STATUS &status, std::ostream &logging_handle) {
 
-  using OUTOVER = decltype(ctrl.OUTOVER)::simulated_type;
+  using OUTOVER = decltype(ctrl.OUTOVER)::stored_type;
   auto OUTOVER_handlers = typename OUTOVER::effect_handlers();
 
   OUTOVER_handlers.on_read = [pin, &logging_handle](

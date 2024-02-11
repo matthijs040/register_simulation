@@ -9,7 +9,6 @@ template <typename bitstate, std::size_t offset_, std::size_t num_bits,
           typename storage_type>
 struct bitfield {
   using stored_type = storage_type;
-  using simulated_type = simulated_device_register<bitfield<bitstate, offset_, num_bits, register_integral>, register_integral>;
 
   constexpr bitfield(auto initial_value)
       : value(std::bit_cast<storage_type>(initial_value)) {}

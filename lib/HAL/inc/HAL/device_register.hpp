@@ -7,4 +7,4 @@ using register_integral = std::uint32_t;
 using register_mask = register_integral;
 
 #include "simulated_device_register.hpp"
-template <typename field_type, typename storage_type>  class simulated_device_register;
+template <typename field_type, typename storage_type, bool enable_handlers>  class simulated_device_register;

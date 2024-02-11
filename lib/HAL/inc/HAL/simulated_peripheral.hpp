@@ -45,7 +45,7 @@ struct simulated_peripheral {
         std::bit_cast<const register_integral *>(base_address);
     auto &field = simulated_register_storage.at(offset);
 
-    using stored_bits = Bitfield::simulated_type::field_type;
+    using stored_bits = Bitfield::stored_type::field_type;
     auto *sub_field = std::bit_cast<stored_bits *>(&field);
     return *sub_field;
   }
