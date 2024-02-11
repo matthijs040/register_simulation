@@ -81,7 +81,7 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
   UART_FIFOs &buffer = get_FIFO_storage()[std::to_underlying(which)];
 
   auto data_handlers = data_type::effect_handlers();
-  data_handlers.on_read = [which, &buffer](const data_type::stored_bits &) {
+  data_handlers.on_read = [which, &buffer](const data_type::field_type &) {
     auto &handle = UART::get(which);
 
     // Replace the data in the transfer register.
@@ -110,8 +110,8 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
   };
 
   data_handlers.on_write =
-      [which, &buffer](data_type::stored_bits,
-                       const data_type::stored_bits &after_write) {
+      [which, &buffer](data_type::field_type,
+                       const data_type::field_type &after_write) {
         auto &handle = UART::get(which);
 
         // If the LoopBack-Enable register is set don't buffer.

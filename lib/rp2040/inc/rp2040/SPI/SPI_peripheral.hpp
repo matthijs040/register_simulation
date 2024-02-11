@@ -92,7 +92,7 @@ private:
     auto &handle = SPI_peripheral::get(which);
 
     auto data_handlers = data_type::effect_handlers();
-    data_handlers.on_read = [&handle, &buffer](const data_type::stored_bits &) {
+    data_handlers.on_read = [&handle, &buffer](const data_type::field_type &) {
       using periph_type = simulated_peripheral<SPI_peripheral>;
 
       if (buffer.RX_FIFO.empty())
@@ -117,26 +117,41 @@ private:
     };
 
     data_handlers.on_write = [&handle, &buffer](
-                                 data_type::stored_bits,
-                                 const data_type::stored_bits &after_write) {
+                                 data_type::field_type,
+                                 const data_type::field_type &after_write) {
       // If the loopback-enable register is set don't buffer.
-      // Just send it into the same UART's Receive FIFO.
-      if (handle.SSPCR1.LBM == reg::state::set) {
+      // Just send it into the same SPI_handle's Receive FIFO.
+      auto loopback_enabled = handle.SSPCR1.LBM;
+      std::cout << "loopback is: "
+                << (loopback_enabled == reg::state::set ? "enabled\n"
+                                                        : "disabled\n");
+      if (loopback_enabled == reg::state::set) {
         if (handle.SSPSR.RFF == reg::state::set)
           return;
 
+        std::clog << "entering in loopback RX_FIFO.\n";
+
         // TODO: Write to RX buffer.
+        buffer.RX_FIFO.push(after_write);
+
+        simulated_peripheral<SPI_peripheral>::acquire_field(handle.SSPSR.RNE) =
+            reg::state::set;
+
+        if (buffer.RX_FIFO.full())
+          simulated_peripheral<SPI_peripheral>::acquire_field(
+              handle.SSPSR.RFF) = reg::state::set;
         return;
       }
 
+      std::clog << "Buffering in TX_FIFO.\n";
       // Copy over the data to transfer to the TX_FIFO.
-      if (buffer.TX_FIFO.size() < buffer.TX_FIFO.capacity()) {
+      if (!buffer.TX_FIFO.full()) {
         buffer.TX_FIFO.push(after_write);
       }
 
       // Also, if the FIFO is/becomes full by this write,
       // Set the FIFO full flag in the "Flags Register"
-      if (buffer.TX_FIFO.size() == buffer.TX_FIFO.capacity()) {
+      if (buffer.TX_FIFO.full()) {
         simulated_peripheral<SPI_peripheral>::acquire_field(handle.SSPSR.TNF) =
             reg::state::cleared;
       }

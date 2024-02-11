@@ -171,6 +171,11 @@ error::code rp2040_SPI::initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
   }
 
   periph.SSPCR1.LBM = enable_loopback ? reg::state::set : reg::state::cleared;
+
+  std::cout << "loopback is: "
+            << (periph.SSPCR1.LBM == reg::state::set ? "enabled\n"
+                                                     : "disabled\n");
+
   periph.SSPCR1.SSE = reg::state::set;
 
   return error::standard_value::success;

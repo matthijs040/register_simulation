@@ -19,8 +19,6 @@ struct simulated_peripheral {
   static_assert(num_peripherals > 0);
   static_assert(sizeof(register_integral) ==
                 sizeof(bitfield<stub, 2, 2, register_integral>));
-  // static_assert(std::is_layout_compatible_v< register_integral,
-  // simulated_device_register<register_integral>>);
 
   static inline const std::size_t register_count =
       sizeof(Peripheral) / sizeof(register_integral) * num_peripherals;
@@ -47,7 +45,7 @@ struct simulated_peripheral {
         std::bit_cast<const register_integral *>(base_address);
     auto &field = simulated_register_storage.at(offset);
 
-    using stored_bits = Bitfield::simulated_type::stored_bits;
+    using stored_bits = Bitfield::simulated_type::field_type;
     auto *sub_field = std::bit_cast<stored_bits *>(&field);
     return *sub_field;
   }

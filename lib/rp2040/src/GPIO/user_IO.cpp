@@ -56,14 +56,14 @@ void init_FUNCSEL_handlers(GPIO::pin_number pin, reg::CTRL &ctrl, reg::STATUS &,
   using FUNCSEL = decltype(reg::CTRL::FUNCSEL)::simulated_type;
   auto FUNCSEL_handlers = FUNCSEL::effect_handlers();
   FUNCSEL_handlers.on_read = [pin, &logging_handle](
-                                 const FUNCSEL::stored_bits &read_value) {
+                                 const FUNCSEL::field_type &read_value) {
     logging_handle << "Function of pin: " << pin << " was read as: "
                    << std::to_underlying<reg::CTRL::FUNCSEL_states>(read_value)
                    << "\n";
   };
   FUNCSEL_handlers.on_write = [pin, &logging_handle](
-                                  FUNCSEL::stored_bits,
-                                  const FUNCSEL::stored_bits &after_write) {
+                                  FUNCSEL::field_type,
+                                  const FUNCSEL::field_type &after_write) {
     logging_handle << "Function for pin: " << pin << " is set to: "
                    << std::to_underlying<reg::CTRL::FUNCSEL_states>(after_write)
                    << " .\n";
@@ -76,7 +76,7 @@ void init_OEOVER_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
   using OEOVER = decltype(reg::CTRL::OEOVER)::simulated_type;
   auto OEOVER_handlers = OEOVER::effect_handlers();
   OEOVER_handlers.on_read = [pin, &logging_handle](
-                                const OEOVER::stored_bits &read_value) {
+                                const OEOVER::field_type &read_value) {
     logging_handle << "OEOVER for pin: " << pin << " at: " << &read_value
                    << " was read as: "
                    << std::to_underlying<reg::CTRL::OEOVER_states>(read_value)
@@ -84,8 +84,8 @@ void init_OEOVER_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
   };
 
   OEOVER_handlers.on_write = [pin, &status, &ctrl, &logging_handle](
-                                 OEOVER::stored_bits,
-                                 const OEOVER::stored_bits &after) mutable {
+                                 OEOVER::field_type,
+                                 const OEOVER::field_type &after) mutable {
     logging_handle << "OEOVER for pin: " << pin << " at: " << &after
                    << " was set to: "
                    << std::to_underlying<reg::CTRL::OEOVER_states>(after)
@@ -125,14 +125,14 @@ void init_OETOPAD_handlers(GPIO::pin_number pin, reg::CTRL &ctrl,
   using OETOPAD = decltype(status.OETOPAD)::simulated_type;
   auto OETOPAD_handlers = OETOPAD::effect_handlers();
   OETOPAD_handlers.on_read = [pin, &ctrl, &status, &logging_handle](
-                                 const OETOPAD::stored_bits &read_value) {
+                                 const OETOPAD::field_type &read_value) {
     logging_handle << "OETOPAD for pin: " << pin
                    << " was read from, yielding value: "
                    << std::to_underlying<reg::state>(read_value) << "\n";
   };
   OETOPAD_handlers.on_write =
-      [pin, &logging_handle](OETOPAD::stored_bits,
-                             const OETOPAD::stored_bits &after) {
+      [pin, &logging_handle](OETOPAD::field_type,
+                             const OETOPAD::field_type &after) {
         logging_handle << "OETOPAD for pin: " << pin
                        << " was written to, setting value: "
                        << std::to_underlying<reg::state>(after) << "\n";
@@ -147,15 +147,15 @@ void init_OUTOVER_handlers(GPIO::pin_number pin, auto &ctrl,
   auto OUTOVER_handlers = typename OUTOVER::effect_handlers();
 
   OUTOVER_handlers.on_read = [pin, &logging_handle](
-                                 const OUTOVER::stored_bits &read_value) {
+                                 const OUTOVER::field_type &read_value) {
     logging_handle << "OUTOVER of pin: " << pin << " was read as: "
                    << std::to_underlying<reg::CTRL::OUTOVER_states>(read_value)
                    << "\n";
   };
   OUTOVER_handlers.on_write =
       [pin, &ctrl, &status,
-       &logging_handle](OUTOVER::stored_bits,
-                        const OUTOVER::stored_bits &after_write) -> void {
+       &logging_handle](OUTOVER::field_type,
+                        const OUTOVER::field_type &after_write) -> void {
     logging_handle << "OUTOVER for pin: " << pin << " is set to: "
                    << std::to_underlying<reg::CTRL::OUTOVER_states>(after_write)
                    << " .\n";
