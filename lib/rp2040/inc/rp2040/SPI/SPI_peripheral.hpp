@@ -55,7 +55,7 @@ public:
 
   ~SPI_peripheral() = default;
   void operator delete(void *addr) {
-    for (auto *handle : handles)
+    for (auto &handle : handles)
       if (handle == addr)
         handle = nullptr;
   }
@@ -65,7 +65,7 @@ private:
 
   SPI_peripheral(/* args */) : padding_(){};
   void *operator new(std::size_t, SPI_peripheral::ID which) {
-    using base = simulated_peripheral<SPI_peripheral>;
+    using base = simulated_peripheral<SPI_peripheral, num_SPI_peripherals>;
     if constexpr (reg::mock)
       return base::operator new(std::to_underlying(which));
     else {
@@ -93,7 +93,8 @@ private:
 
     auto data_handlers = data_type::effect_handlers();
     data_handlers.on_read = [&handle, &buffer](const data_type::field_type &) {
-      using periph_type = simulated_peripheral<SPI_peripheral>;
+      using periph_type =
+          simulated_peripheral<SPI_peripheral, num_SPI_peripherals>;
 
       if (buffer.RX_FIFO.empty())
         // Doing nothing here will keep the old value.
@@ -134,12 +135,16 @@ private:
         // TODO: Write to RX buffer.
         buffer.RX_FIFO.push(after_write);
 
-        simulated_peripheral<SPI_peripheral>::acquire_field(handle.SSPSR.RNE) =
+        simulated_peripheral<SPI_peripheral,
+                             num_SPI_peripherals>::acquire_field(handle.SSPSR
+                                                                     .RNE) =
             reg::state::set;
 
         if (buffer.RX_FIFO.full())
-          simulated_peripheral<SPI_peripheral>::acquire_field(
-              handle.SSPSR.RFF) = reg::state::set;
+          simulated_peripheral<SPI_peripheral,
+                               num_SPI_peripherals>::acquire_field(handle.SSPSR
+                                                                       .RFF) =
+              reg::state::set;
         return;
       }
 
@@ -152,7 +157,9 @@ private:
       // Also, if the FIFO is/becomes full by this write,
       // Set the FIFO full flag in the "Flags Register"
       if (buffer.TX_FIFO.full()) {
-        simulated_peripheral<SPI_peripheral>::acquire_field(handle.SSPSR.TNF) =
+        simulated_peripheral<SPI_peripheral,
+                             num_SPI_peripherals>::acquire_field(handle.SSPSR
+                                                                     .TNF) =
             reg::state::cleared;
       }
     };

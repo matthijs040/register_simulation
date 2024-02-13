@@ -17,15 +17,14 @@ void init_SPI_reset_handlers() {
       delete &SPI_peripheral::get(SPI_peripheral::ID::first);
       auto &SPI_handle = SPI_peripheral::get(SPI_peripheral::ID::first);
 
-      simulated_peripheral<SPI_peripheral>::acquire_field(
+      simulated_peripheral<SPI_peripheral, num_SPI_peripherals>::acquire_field(
           SPI_handle.SSPSR.TNF) = reg::state::set;
-      simulated_peripheral<SPI_peripheral>::acquire_field(
+      simulated_peripheral<SPI_peripheral, num_SPI_peripherals>::acquire_field(
           SPI_handle.SSPSR.TFE) = reg::state::set;
-      simulated_peripheral<SPI_peripheral>::acquire_field(
+      simulated_peripheral<SPI_peripheral, num_SPI_peripherals>::acquire_field(
           SPI_handle.SSPSR.RFF) = reg::state::cleared;
-      simulated_peripheral<SPI_peripheral>::acquire_field(
-          SPI_handle.SSPSR.RNE) = reg::state::cleared;      
-                   
+      simulated_peripheral<SPI_peripheral, num_SPI_peripherals>::acquire_field(
+          SPI_handle.SSPSR.RNE) = reg::state::cleared;
 
       simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.SPI0) =
           reg::state::set;

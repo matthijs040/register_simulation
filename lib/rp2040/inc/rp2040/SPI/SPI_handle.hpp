@@ -161,7 +161,7 @@ error::code rp2040_SPI::initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
   }
 
   periph.SSPCR0.DSS = reg::SPI::SSPCR0::DSS_states::data_bits_8;
-  switch (used_role) {
+  switch (role_to_have) {
   case SPI::role::main:
     periph.SSPCR1.MS = reg::state::set;
     break;

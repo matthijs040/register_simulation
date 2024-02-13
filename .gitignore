@@ -4,3 +4,4 @@ build*/*
 .vscode/settings.json
 coverage.info
 coverage_report_dir/
+vgcore.*
