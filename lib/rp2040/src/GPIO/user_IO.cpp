@@ -153,9 +153,8 @@ void init_OUTOVER_handlers(GPIO::pin_number pin, auto &ctrl,
                    << "\n";
   };
   OUTOVER_handlers.on_write =
-      [pin, &ctrl, &status,
-       &logging_handle](OUTOVER::field_type,
-                        const OUTOVER::field_type &after_write) -> void {
+      [pin, &ctrl, &status, &logging_handle](
+          OUTOVER::field_type, const OUTOVER::field_type &after_write) -> void {
     logging_handle << "OUTOVER for pin: " << pin << " is set to: "
                    << std::to_underlying<reg::CTRL::OUTOVER_states>(after_write)
                    << " .\n";
@@ -183,7 +182,7 @@ void init_OUTOVER_handlers(GPIO::pin_number pin, auto &ctrl,
   OUTOVER::set_effect_handlers(&ctrl, OUTOVER_handlers);
 }
 
-void initialize_handlers() {
+void user_IO::initialize_effect_handlers(std::size_t) {
   // Set handlers for every CTRL reg in the block.
   static auto logging_handle = std::ostream(nullptr);
 
@@ -204,26 +203,4 @@ user_IO::user_IO() {
 
 user_IO::~user_IO() {
   // TODO: Set gpio to lowest power state.
-}
-
-void user_IO::operator delete(void *addr) {
-  static_cast<user_IO *>(addr)->~user_IO();
-};
-
-void *user_IO::operator new(std::size_t size) {
-  if constexpr (reg::mock)
-    return simulated_peripheral<user_IO>::operator new(size);
-  return std::bit_cast<user_IO *>(base_address);
-}
-
-user_IO &user_IO::get() noexcept {
-  static user_IO *handle;
-  if (handle)
-    return *handle;
-  handle = new user_IO();
-
-  if constexpr (reg::mock)
-    initialize_handlers();
-
-  return *handle;
 }

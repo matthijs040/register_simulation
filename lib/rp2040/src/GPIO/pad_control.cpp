@@ -14,20 +14,3 @@ pad_control::pad_control()
       GPIO28(0b110110), GPIO29(0b110110), SWCLK(0b11011010), SWD(0b01011010) {}
 
 pad_control::~pad_control() {}
-
-void pad_control::operator delete(void *addr) {
-  static_cast<pad_control *>(addr)->~pad_control();
-}
-
-void *pad_control::operator new(size_t size) {
-  if constexpr(reg::mock)
-      return simulated_peripheral<pad_control>::operator new(size);
-  return std::bit_cast<pad_control *>(base_address);
-}
-
-pad_control &pad_control::get() noexcept {
-  static pad_control *handle;
-  if (handle)
-    return *handle;
-  return *(handle = new pad_control());
-}

@@ -1,17 +1,13 @@
 #pragma once
 
-#include <HAL/simulated_peripheral.hpp>
+#include <HAL/simulatable_peripheral.hpp>
 
 #include "registers.hpp"
 #include <optional>
 
-class user_IO
-    : public std::conditional<reg::mock, simulated_peripheral<user_IO>, void> {
+class user_IO : public simulatable_peripheral<user_IO, reg::mock> {
 public:
-  static user_IO &get() noexcept;
-
   ~user_IO();
-  void operator delete(void *addr);
 
   // Start of non-static member variables:
   const reg::STATUS GPIO0_STATUS;
@@ -118,7 +114,9 @@ public:
 private:
   user_IO();
 
-  void *operator new(std::size_t size);
+  static constexpr std::array base_addresses = {0x40014000};
 
-  static constexpr uintptr_t base_address = 0x40014000;
+  void initialize_effect_handlers(std::size_t);
+
+  friend simulatable_peripheral<user_IO, reg::mock>;
 };

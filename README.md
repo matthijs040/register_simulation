@@ -5,7 +5,7 @@ This project is trying to mimic the style of register modeling presented by Ben 
 Instead of "allocating" this resource in the HAL-handles. It is acquired like a singleton through a get() function. Returning it by reference.
 * The bitfield class is used to apply harsh type-safety to register accesses. This class ensures that e.g. no reserved bits can be written to (as it reads the existing state before applying the masked and shifted value) and no out-of-range assignments can be made to it (by specifying the number of bits and offset range as template variables that determine its mask)
 
-The major value-add from the Saks presentation is also implemented: Register mocking. When running the code on a PC. The "allocation" of an MCU-subsystems mapped-registers is redirected to an instance of "simulated_peripheral". This creates a static array of the same size. Ensuring that there is memory for the HAL-code to interact with.
+The major value-add from the Saks presentation is also implemented: Register mocking. When running the code on a PC. The "allocation" of an MCU-subsystems mapped-registers is redirected to an instance of "simulatable_peripheral". This creates a static array of the same size. Ensuring that there is memory for the HAL-code to interact with.
 Then, the initializer-list of the HAL-peripheral's constructor runs over it. This ensures that the bitfields are in the same initial state as the hardware. (with maybe better defaults picked where applicable.) After that, the simulated_device_register class allows test-writers to assign effect_handlers to a static map. Which fires an on_read handler when the corresponding bitfield is converted to its underlying class, or write_handler when that bitfield is assigned to.
 
 # build instructions:

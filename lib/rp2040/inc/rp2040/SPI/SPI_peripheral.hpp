@@ -1,15 +1,15 @@
 #pragma once
 
 #include "registers/SPI.hpp"
-#include <HAL/simulated_peripheral.hpp>
+#include <HAL/simulatable_peripheral.hpp>
 #include <cstdint>
 #include <rp2040/shared_types.hpp>
 #include <system/fixed_capacity_queue.hpp>
 #include <type_traits>
 
-constexpr size_t num_SPI_peripherals = 2;
-
-class SPI_peripheral {
+constexpr std::size_t num_SPI_peripherals = 2;
+class SPI_peripheral : public simulatable_peripheral<SPI_peripheral, reg::mock,
+                                                     num_SPI_peripherals> {
 public:
   static constexpr uintptr_t base_address_0 = 0x4003c000;
   static constexpr uintptr_t base_address_1 = 0x40040000;
@@ -40,44 +40,12 @@ public:
   reg::SPI::SSPPCELLID2 SSPPCELLID2;
   reg::SPI::SSPPCELLID3 SSPPCELLID3;
 
-  enum class ID : std::size_t { first, second };
-
-  static inline SPI_peripheral &get(ID which) noexcept {
-    auto &instance = handles.at(std::to_underlying(which));
-    if (instance)
-      return *instance;
-
-    instance = new (which) SPI_peripheral();
-    if constexpr (reg::mock)
-      instance->initialize_SPI_handlers(which);
-    return *instance;
-  }
+  enum ID : std::size_t { first, second };
 
   ~SPI_peripheral() = default;
-  void operator delete(void *addr) {
-    for (auto &handle : handles)
-      if (handle == addr)
-        handle = nullptr;
-  }
 
 private:
-  static inline std::array<SPI_peripheral *, num_SPI_peripherals> handles;
-
   SPI_peripheral(/* args */) : padding_(){};
-  void *operator new(std::size_t, SPI_peripheral::ID which) {
-    using base = simulated_peripheral<SPI_peripheral, num_SPI_peripherals>;
-    if constexpr (reg::mock)
-      return base::operator new(std::to_underlying(which));
-    else {
-      switch (which) {
-      case SPI_peripheral::ID::first:
-        return std::bit_cast<SPI_peripheral *>(base_address_0);
-      case SPI_peripheral::ID::second:
-        return std::bit_cast<SPI_peripheral *>(base_address_1);
-      }
-      assert(false && "Invalid SPI-peripheral-ID given.");
-    }
-  }
 
   void initialize_DR_handlers(SPI_peripheral::ID which) {
     using data_type = decltype(reg::SPI::SSPDR::DATA)::stored_type;
@@ -87,15 +55,12 @@ private:
       fixed_capacity_queue<uint16_t, 8> RX_FIFO;
     };
 
-    static std::array<SPI_buffer, SPI_peripheral::handles.size()> buffers;
+    static std::array<SPI_buffer, num_SPI_peripherals> buffers;
     auto &buffer = buffers.at(std::to_underlying(which));
-    auto &handle = SPI_peripheral::get(which);
+    auto &handle = get(std::to_underlying(which));
 
     auto data_handlers = data_type::effect_handlers();
-    data_handlers.on_read = [&handle, &buffer](const data_type::field_type &) {
-      using periph_type =
-          simulated_peripheral<SPI_peripheral, num_SPI_peripherals>;
-
+    data_handlers.on_read = [this, &buffer](const data_type::field_type &) {
       if (buffer.RX_FIFO.empty())
         // Doing nothing here will keep the old value.
         // Should it be cleared or is the clearing of "RNE" enough?
@@ -103,71 +68,64 @@ private:
 
       auto &RX_data = buffer.RX_FIFO.front().value().get();
       // Replace the data in the transfer register.
-      periph_type::acquire_field(handle.SSPDR.DATA) = RX_data;
+      acquire_field(SSPDR.DATA) = RX_data;
       // Then shift the active index in the static FIFO.
       buffer.RX_FIFO.pop();
 
       // Also, if the static FIFO is/becomes empty by this read,
       // Set the FIFO empty flag in the "Flags Register"
       if (buffer.RX_FIFO.empty())
-        periph_type::acquire_field(handle.SSPSR.RNE) = reg::state::cleared;
+        acquire_field(SSPSR.RNE) = reg::state::cleared;
 
       // And, regardless of the state of the FIFO before. It certainly isn't
       // full now.
-      periph_type::acquire_field(handle.SSPSR.RFF) = reg::state::cleared;
+      acquire_field(SSPSR.RFF) = reg::state::cleared;
     };
 
-    data_handlers.on_write = [&handle, &buffer](
-                                 data_type::field_type,
-                                 const data_type::field_type &after_write) {
-      // If the loopback-enable register is set don't buffer.
-      // Just send it into the same SPI_handle's Receive FIFO.
-      auto loopback_enabled = handle.SSPCR1.LBM;
-      std::cout << "loopback is: "
-                << (loopback_enabled == reg::state::set ? "enabled\n"
-                                                        : "disabled\n");
-      if (loopback_enabled == reg::state::set) {
-        if (handle.SSPSR.RFF == reg::state::set)
-          return;
+    data_handlers.on_write =
+        [this, &buffer](data_type::field_type,
+                        const data_type::field_type &after_write) {
+          // If the loopback-enable register is set don't buffer.
+          // Just send it into the same SPI_handle's Receive FIFO.
+          auto loopback_enabled = SSPCR1.LBM;
+          std::cout << "loopback is: "
+                    << (loopback_enabled == reg::state::set ? "enabled\n"
+                                                            : "disabled\n");
+          if (loopback_enabled == reg::state::set) {
+            if (SSPSR.RFF == reg::state::set)
+              return;
 
-        std::clog << "entering in loopback RX_FIFO.\n";
+            std::clog << "entering in loopback RX_FIFO.\n";
 
-        // TODO: Write to RX buffer.
-        buffer.RX_FIFO.push(after_write);
+            // TODO: Write to RX buffer.
+            buffer.RX_FIFO.push(after_write);
 
-        simulated_peripheral<SPI_peripheral,
-                             num_SPI_peripherals>::acquire_field(handle.SSPSR
-                                                                     .RNE) =
-            reg::state::set;
+            acquire_field(SSPSR.RNE) = reg::state::set;
 
-        if (buffer.RX_FIFO.full())
-          simulated_peripheral<SPI_peripheral,
-                               num_SPI_peripherals>::acquire_field(handle.SSPSR
-                                                                       .RFF) =
-              reg::state::set;
-        return;
-      }
+            if (buffer.RX_FIFO.full())
+              acquire_field(SSPSR.RFF) = reg::state::set;
+            return;
+          }
 
-      std::clog << "Buffering in TX_FIFO.\n";
-      // Copy over the data to transfer to the TX_FIFO.
-      if (!buffer.TX_FIFO.full()) {
-        buffer.TX_FIFO.push(after_write);
-      }
+          std::clog << "Buffering in TX_FIFO.\n";
+          // Copy over the data to transfer to the TX_FIFO.
+          if (!buffer.TX_FIFO.full()) {
+            buffer.TX_FIFO.push(after_write);
+          }
 
-      // Also, if the FIFO is/becomes full by this write,
-      // Set the FIFO full flag in the "Flags Register"
-      if (buffer.TX_FIFO.full()) {
-        simulated_peripheral<SPI_peripheral,
-                             num_SPI_peripherals>::acquire_field(handle.SSPSR
-                                                                     .TNF) =
-            reg::state::cleared;
-      }
-    };
+          // Also, if the FIFO is/becomes full by this write,
+          // Set the FIFO full flag in the "Flags Register"
+          if (buffer.TX_FIFO.full()) {
+            acquire_field(SSPSR.TNF) = reg::state::cleared;
+          }
+        };
 
     data_type::set_effect_handlers(&handle.SSPDR, data_handlers);
   }
 
-  void initialize_SPI_handlers(SPI_peripheral::ID which) {
-    initialize_DR_handlers(which);
+  void initialize_effect_handlers(std::size_t which) {
+    initialize_DR_handlers(static_cast<SPI_peripheral::ID>(which));
   }
+
+  friend simulatable_peripheral<SPI_peripheral, reg::mock, num_SPI_peripherals>;
 };

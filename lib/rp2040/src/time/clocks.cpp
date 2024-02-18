@@ -12,20 +12,3 @@ clocks::clocks() {
 }
 
 clocks::~clocks() {}
-
-void clocks::operator delete(void *addr) {
-  static_cast<clocks *>(addr)->~clocks();
-}
-
-void *clocks::operator new(std::size_t size) {
-  if constexpr (reg::mock)
-    return simulated_peripheral<clocks>::operator new(size);
-  return std::bit_cast<clocks *>(base_address);
-}
-
-clocks &clocks::get() noexcept {
-  static clocks *handle;
-  if (handle)
-    return *handle;
-  return *(handle = new clocks());
-}

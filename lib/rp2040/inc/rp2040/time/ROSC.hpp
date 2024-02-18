@@ -1,18 +1,14 @@
 #pragma once
 
 #include "registers/ROSC.hpp"
-#include <HAL/simulated_peripheral.hpp>
+#include <HAL/simulatable_peripheral.hpp>
 #include <expected>
 #include <span>
 #include <type_traits>
 
-class ROSC
-    : public std::conditional<reg::mock, simulated_peripheral<ROSC>, void> {
+class ROSC : public simulatable_peripheral<ROSC, reg::mock> {
 public:
-  static constexpr uintptr_t base_address = 0x40060000;
-  static ROSC &get() noexcept;
   ~ROSC();
-  void operator delete(void *addr);
 
   std::uint32_t get_power_stage() const noexcept;
   void set_power_stage(uint32_t) noexcept;
@@ -34,7 +30,6 @@ public:
 
 private:
   ROSC();
-  void *operator new(std::size_t);
 
   void apply_settings(reg::ROSC::CTRL::FREQ_RANGE_states,
                       reg::ROSC::drive_strength, reg::ROSC::drive_strength,
@@ -42,4 +37,10 @@ private:
                       reg::ROSC::drive_strength, reg::ROSC::drive_strength,
                       reg::ROSC::drive_strength,
                       reg::ROSC::drive_strength) noexcept;
+
+  static constexpr std::array base_addresses = {0x40060000};
+
+  void initialize_effect_handlers(std::size_t) {}
+
+  friend simulatable_peripheral<ROSC, reg::mock>;
 };

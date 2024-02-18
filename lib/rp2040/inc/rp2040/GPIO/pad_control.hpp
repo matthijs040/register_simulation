@@ -1,23 +1,13 @@
 #pragma once
 
 #include "registers/pad_GPIO.hpp"
-#include <HAL/simulated_peripheral.hpp>
+#include <HAL/simulatable_peripheral.hpp>
 #include <rp2040/shared_types.hpp>
 #include <type_traits>
 
-class pad_control
-    : public std::conditional<reg::mock, simulated_peripheral<pad_control>, void> {
+class pad_control : public simulatable_peripheral<pad_control, reg::mock> {
 public:
-  static constexpr uintptr_t base_address = 0x4001c000;
-
-  static pad_control &get() noexcept;
-
   ~pad_control();
-  void operator delete(void *addr);
-
-private:
-  pad_control();
-  void *operator new(std::size_t);
 
   reg::VOLTAGE_SELECT VOLTAGE_SELECT; // Voltage select. Per bank control
   reg::GPIO GPIO0;                    // Pad control register
@@ -52,4 +42,13 @@ private:
   reg::GPIO GPIO29;                   // Pad control register
   reg::GPIO SWCLK;                    // Pad control register
   reg::GPIO SWD;                      // Pad control register
+
+private:
+  pad_control();
+
+  static constexpr std::array base_addresses = {0x4001c000};
+
+  void initialize_effect_handlers(std::size_t) noexcept {}
+
+  friend simulatable_peripheral<pad_control, reg::mock>;
 };

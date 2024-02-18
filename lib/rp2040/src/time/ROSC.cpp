@@ -24,24 +24,9 @@ constexpr auto low_range_power = 8 * 3;
 // frequency range.
 constexpr auto mid_range_power = 6 * 3;
 
-ROSC &ROSC::get() noexcept {
-  static ROSC *handle;
-  if (handle)
-    return *handle;
-  return *(handle = new ROSC());
-}
-
 ROSC::~ROSC() {}
 
-void ROSC::operator delete(void *addr) { static_cast<ROSC *>(addr)->~ROSC(); }
-
 ROSC::ROSC() : CTRL() {}
-
-void *ROSC::operator new(std::size_t size) {
-  if constexpr (reg::mock)
-    return simulated_peripheral<ROSC>::operator new(size);
-  return std::bit_cast<ROSC *>(base_address);
-}
 
 std::expected<uint32_t, error::code> ROSC::get_frequency_Hz() const noexcept {
   std::expected<uint32_t, error::code> ret;

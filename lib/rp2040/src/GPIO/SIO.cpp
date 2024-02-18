@@ -5,21 +5,6 @@ SIO::~SIO() {}
 
 SIO::SIO() {}
 
-void SIO::operator delete(void *addr) { static_cast<SIO *>(addr)->~SIO(); }
-
-void *SIO::operator new(size_t size) {
-  if constexpr (reg::mock)
-    return simulated_peripheral<SIO>::operator new(size);
-  return std::bit_cast<SIO *>(base_address);
-}
-
-SIO &SIO::get() noexcept {
-  static SIO *handle;
-  if (handle)
-    return *handle;
-  return *(handle = new SIO());
-}
-
 error::code SIO::set_pin_OE(GPIO::pin_number number,
                             reg::state state) noexcept {
   switch (number) {

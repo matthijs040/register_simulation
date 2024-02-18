@@ -1,20 +1,16 @@
 #pragma once
 
 #include "registers/UART.hpp"
-#include <HAL/simulated_peripheral.hpp>
 #include <cstdint>
+#include <cstdlib>
+#include <HAL/simulatable_peripheral.hpp>
 #include <rp2040/shared_types.hpp>
 #include <type_traits>
 
-static constexpr std::size_t num_UART_peripherals = 2;
+static constexpr std::size_t num_UARTs = 2;
 
-class UART
-    : public std::conditional<
-          reg::mock, simulated_peripheral<UART, num_UART_peripherals>, void> {
+class UART : public simulatable_peripheral<UART, reg::mock, num_UARTs> {
 public:
-  static constexpr uintptr_t base_address_0 = 0x40034000;
-  static constexpr uintptr_t base_address_1 = 0x40038000;
-
   reg::UARTDR UARTDR;
   reg::UARTRSR UARTRSR;
 
@@ -50,9 +46,19 @@ public:
   enum class ID : std::size_t { first, second };
   static UART &get(ID which) noexcept;
   ~UART();
-  void operator delete(void *addr);
 
 private:
+  static constexpr std::array base_addresses = {0x40034000, 0x40038000};
+
   UART(/* args */);
-  void *operator new(std::size_t, UART::ID which);
+
+  void write_to_UART(std::size_t which, uint8_t data);
+
+  void flush_UART_FIFOs(std::size_t which);
+
+  void init_UARTDR_handlers(reg::UARTDR &data_register, std::size_t which);
+
+  void initialize_effect_handlers(std::size_t);
+
+  friend simulatable_peripheral<UART, reg::mock, num_UARTs>;
 };

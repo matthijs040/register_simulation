@@ -3,8 +3,6 @@
 #include <rp2040/UART/UART.hpp>
 #include <system/fixed_capacity_queue.hpp>
 
-static std::array<UART *, num_UART_peripherals> handles;
-
 constexpr std::size_t FIFO_size = 32;
 constexpr std::size_t shift_register_size = 1;
 struct UART_FIFOs {
@@ -38,64 +36,54 @@ struct UART_FIFOs {
   }
 };
 
-std::array<UART_FIFOs, num_UART_peripherals> &get_FIFO_storage() {
-  static std::array<UART_FIFOs, num_UART_peripherals> instance;
+std::array<UART_FIFOs, num_UARTs> &get_FIFO_storage() {
+  static std::array<UART_FIFOs, num_UARTs> instance;
   return instance;
 }
 
-void write_to_UART(UART::ID which, uint8_t data) {
+void UART::write_to_UART(std::size_t which, uint8_t data) {
 
-  auto &FIFOs = get_FIFO_storage()[std::to_underlying(which)];
+  auto &FIFOs = get_FIFO_storage()[which];
   FIFOs.write_to_RX_FIFO(data);
 
-  auto &handle = UART::get(which);
   // Clear the receive-FIFO-empty flag in case the FIFO has been empty.
-  simulated_peripheral<UART>::acquire_field(handle.UARTFR.receive_FIFO_empty) =
-      reg::state::cleared;
+  acquire_field(UARTFR.receive_FIFO_empty) = reg::state::cleared;
 
   // Also, set receive-full flag if the RX fifo is at capacity.
-  simulated_peripheral<UART>::acquire_field(handle.UARTFR.receive_FIFO_full) =
+  acquire_field(UARTFR.receive_FIFO_full) =
       FIFOs.RX_FIFO.size() == FIFO_size + shift_register_size
           ? reg::state::set
           : reg::state::cleared;
 }
 
-void flush_UART_FIFOs(UART::ID which) {
-  UART_FIFOs &buffer = get_FIFO_storage()[std::to_underlying(which)];
+void UART::flush_UART_FIFOs(std::size_t which) {
+  UART_FIFOs &buffer = get_FIFO_storage()[which];
   buffer.flush_FIFOs();
 
-  auto &handle = UART::get(which);
-  simulated_peripheral<UART>::acquire_field(handle.UARTFR.receive_FIFO_empty) =
-      reg::state::set;
-  simulated_peripheral<UART>::acquire_field(handle.UARTFR.receive_FIFO_full) =
-      reg::state::cleared;
-  simulated_peripheral<UART>::acquire_field(handle.UARTFR.transmit_FIFO_empty) =
-      reg::state::set;
-  simulated_peripheral<UART>::acquire_field(handle.UARTFR.transmit_FIFO_full) =
-      reg::state::cleared;
+  acquire_field(UARTFR.receive_FIFO_empty) = reg::state::set;
+  acquire_field(UARTFR.receive_FIFO_full) = reg::state::cleared;
+  acquire_field(UARTFR.transmit_FIFO_empty) = reg::state::set;
+  acquire_field(UARTFR.transmit_FIFO_full) = reg::state::cleared;
 }
 
-void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
+void UART::init_UARTDR_handlers(reg::UARTDR &data_register, std::size_t which) {
   using data_type = decltype(reg::UARTDR::data)::stored_type;
 
-  UART_FIFOs &buffer = get_FIFO_storage()[std::to_underlying(which)];
+  UART_FIFOs &buffer = get_FIFO_storage()[which];
 
   auto data_handlers = data_type::effect_handlers();
-  data_handlers.on_read = [which, &buffer](const data_type::field_type &) {
-    auto &handle = UART::get(which);
-
+  data_handlers.on_read = [this, &buffer](const data_type::field_type &) {
     // Replace the data in the transfer register.
     if (!buffer.RX_FIFO.empty()) {
       UART_FIFOs::RX_entry &RX_data = buffer.RX_FIFO.front().value().get();
 
-      simulated_peripheral<UART>::acquire_field(handle.UARTDR.overrun_error) =
+      acquire_field(UARTDR.overrun_error) =
           RX_data.overrun_error ? reg::state::set : reg::state::cleared;
-      simulated_peripheral<UART>::acquire_field(handle.UARTDR.parity_error) =
+      acquire_field(UARTDR.parity_error) =
           RX_data.parity_error ? reg::state::set : reg::state::cleared;
-      simulated_peripheral<UART>::acquire_field(handle.UARTDR.framing_error) =
+      acquire_field(UARTDR.framing_error) =
           RX_data.framing_error ? reg::state::set : reg::state::cleared;
-      simulated_peripheral<UART>::acquire_field(handle.UARTDR.data) =
-          RX_data.data;
+      acquire_field(UARTDR.data) = RX_data.data;
 
       // Then shift the active index in the static FIFO.
       buffer.RX_FIFO.pop();
@@ -104,75 +92,40 @@ void init_UARTDR_handlers(reg::UARTDR &data_register, UART::ID which) {
     // Also, if the static FIFO is/becomes empty by this read,
     // Set the FIFO empty flag in the "Flags Register"
     if (buffer.RX_FIFO.empty()) {
-      simulated_peripheral<UART>::acquire_field(
-          handle.UARTFR.receive_FIFO_empty) = reg::state::set;
+      acquire_field(UARTFR.receive_FIFO_empty) = reg::state::set;
     }
   };
 
-  data_handlers.on_write =
-      [which, &buffer](data_type::field_type,
-                       const data_type::field_type &after_write) {
-        auto &handle = UART::get(which);
+  data_handlers.on_write = [this, which,
+                            &buffer](data_type::field_type,
+                                     const data_type::field_type &after_write) {
+    // If the LoopBack-Enable register is set don't buffer.
+    // Just send it into the same UART's Receive FIFO.
+    if (UARTCR.LBE == reg::state::set) {
+      write_to_UART(which, after_write);
+      return;
+    }
 
-        // If the LoopBack-Enable register is set don't buffer.
-        // Just send it into the same UART's Receive FIFO.
-        if (UART::get(which).UARTCR.LBE == reg::state::set) {
-          write_to_UART(which, after_write);
-          return;
-        }
+    // Copy over the data to transfer to the TX_FIFO.
+    if (buffer.TX_FIFO.size() < FIFO_size) {
+      buffer.TX_FIFO.push(after_write);
+    }
 
-        // Copy over the data to transfer to the TX_FIFO.
-        if (buffer.TX_FIFO.size() < FIFO_size) {
-          buffer.TX_FIFO.push(after_write);
-        }
-
-        // Also, if the FIFO is/becomes full by this write,
-        // Set the FIFO full flag in the "Flags Register"
-        const bool at_capacity = buffer.TX_FIFO.size() == FIFO_size;
-        if (at_capacity) {
-          simulated_peripheral<UART>::acquire_field(
-              handle.UARTFR.transmit_FIFO_full) = reg::state::set;
-        }
-      };
+    // Also, if the FIFO is/becomes full by this write,
+    // Set the FIFO full flag in the "Flags Register"
+    const bool at_capacity = buffer.TX_FIFO.size() == FIFO_size;
+    if (at_capacity) {
+      acquire_field(UARTFR.transmit_FIFO_full) = reg::state::set;
+    }
+  };
 
   data_type::set_effect_handlers(&data_register, data_handlers);
 }
 
-void initialize_UART_handlers(UART &handle, UART::ID which) {
-  init_UARTDR_handlers(handle.UARTDR, which);
-}
-
-UART &UART::get(UART::ID which) noexcept {
-  auto &instance = handles.at(std::to_underlying(which));
-  if (instance)
-    return *instance;
-
-  instance = new (which) UART();
-  if constexpr (reg::mock)
-    initialize_UART_handlers(*instance, which);
-  return *instance;
+void UART::initialize_effect_handlers(std::size_t which) {
+  init_UARTDR_handlers(UARTDR, which);
 }
 
 UART::~UART() {}
 
-void UART::operator delete(void *ptr) {
-  for (auto *handle : handles)
-    if (handle == ptr)
-      handle = nullptr;
-}
 UART::UART() : padding__0{}, padding__1{}, padding__2{} {}
-
-void *UART::operator new(std::size_t, UART::ID which) {
-  using base = simulated_peripheral<UART>;
-  if constexpr (reg::mock)
-    return base::operator new(std::to_underlying(which));
-  else {
-    switch (which) {
-    case UART::ID::first:
-      return std::bit_cast<UART *>(base_address_0);
-    case UART::ID::second:
-      return std::bit_cast<UART *>(base_address_1);
-    }
-    std::abort();
-  }
-}

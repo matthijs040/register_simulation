@@ -2,19 +2,14 @@
 
 #include "registers/SIO.hpp"
 #include <HAL/GPIO.hpp>
-#include <HAL/simulated_peripheral.hpp>
+#include <HAL/simulatable_peripheral.hpp>
 #include <expected>
 #include <system/error_code.hpp>
 #include <type_traits>
 
-class SIO : public std::conditional<reg::mock, simulated_peripheral<SIO>, void> {
+class SIO : public simulatable_peripheral<SIO, reg::mock> {
 public:
-  static constexpr uintptr_t base_address = 0xd0000000;
-
-  static SIO &get() noexcept;
-
   ~SIO();
-  void operator delete(void *addr);
 
   std::expected<reg::state, error::code>
   get_pin_OE(GPIO::pin_number number) const noexcept;
@@ -86,5 +81,10 @@ public:
 
 private:
   SIO();
-  void *operator new(std::size_t);
+
+  static constexpr std::array base_addresses = {0xd0000000};
+
+  friend simulatable_peripheral<SIO, reg::mock>;
+
+  void initialize_effect_handlers(std::size_t) {}
 };

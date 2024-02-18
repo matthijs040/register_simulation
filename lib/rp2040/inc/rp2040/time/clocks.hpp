@@ -1,18 +1,12 @@
 #pragma once
 
 #include "registers/GP_clocks.hpp"
-#include <HAL/simulated_peripheral.hpp>
+#include <HAL/simulatable_peripheral.hpp>
 #include <type_traits>
 
-class clocks
-    : public std::conditional<reg::mock, simulated_peripheral<clocks>, void> {
+class clocks : public simulatable_peripheral<clocks, reg::mock> {
 public:
-  static constexpr uintptr_t base_address = 0x40008000;
-
-  static clocks &get() noexcept;
-
   ~clocks();
-  void operator delete(void *addr);
 
   // Clock control, can be changed on-the-fly (except for auxsrc)
   reg::CLK_GPOUT_CTRL CLK_GPOUT0_CTRL;
@@ -121,5 +115,8 @@ public:
 
 private:
   clocks();
-  void *operator new(std::size_t);
+  static constexpr std::array base_addresses = {0x40008000};
+
+  void initialize_effect_handlers(std::size_t) {}
+  friend simulatable_peripheral<clocks, reg::mock>;
 };
