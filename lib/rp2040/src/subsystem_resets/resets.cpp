@@ -13,10 +13,10 @@ void resets::init_SPI_reset_handlers() {
 
       auto &handle = SPI_peripheral::reset_instance(SPI_peripheral::ID::first);
 
-      acquire_field(handle.SSPSR.TNF) = reg::state::set;
-      acquire_field(handle.SSPSR.TFE) = reg::state::set;
-      acquire_field(handle.SSPSR.RFF) = reg::state::cleared;
-      acquire_field(handle.SSPSR.RNE) = reg::state::cleared;
+      handle.acquire_field(handle.SSPSR.TNF) = reg::state::set;
+      handle.acquire_field(handle.SSPSR.TFE) = reg::state::set;
+      handle.acquire_field(handle.SSPSR.RFF) = reg::state::cleared;
+      handle.acquire_field(handle.SSPSR.RNE) = reg::state::cleared;
 
       acquire_field(RESET.SPI0) = reg::state::cleared;
       acquire_field(RESET_DONE.SPI0) = reg::state::set;
@@ -29,10 +29,7 @@ void resets::init_SPI_reset_handlers() {
   SPI1_handlers.on_write = [this](SPI1::field_type before,
                                   const SPI1::field_type &after_write) {
     if (before == reg::state::cleared && after_write == reg::state::set) {
-      // Force de/con-structor calls by delete and re-get().
-      delete &SPI_peripheral::get(
-          static_cast<size_t>(SPI_peripheral::ID::second));
-      SPI_peripheral::get(static_cast<size_t>(SPI_peripheral::ID::second));
+      SPI_peripheral::reset_instance(SPI_peripheral::ID::second);
 
       acquire_field(RESET.SPI1) = reg::state::cleared;
       acquire_field(RESET_DONE.SPI1) = reg::state::set;
@@ -56,9 +53,11 @@ void resets::init_SPI_reset_done_handlers() {
   using SPI1 = decltype(reg::RESET_DONE::SPI1)::stored_type;
   auto SPI1_handlers = SPI1::effect_handlers();
   SPI1_handlers.on_read = [this](const SPI1::field_type &read_bits) {
-    if (read_bits == reg::state::set) {
-      acquire_field(RESET_DONE.SPI1) = reg::state::cleared;
-    }
+    if (read_bits == reg::state::cleared)
+      return;
+
+    acquire_field(RESET.SPI1) = reg::state::cleared;
+    acquire_field(RESET_DONE.SPI1) = reg::state::set;
   };
   SPI1::set_effect_handlers(&RESET_DONE.SPI1, SPI1_handlers);
 }

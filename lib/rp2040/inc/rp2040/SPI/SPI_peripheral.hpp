@@ -12,9 +12,6 @@ constexpr std::size_t num_SPI_peripherals = 2;
 class SPI_peripheral : public simulatable_peripheral<SPI_peripheral, reg::mock,
                                                      num_SPI_peripherals> {
 public:
-  static constexpr uintptr_t base_address_0 = 0x4003c000;
-  static constexpr uintptr_t base_address_1 = 0x40040000;
-
   reg::SPI::SSPCR0 SSPCR0;
   reg::SPI::SSPCR1 SSPCR1;
   reg::SPI::SSPDR SSPDR;
@@ -127,6 +124,8 @@ private:
   void initialize_effect_handlers(std::size_t which) {
     initialize_DR_handlers(static_cast<SPI_peripheral::ID>(which));
   }
+
+  static constexpr std::array base_addresses = {0x4003c000, 0x40040000};
 
   friend simulatable_peripheral<SPI_peripheral, reg::mock, num_SPI_peripherals>;
   friend resets;

@@ -54,12 +54,10 @@ protected:
   }
 
   static peripheral_type &reset_instance(std::size_t which) {
-    static_assert(enable_storage);
-
-    auto &handles = get_handles();
-    handles.at(which)->~peripheral_type();
-    new (handles.at(which)) peripheral_type;
-    return *handles.at(which);
+    auto handle = get_handles().at(which);
+    handle->~peripheral_type();
+    handle = new (get_storage_ptr(which)) peripheral_type;
+    return *handle;
   }
 
 private:

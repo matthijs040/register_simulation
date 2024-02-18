@@ -30,8 +30,7 @@ struct bitfield {
       else
         return v << offset;
     }();
-    const auto masked_value = (value & ~bitrange) | shifted_value;
-    value = masked_value;
+    value = (value & ~bitrange) | shifted_value;
     return *this;
   }
 
