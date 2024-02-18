@@ -40,7 +40,7 @@ protected:
     auto &field_storage = get_storage();
     const std::uintptr_t begin =
         std::bit_cast<const std::uintptr_t>(field_storage.data());
-    const std::uintptr_t end =
+    [[maybe_unused]] const std::uintptr_t end =
         std::bit_cast<const std::uintptr_t>(begin + field_storage.size());
     assert(field_addr >= begin && field_addr < end);
 
@@ -59,7 +59,8 @@ protected:
     if (!handle) {
       handle = new (get_storage_ptr(which)) peripheral_type;
 
-      // ...we only have to construct and ensure that initialize_effect_handlers is called.
+      // ...we only have to construct and ensure that initialize_effect_handlers
+      // is called.
       if constexpr (enable_storage)
         static_cast<peripheral_type *>(handle)->initialize_effect_handlers(
             which);
