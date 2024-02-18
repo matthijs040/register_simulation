@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <HAL/simulatable_peripheral.hpp>
 #include <rp2040/shared_types.hpp>
+#include <rp2040/subsystem_resets/resets.hpp>
 #include <type_traits>
 
 static constexpr std::size_t num_UARTs = 2;
@@ -43,8 +44,7 @@ public:
   reg::UARTPCELLID2 UARTPCELLID2;
   reg::UARTPCELLID3 UARTPCELLID3;
 
-  enum class ID : std::size_t { first, second };
-  static UART &get(ID which) noexcept;
+  enum ID : std::size_t { first, second };
   ~UART();
 
 private:
@@ -61,4 +61,5 @@ private:
   void initialize_effect_handlers(std::size_t);
 
   friend simulatable_peripheral<UART, reg::mock, num_UARTs>;
+  friend resets;
 };

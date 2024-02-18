@@ -4,8 +4,6 @@
 #include <rp2040/UART/UART.hpp>
 #include <rp2040/subsystem_resets/resets.hpp>
 
-extern void flush_UART_FIFOs(UART::ID which);
-
 void resets::init_SPI_reset_handlers() {
   using SPI0 = decltype(reg::RESET::SPI0)::stored_type;
   auto SPI0_handlers = SPI0::effect_handlers();
@@ -13,8 +11,10 @@ void resets::init_SPI_reset_handlers() {
                                   const SPI0::field_type &after_write) {
     if (before == reg::state::cleared && after_write == reg::state::set) {
       // Force de/con-structor calls by delete and re-get().
-      delete &SPI_peripheral::get(static_cast<size_t>(SPI_peripheral::ID::first));
-      auto &SPI_handle = SPI_peripheral::get(static_cast<size_t>(SPI_peripheral::ID::first));
+      delete &SPI_peripheral::get(
+          static_cast<size_t>(SPI_peripheral::ID::first));
+      auto &SPI_handle =
+          SPI_peripheral::get(static_cast<size_t>(SPI_peripheral::ID::first));
 
       acquire_field(SPI_handle.SSPSR.TNF) = reg::state::set;
       acquire_field(SPI_handle.SSPSR.TFE) = reg::state::set;
@@ -30,10 +30,11 @@ void resets::init_SPI_reset_handlers() {
   using SPI1 = decltype(reg::RESET::SPI1)::stored_type;
   auto SPI1_handlers = SPI1::effect_handlers();
   SPI1_handlers.on_write = [this](SPI1::field_type before,
-                                     const SPI1::field_type &after_write) {
+                                  const SPI1::field_type &after_write) {
     if (before == reg::state::cleared && after_write == reg::state::set) {
       // Force de/con-structor calls by delete and re-get().
-      delete &SPI_peripheral::get(static_cast<size_t>(SPI_peripheral::ID::second));
+      delete &SPI_peripheral::get(
+          static_cast<size_t>(SPI_peripheral::ID::second));
       SPI_peripheral::get(static_cast<size_t>(SPI_peripheral::ID::second));
 
       acquire_field(RESET.SPI1) = reg::state::cleared;
@@ -73,9 +74,9 @@ void resets::init_UART_reset_handlers() {
     if (before == reg::state::cleared && after_write == reg::state::set) {
       // Force de/con-structor calls by delete and re-get().
       delete &UART::get(UART::ID::first);
-      UART::get(UART::ID::first);
+      auto &handle = UART::get(UART::ID::first);
 
-      flush_UART_FIFOs(UART::ID::first);
+      handle.flush_UART_FIFOs(UART::ID::first);
       acquire_field(RESET_DONE.UART0) = reg::state::set;
     }
   };
@@ -88,9 +89,9 @@ void resets::init_UART_reset_handlers() {
     if (before == reg::state::cleared && after_write == reg::state::set) {
       // Force de/con-structor calls by delete and re-get().
       delete &UART::get(UART::ID::second);
-      UART::get(UART::ID::second);
-
-      flush_UART_FIFOs(UART::ID::second);
+      auto &handle = UART::get(UART::ID::second);
+      
+      handle.flush_UART_FIFOs(UART::ID::second);
       acquire_field(RESET_DONE.UART1) = reg::state::set;
     }
   };
