@@ -77,7 +77,7 @@ template <character_type T> std::size_t string_length(const T *data) {
   return index;
 }
 
-TEST(SPI_tests, loopback_transfer_succeeds) {
+TEST(SPI_tests, single_byte_loopback_transfer_succeeds) {
   auto handle = make_handle();
 
   const uint8_t sent_data = 42;
@@ -89,6 +89,21 @@ TEST(SPI_tests, loopback_transfer_succeeds) {
   auto received_view =
       std::span<uint8_t>(&received_data, sizeof(received_data));
   auto receive_result = handle.receive(received_view);
-  EXPECT_EQ(transmit_result, error::code());
+  EXPECT_EQ(receive_result, error::code());
+  EXPECT_EQ(sent_data, received_data);
+}
+
+TEST(SPI_tests, multi_byte_loopback_transfer_succeeds) {
+  auto handle = make_handle();
+
+  const auto sent_data = std::array<uint8_t, 4>{1, 2, 3, 4};
+  std::span<const uint8_t> sent_view = sent_data;
+  auto transmit_result = handle.send(sent_view);
+  ASSERT_EQ(transmit_result, error::code());
+
+  auto received_data = std::array<uint8_t, 4>();
+  std::span<uint8_t> received_view = received_data;
+  auto receive_result = handle.receive(received_view);
+  EXPECT_EQ(receive_result, error::code());
   EXPECT_EQ(sent_data, received_data);
 }

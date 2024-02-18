@@ -22,6 +22,15 @@ struct bitfield {
   }
 
   constexpr bitfield &operator=(bitstate v) noexcept {
+
+    // If the to be assigned type perfectly maps to the LSBs of value.
+    // It can be assigned without shifting or masking.
+    if constexpr (sizeof(v) * 8 == num_bits && offset == 0 &&
+                  std::is_integral_v<bitstate>) {
+      value = v;
+      return *this;
+    }
+
     // Cannot static assert this without a constexpr way of getting largest enum
     // class value.
     const auto shifted_value = [&] {
