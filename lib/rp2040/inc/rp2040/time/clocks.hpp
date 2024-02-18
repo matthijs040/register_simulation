@@ -1,7 +1,6 @@
 #pragma once
 
 #include "registers/GP_clocks.hpp"
-#include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
 #include <type_traits>
 

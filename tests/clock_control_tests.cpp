@@ -1,5 +1,4 @@
 #include <HAL/clock_control.hpp>
-#include <HAL/device_register.hpp>
 
 #include <gtest/gtest.h>
 

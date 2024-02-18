@@ -1,5 +1,4 @@
 #include <HAL/GPIO.hpp>
-#include <HAL/device_register.hpp>
 #include <gtest/gtest.h>
 
 TEST(GPIO_tests, linked_GPIO_impl_has_pins) {

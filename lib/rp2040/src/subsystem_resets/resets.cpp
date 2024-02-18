@@ -26,6 +26,8 @@ void init_SPI_reset_handlers() {
       simulated_peripheral<SPI_peripheral, num_SPI_peripherals>::acquire_field(
           SPI_handle.SSPSR.RNE) = reg::state::cleared;
 
+      simulated_peripheral<resets>::acquire_field(handle.RESET.SPI0) =
+          reg::state::cleared;
       simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.SPI0) =
           reg::state::set;
     }
@@ -41,6 +43,8 @@ void init_SPI_reset_handlers() {
       delete &SPI_peripheral::get(SPI_peripheral::ID::second);
       SPI_peripheral::get(SPI_peripheral::ID::second);
 
+      simulated_peripheral<resets>::acquire_field(handle.RESET.SPI1) =
+          reg::state::cleared;
       simulated_peripheral<resets>::acquire_field(handle.RESET_DONE.SPI1) =
           reg::state::set;
     }

@@ -2,7 +2,6 @@
 
 #include "registers/SIO.hpp"
 #include <HAL/GPIO.hpp>
-#include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
 #include <expected>
 #include <system/error_code.hpp>

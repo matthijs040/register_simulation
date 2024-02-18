@@ -3,11 +3,14 @@
 #include <HAL/bitfield.hpp>
 #include <HAL/simulated_device_register.hpp>
 #include <system/architecture.hpp>
+#include <cstdint>
 
 namespace reg {
 
 constexpr bool mock = arch::get_architecture() != arch::architectures::ARM6;
 static_assert(arch::get_architecture() != arch::architectures::unknown);
+
+using register_integral = std::uint32_t;
 
 template <typename field_type>
 using type =

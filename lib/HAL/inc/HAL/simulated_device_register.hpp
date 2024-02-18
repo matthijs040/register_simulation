@@ -1,7 +1,5 @@
 #pragma once
 
-#include "device_register.hpp"
-
 #include <bit>
 #include <functional>
 #include <iostream>
@@ -19,12 +17,9 @@ public:
   // ---------------- Accessors ----------------
 
   operator stored_type() const {
-    // Perform a copy before a potential read handler is called.
-    // Read handlers can mutate the (to be) observed memory.
-    auto ret = value;
     if constexpr (enable_handlers)
       on_read();
-    return ret;
+    return value;
   }
 
   void operator=(const stored_type &v) {

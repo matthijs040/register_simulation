@@ -42,8 +42,8 @@ struct simulated_peripheral {
            field_storage_address < periph_max_address);
 
     const off_t offset =
-        std::bit_cast<const register_integral *>(&field_address) -
-        std::bit_cast<const register_integral *>(base_address);
+        std::bit_cast<const reg::register_integral *>(&field_address) -
+        std::bit_cast<const reg::register_integral *>(base_address);
     auto &field = simulated_register_storage.at(offset);
 
     using stored_bits = Bitfield::stored_type::field_type;
@@ -52,14 +52,14 @@ struct simulated_peripheral {
   }
 
 private:
-  enum class stub : register_integral {};
+  enum class stub : reg::register_integral {};
   static_assert(num_peripherals > 0);
-  static_assert(sizeof(register_integral) ==
-                sizeof(bitfield<stub, 2, 2, register_integral>));
+  static_assert(sizeof(reg::register_integral) ==
+                sizeof(bitfield<stub, 2, 2, reg::register_integral>));
 
   static inline const std::size_t register_count =
-      sizeof(Peripheral) / sizeof(register_integral) * num_peripherals;
-  static inline std::array<register_integral, register_count>
+      sizeof(Peripheral) / sizeof(reg::register_integral) * num_peripherals;
+  static inline std::array<reg::register_integral, register_count>
       simulated_register_storage;
   static inline constexpr auto base_address = simulated_register_storage.data();
 };

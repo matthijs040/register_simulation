@@ -1,7 +1,6 @@
 #pragma once
 
 #include "registers/pad_GPIO.hpp"
-#include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
 #include <rp2040/shared_types.hpp>
 #include <type_traits>

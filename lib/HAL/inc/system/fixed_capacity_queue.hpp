@@ -4,7 +4,8 @@
 #include <cstdlib>
 #include <expected>
 
-template <typename elem_type, std::size_t capacity_> class fixed_capacity_queue {
+template <typename elem_type, std::size_t capacity_>
+class fixed_capacity_queue {
 
 public:
   fixed_capacity_queue(/* args */) : storage{}, stored_elements(0) {}
@@ -51,7 +52,7 @@ public:
     if (full())
       return false;
     stored_elements++;
-    storage.at(stored_elements) = data;
+    storage.at(stored_elements - 1) = data;
     return true;
   }
 
@@ -59,7 +60,7 @@ public:
     if (full())
       return false;
     stored_elements++;
-    storage.at(stored_elements) = std::move(data);
+    storage.at(stored_elements - 1) = std::move(data);
     return true;
   }
 

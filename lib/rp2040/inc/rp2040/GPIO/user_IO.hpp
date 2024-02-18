@@ -1,6 +1,5 @@
 #pragma once
 
-#include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
 
 #include "registers.hpp"

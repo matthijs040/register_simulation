@@ -1,7 +1,6 @@
 #pragma once
 
 #include "registers/ROSC.hpp"
-#include <HAL/device_register.hpp>
 #include <HAL/simulated_peripheral.hpp>
 #include <expected>
 #include <span>
