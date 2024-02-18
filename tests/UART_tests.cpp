@@ -1,5 +1,6 @@
 #include <HAL/GPIO.hpp>
 #include <HAL/UART.hpp>
+#include <cstring>
 #include <gtest/gtest.h>
 #include <numeric>
 
@@ -98,7 +99,7 @@ TEST(UART_tests, transmitting_more_than_TX_FIFO_size_bytes_returns_FIFO_size) {
   EXPECT_EQ(result.value(), rp2040_UART_FIFO_size);
 }
 
-TEST(UART_tests, sending_character_with_loopback_enabled_can_be_received) {
+TEST(UART_tests, single_byte_loopback_transfer_succeeds) {
   std::array<uint8_t, 1> sent_data{69U};
   HAL::UART instance =
       HAL::UART(default_pins, default_baudrate, default_format, true);
@@ -114,4 +115,26 @@ TEST(UART_tests, sending_character_with_loopback_enabled_can_be_received) {
 
   for (const auto &byte : sent_data)
     EXPECT_EQ(byte, received_data.at(&byte - &sent_data.front()));
+}
+
+TEST(UART_tests, multi_byte_loopback_transfer_succeeds) {
+  const char *sent_data = "Hello world!";
+  auto sent_data_view = std::span<const uint8_t>(
+      std::bit_cast<const uint8_t *>(sent_data), std::strlen(sent_data));
+  HAL::UART instance =
+      HAL::UART(default_pins, default_baudrate, default_format, true);
+
+  auto result = instance.send(sent_data_view);
+  ASSERT_TRUE(result.has_value());
+  ASSERT_EQ(result.value(), sent_data_view.size());
+
+  std::array<uint8_t, rp2040_UART_FIFO_size> received_data;
+  result = instance.receive(received_data);
+  ASSERT_TRUE(result.has_value());
+  ASSERT_EQ(result.value(), sent_data_view.size());
+
+  EXPECT_EQ(std::strncmp(sent_data,
+                         std::bit_cast<const char *>(received_data.data()),
+                         sent_data_view.size()),
+            0);
 }
