@@ -53,7 +53,20 @@ protected:
   }
 
   static peripheral_type &reset_instance(std::size_t which) {
-    peripheral_type*& handle = get_handles().at(which);
+    peripheral_type *&handle = get_handles().at(which);
+
+    // In case first-time initialization is done through a "reset"-call...
+    if (!handle) {
+      handle = new (get_storage_ptr(which)) peripheral_type;
+
+      // ...we only have to construct and ensure that initialize_effect_handlers is called.
+      if constexpr (enable_storage)
+        static_cast<peripheral_type *>(handle)->initialize_effect_handlers(
+            which);
+      return *handle;
+    }
+
+    // In the regular case. We just de- and re-construct.
     handle->~peripheral_type();
     handle = new (get_storage_ptr(which)) peripheral_type;
     return *handle;

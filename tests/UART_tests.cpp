@@ -87,9 +87,7 @@ TEST(UART_tests, a_transmitted_character_is_put_in_the_right_transmit_FIFO) {
 
 TEST(UART_tests, transmitting_more_than_TX_FIFO_size_bytes_returns_FIFO_size) {
 
-  // + 1 to account for the shift-register capacity.
-  // + 1 to trigger the overflow flag.
-  std::array<uint8_t, rp2040_UART_FIFO_size + 2> data;
+  std::array<uint8_t, rp2040_UART_FIFO_size * 2> data;
   std::iota(data.begin(), data.end(), 0);
 
   HAL::UART instance =
