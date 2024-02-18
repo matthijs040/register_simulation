@@ -53,6 +53,15 @@ protected:
     return *std::bit_cast<stored_bits *>(begin + field_offset);
   }
 
+  static peripheral_type &reset_instance(std::size_t which) {
+    static_assert(enable_storage);
+
+    auto &handles = get_handles();
+    handles.at(which)->~peripheral_type();
+    new (handles.at(which)) peripheral_type;
+    return *handles.at(which);
+  }
+
 private:
   static constexpr auto &get_handles() {
     static std::array<peripheral_type *, num_peripherals> handles;

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "registers/SPI.hpp"
-#include <HAL/simulatable_peripheral.hpp>
 #include <cstdint>
+#include <HAL/simulatable_peripheral.hpp>
 #include <rp2040/shared_types.hpp>
+#include <rp2040/subsystem_resets/resets.hpp>
 #include <system/fixed_capacity_queue.hpp>
 #include <type_traits>
 
@@ -128,4 +129,5 @@ private:
   }
 
   friend simulatable_peripheral<SPI_peripheral, reg::mock, num_SPI_peripherals>;
+  friend resets;
 };
