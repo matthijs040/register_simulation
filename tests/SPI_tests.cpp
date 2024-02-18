@@ -36,9 +36,6 @@ TEST(SPI_tests, SPI_handle_with_invalid_pins_will_error) {
 }
 
 TEST(SPI_tests, SPI_handle_will_not_initialize_if_already_active) {
-  auto periph =
-      SPI_peripheral::get(std::to_underlying(SPI_peripheral::ID::first));
-
   auto first_handle = make_handle();
   ASSERT_EQ(first_handle.initialization_result, error::standard_value::success);
 

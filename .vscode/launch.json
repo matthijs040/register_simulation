@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build_tests/tests",
             "args": [
-            //  "--gtest_filter=SPI_tests.loopback_transfer_succeeds"
+                // "--gtest_filter=SPI_tests.loopback_transfer_succeeds"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -50,6 +50,5 @@
                 "continue"
             ]
         },
-      
     ]
 }

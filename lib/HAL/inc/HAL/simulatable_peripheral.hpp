@@ -15,8 +15,7 @@ public:
   static constexpr peripheral_type &get(std::size_t which = 0) noexcept {
     assert(which < num_peripherals);
 
-    auto &handles = get_handles();
-    peripheral_type *&handle = handles.at(which);
+    peripheral_type *&handle = get_handles().at(which);
     if (handle)
       return *handle;
     handle = new (get_storage_ptr(which)) peripheral_type;
@@ -54,7 +53,7 @@ protected:
   }
 
   static peripheral_type &reset_instance(std::size_t which) {
-    auto handle = get_handles().at(which);
+    peripheral_type*& handle = get_handles().at(which);
     handle->~peripheral_type();
     handle = new (get_storage_ptr(which)) peripheral_type;
     return *handle;

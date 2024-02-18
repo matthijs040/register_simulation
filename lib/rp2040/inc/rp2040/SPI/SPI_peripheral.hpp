@@ -80,43 +80,34 @@ private:
       acquire_field(SSPSR.RFF) = reg::state::cleared;
     };
 
-    data_handlers.on_write =
-        [this, &buffer](data_type::field_type,
-                        const data_type::field_type &after_write) {
-          // If the loopback-enable register is set don't buffer.
-          // Just send it into the same SPI_handle's Receive FIFO.
-          auto loopback_enabled = SSPCR1.LBM;
-          std::cout << "loopback is: "
-                    << (loopback_enabled == reg::state::set ? "enabled\n"
-                                                            : "disabled\n");
-          if (loopback_enabled == reg::state::set) {
-            if (SSPSR.RFF == reg::state::set)
-              return;
+    data_handlers.on_write = [this, &buffer,
+                              which](data_type::field_type,
+                                     const data_type::field_type &after_write) {
+      // If the loopback-enable register is set don't buffer.
+      // Just send it into the same SPI_handle's Receive FIFO.
+      if (SSPCR1.LBM == reg::state::set) {
+        if (SSPSR.RFF == reg::state::set)
+          return;
 
-            std::clog << "entering in loopback RX_FIFO.\n";
+        buffer.RX_FIFO.push(after_write);
+        acquire_field(SSPSR.RNE) = reg::state::set;
 
-            // TODO: Write to RX buffer.
-            buffer.RX_FIFO.push(after_write);
+        if (buffer.RX_FIFO.full())
+          acquire_field(SSPSR.RFF) = reg::state::set;
+        return;
+      }
 
-            acquire_field(SSPSR.RNE) = reg::state::set;
+      // Copy over the data to transfer to the TX_FIFO.
+      if (!buffer.TX_FIFO.full()) {
+        buffer.TX_FIFO.push(after_write);
+      }
 
-            if (buffer.RX_FIFO.full())
-              acquire_field(SSPSR.RFF) = reg::state::set;
-            return;
-          }
-
-          std::clog << "Buffering in TX_FIFO.\n";
-          // Copy over the data to transfer to the TX_FIFO.
-          if (!buffer.TX_FIFO.full()) {
-            buffer.TX_FIFO.push(after_write);
-          }
-
-          // Also, if the FIFO is/becomes full by this write,
-          // Set the FIFO full flag in the "Flags Register"
-          if (buffer.TX_FIFO.full()) {
-            acquire_field(SSPSR.TNF) = reg::state::cleared;
-          }
-        };
+      // Also, if the FIFO is/becomes full by this write,
+      // Set the FIFO full flag in the "Flags Register"
+      if (buffer.TX_FIFO.full()) {
+        acquire_field(SSPSR.TNF) = reg::state::cleared;
+      }
+    };
 
     data_type::set_effect_handlers(&handle.SSPDR, data_handlers);
   }

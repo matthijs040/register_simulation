@@ -85,6 +85,7 @@ void clear_pin_reservations(SPI::pins pins) {
 }
 
 void reset_peripheral(SPI_peripheral::ID ID) {
+
   auto &HW_reset = resets::get();
   switch (ID) {
   case SPI_peripheral::ID::first:
@@ -127,7 +128,7 @@ error::code rp2040_SPI::initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
     return error_ocurred;
 
   const auto ID = get_peripheral_handle_for_pins(pins_to_use).value();
-  auto periph = SPI_peripheral::get(ID);
+  auto &periph = SPI_peripheral::get(ID);
 
   // If the desired peripheral is already enabled.
   // This is still possible as there are valid pin combinations that don't
@@ -172,10 +173,6 @@ error::code rp2040_SPI::initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
 
   periph.SSPCR1.LBM = enable_loopback ? reg::state::set : reg::state::cleared;
 
-  std::cout << "loopback is: "
-            << (periph.SSPCR1.LBM == reg::state::set ? "enabled\n"
-                                                     : "disabled\n");
-
   periph.SSPCR1.SSE = reg::state::set;
 
   return error::standard_value::success;
@@ -192,6 +189,10 @@ rp2040_SPI::rp2040_SPI(SPI::pins pins_to_use, SPI::mode mode_to_use,
 rp2040_SPI::~rp2040_SPI() {
   if (initialization_result)
     return;
+  auto &periph =
+      SPI_peripheral::get(get_peripheral_handle_for_pins(used_pins).value());
+  periph.SSPCR1.SSE = reg::state::cleared;
+
   clear_pin_reservations(used_pins);
 }
 
