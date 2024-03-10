@@ -33,6 +33,8 @@ protected:
 
   template <typename field_type>
   constexpr auto &acquire_field(const field_type &given_field) {
+    if constexpr(!enable_storage)
+      std::unreachable();
 
     static_assert(sizeof(field_type) <= sizeof(std::uintptr_t));
     const std::uintptr_t field_addr =
@@ -80,6 +82,9 @@ private:
   }
 
   static constexpr auto &get_storage() {
+    if constexpr(!enable_storage)
+      std::unreachable();
+
     static std::array<std::byte, sizeof(peripheral_type) * num_peripherals>
         storage;
     return storage;

@@ -22,6 +22,13 @@ public:
     return value;
   }
 
+  template <typename T> void assign_as(const T &v, std::size_t shift) {
+    const auto old_value = value;
+    *(std::bit_cast<T*>(&value) + shift) = v;
+    if constexpr (enable_handlers)
+      on_write(old_value);
+  }
+
   void operator=(const stored_type &v) {
     const auto old_value = value;
     value = v;

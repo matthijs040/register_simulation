@@ -67,6 +67,9 @@ void UART::flush_UART_FIFOs(std::size_t which) {
 }
 
 void UART::init_UARTDR_handlers(reg::UARTDR &data_register, std::size_t which) {
+  if constexpr(!reg::mock)
+    std::unreachable();
+
   using data_type = decltype(reg::UARTDR::data)::stored_type;
 
   UART_FIFOs &buffer = get_FIFO_storage()[which];

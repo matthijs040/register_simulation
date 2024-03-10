@@ -23,16 +23,36 @@ struct bitfield {
 
   constexpr bitfield &operator=(bitstate v) noexcept {
 
-    // If the to be assigned type perfectly maps to the LSBs of value.
-    // It can be assigned without shifting or masking.
-    if constexpr (sizeof(v) * 8 == num_bits && offset == 0 &&
-                  std::is_integral_v<bitstate>) {
-      value = v;
+    // If the "to-be-assigned type" perfectly maps to an "array-index" of the
+    // storage type. It can be assigned without reading or masking.
+    if constexpr (
+        // For this, it must perfectly fit into the number of bits.
+        sizeof(v) * 8 == num_bits &&
+        // Its offset must match a multiple of its size in bits.
+        offset % (sizeof(v) * 8) == 0
+        // And it must be integral.
+        // (Could also be enum but then the underlying type must comply with the
+        // above requirements.)
+        && std::is_integral_v<bitstate>) {
+
+      constexpr std::size_t pointer_shift = offset / (sizeof(bitstate) * 8);
+
+      // If our storage type is non-trivial. (e.g. simulated_device_register)
+      // Defer the conversion to it.
+      if constexpr (std::is_class_v<storage_type>) {
+        value.assign_as(v, pointer_shift);
+        return *this;
+      }
+
+      // Otherwise do it ourselves.
+      *(std::bit_cast<bitstate *>(&value) + pointer_shift) = v;
       return *this;
     }
 
-    // Cannot static assert this without a constexpr way of getting largest enum
-    // class value.
+    // If it cannot be written to directly (due to sharing its storage at the
+    // byte-level with other bitfields) The full state must first be read and
+    // our value be masked before assigned. This is to prevent changing state
+    // of other registers, be they reserved space or explicitly defined ones.
     const auto shifted_value = [&] {
       if constexpr (std::is_scoped_enum_v<bitstate>)
         return std::to_underlying(v) << offset;
