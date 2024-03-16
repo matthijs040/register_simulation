@@ -24,7 +24,7 @@ public:
 
   template <typename T> void assign_as(const T &v, std::size_t shift) {
     const auto old_value = value;
-    *(std::bit_cast<T*>(&value) + shift) = v;
+    *(std::bit_cast<T *>(&value) + shift) = v;
     if constexpr (enable_handlers)
       on_write(old_value);
   }

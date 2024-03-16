@@ -183,6 +183,9 @@ void init_OUTOVER_handlers(GPIO::pin_number pin, auto &ctrl,
 }
 
 void user_IO::initialize_effect_handlers(std::size_t) {
+  if constexpr(!reg::mock)
+    return std::unreachable();
+
   // Set handlers for every CTRL reg in the block.
   static auto logging_handle = std::ostream(nullptr);
 

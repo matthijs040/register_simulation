@@ -113,6 +113,9 @@ private:
   }
 
   void initialize_effect_handlers(std::size_t which) {
+    if constexpr(!reg::mock)
+      return std::unreachable();
+
     initialize_DR_handlers(static_cast<SPI_peripheral::ID>(which));
   }
 

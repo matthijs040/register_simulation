@@ -25,6 +25,7 @@ struct UART_FIFOs {
   }
 
   void write_to_RX_FIFO(uint8_t data) {
+    
     // Drop the data if the RX FIFO and shift-register both have data.
     if (RX_FIFO.size() == FIFO_size + shift_register_size)
       return;
@@ -37,11 +38,16 @@ struct UART_FIFOs {
 };
 
 std::array<UART_FIFOs, num_UARTs> &get_FIFO_storage() {
+  if constexpr(!reg::mock)
+    std::unreachable();
+  
   static std::array<UART_FIFOs, num_UARTs> instance;
   return instance;
 }
 
 void UART::write_to_UART(std::size_t which, uint8_t data) {
+  if constexpr(!reg::mock)
+    std::unreachable();
 
   auto &FIFOs = get_FIFO_storage()[which];
   FIFOs.write_to_RX_FIFO(data);
@@ -57,6 +63,9 @@ void UART::write_to_UART(std::size_t which, uint8_t data) {
 }
 
 void UART::flush_UART_FIFOs(std::size_t which) {
+  if constexpr(!reg::mock)
+    std::unreachable();
+
   UART_FIFOs &buffer = get_FIFO_storage()[which];
   buffer.flush_FIFOs();
 
@@ -126,6 +135,9 @@ void UART::init_UARTDR_handlers(reg::UARTDR &data_register, std::size_t which) {
 }
 
 void UART::initialize_effect_handlers(std::size_t which) {
+  if constexpr(!reg::mock)
+    return std::unreachable();
+
   init_UARTDR_handlers(UARTDR, which);
 }
 

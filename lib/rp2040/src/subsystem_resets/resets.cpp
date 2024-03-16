@@ -112,6 +112,9 @@ void resets::init_UART_reset_done_handlers() {
 }
 
 void resets::initialize_effect_handlers(std::size_t) {
+  if constexpr(!reg::mock)
+    return std::unreachable();
+
   init_UART_reset_handlers();
   init_SPI_reset_handlers();
 
