@@ -38,3 +38,10 @@ target_link_libraries(UART_snippet PRIVATE HAL rp2040_impl pico_stdlib)
 target_compile_options(UART_snippet PRIVATE -Og -g)
 set_target_properties(UART_snippet PROPERTIES CXX_STANDARD 23)
 pico_add_extra_outputs(UART_snippet)
+
+
+add_executable(SPI_snippet SPI_snippet.cpp)
+target_link_libraries(SPI_snippet PRIVATE HAL rp2040_impl pico_stdlib)
+target_compile_options(SPI_snippet PRIVATE -O0 -g)
+set_target_properties(SPI_snippet PROPERTIES CXX_STANDARD 23)
+pico_add_extra_outputs(SPI_snippet)

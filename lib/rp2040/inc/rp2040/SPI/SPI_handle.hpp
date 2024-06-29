@@ -8,6 +8,9 @@
 #include <rp2040/subsystem_resets/resets.hpp>
 #include <system/error_code.hpp>
 
+#include <rp2040/time/ROSC.hpp>
+#include <rp2040/time/clocks.hpp>
+
 class rp2040_SPI : public SPI::handle<rp2040_SPI> {
 public:
   rp2040_SPI(SPI::pins pins_to_use, SPI::mode mode_to_use,
@@ -139,8 +142,30 @@ error::code rp2040_SPI::initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
   }
   reset_peripheral(ID);
 
+  // Use the ROSC as the peripheral clock source.
+  auto &clock_handle = clocks::get();
+  auto &ROSC_handle = ROSC::get();
+  if (ROSC_handle.STATUS.ENABLED == reg::state::disabled) {
+    ROSC_handle.CTRL.ENABLE = reg::ROSC::CTRL::ENABLE_states::enabled;
+  }
+
+  clock_handle.CLK_PERI_CTRL.ENABLE = reg::state::enabled;
+  clock_handle.CLK_PERI_CTRL.AUXSRC =
+      reg::CLK_PERI_CTRL::AUXSRC_states::rosc_clksrc_ph;
+
+  // Obtain the frequency or abort if that fails.
+  auto frequency = ROSC_handle.get_frequency_Hz();
+  if (!frequency.has_value())
+    return frequency.error();
+
+  if(bitrate_to_use > frequency.value())
+    bitrate_to_use = frequency.value();
+
   // Placeholder values for bitrate.
   // For now this just makes it 4x the periph source clock.
+  // How do I calculate these?
+  // There are two values I must resolve from just the one.
+  // Bitrate -> dividend and divisor.
   periph.SSPCR0.SCR = 1;
   periph.SSPCPSR.CPSDVSR = 2;
 

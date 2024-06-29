@@ -25,7 +25,7 @@ public:
       : value_(std::to_underlying(error::standard_value::success)),
         category(&standard_category::get()) {}
 
-  code(int set_code, error::category &cat) : value_(set_code), category(&cat) {}
+  code(int set_code, const error::category &cat) : value_(set_code), category(&cat) {}
 
   code(const code &other) : value_(other.value_), category(other.category) {}
 

@@ -9,7 +9,7 @@ extern "C" __attribute__((__weak__)) void _exit(int code) {
   }
 }
 
-extern "C" __attribute__((__weak__)) int getentropy(void *, std::size_t) {
+extern "C" __attribute__((__weak__)) int _getentropy(void *, std::size_t) {
   return 0;
 }
 

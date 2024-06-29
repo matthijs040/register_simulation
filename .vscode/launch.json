@@ -34,7 +34,7 @@
             "name": "(gdb) launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build_app/UART_snippet.elf",
+            "program": "${workspaceFolder}/build_app/SPI_snippet.elf",
             "cwd": ".",
             "miDebuggerPath": "arm-none-eabi-gdb",
             "miDebuggerServerAddress": "localhost:3333",
