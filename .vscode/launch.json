@@ -40,6 +40,7 @@
             "miDebuggerServerAddress": "localhost:3333",
             "MIMode": "gdb",
             "stopAtEntry": true,
+            "useExtendedRemote": true,
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

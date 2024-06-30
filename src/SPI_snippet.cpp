@@ -50,10 +50,12 @@ int main() {
   // the Register Address. In case of a multi-byte Read/Write, data is two or
   // more bytes.
 
-  const uint8_t CANSTAT_read_request[] = {
-      std::to_underlying(MCP2515_SPI_instruction::READ),
-      std::to_underlying(MCP2515_SPI_address::CANSTAT)};
-  std::span<const uint8_t> sent_bytes = CANSTAT_read_request;
+  const uint8_t data_to_send[] = {1,2,3,4,5,6,7,8,9,10};
+
+  // const uint8_t CANSTAT_read_request[] = {
+  //     std::to_underlying(MCP2515_SPI_instruction::READ),
+  //     std::to_underlying(MCP2515_SPI_address::CANSTAT)};
+  std::span<const uint8_t> sent_bytes = data_to_send;
   auto result = handle.send(sent_bytes);
 
   if (result != error::standard_value::success)

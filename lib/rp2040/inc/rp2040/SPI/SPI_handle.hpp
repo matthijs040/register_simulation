@@ -122,6 +122,49 @@ void set_format(SPI_peripheral &handle, SPI::mode mode) {
   }
 }
 
+bool calculate_divisors(SPI::bitrate target_bitrate,
+                        std::uint32_t clock_frequency_Hz,
+                        std::optional<uint8_t> &prescale_divisor,
+                        std::optional<uint8_t> &post_divisor) {
+  prescale_divisor = std::nullopt;
+  post_divisor = std::nullopt;
+
+  if (target_bitrate > clock_frequency_Hz)
+    return false;
+
+  constexpr auto max_post_divisor_value =
+      1 + std::numeric_limits<
+              std::decay_t<decltype(post_divisor)>::value_type>::max();
+
+  for (uint8_t divisor; divisor < 254; divisor += 2) {
+    const auto next_prescaler_value = divisor += 2;
+    // If the frequency devided by this prescaler fits within the max-bitrate
+    // that is resolvable by the secondary divisor. It is a good-enough
+    // prescaler divisor.
+    if (clock_frequency_Hz / next_prescaler_value <
+        max_post_divisor_value * static_cast<std::uint64_t>(target_bitrate)) {
+      prescale_divisor = divisor;
+      break;
+    }
+  }
+
+  if (prescale_divisor == std::nullopt)
+    return false;
+
+  for (std::uint16_t postdiv = max_post_divisor_value; postdiv > 1; --postdiv) {
+    if (clock_frequency_Hz / (*prescale_divisor * (postdiv - 1)) >
+        target_bitrate) {
+      post_divisor = postdiv - 1;
+      break;
+    }
+  }
+
+  if (post_divisor == std::nullopt)
+    return false;
+
+  return true;
+}
+
 error::code rp2040_SPI::initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
                                    SPI::role role_to_have,
                                    SPI::bitrate &bitrate_to_use,
@@ -149,25 +192,22 @@ error::code rp2040_SPI::initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
     ROSC_handle.CTRL.ENABLE = reg::ROSC::CTRL::ENABLE_states::enabled;
   }
 
-  clock_handle.CLK_PERI_CTRL.ENABLE = reg::state::enabled;
   clock_handle.CLK_PERI_CTRL.AUXSRC =
       reg::CLK_PERI_CTRL::AUXSRC_states::rosc_clksrc_ph;
+  clock_handle.CLK_PERI_CTRL.ENABLE = reg::state::enabled;
 
   // Obtain the frequency or abort if that fails.
   auto frequency = ROSC_handle.get_frequency_Hz();
   if (!frequency.has_value())
     return frequency.error();
 
-  if(bitrate_to_use > frequency.value())
-    bitrate_to_use = frequency.value();
+  std::optional<uint8_t> prescaler, post_divisor;
+  if (!calculate_divisors(bitrate_to_use, frequency.value(), prescaler,
+                          post_divisor))
+    return error::standard_value::invalid_argument;
 
-  // Placeholder values for bitrate.
-  // For now this just makes it 4x the periph source clock.
-  // How do I calculate these?
-  // There are two values I must resolve from just the one.
-  // Bitrate -> dividend and divisor.
-  periph.SSPCR0.SCR = 1;
-  periph.SSPCPSR.CPSDVSR = 2;
+  periph.SSPCR0.SCR = prescaler.value();
+  periph.SSPCPSR.CPSDVSR = post_divisor.value();
 
   switch (mode_to_use) {
   case SPI::mode::Motorola:

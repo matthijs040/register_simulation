@@ -80,7 +80,8 @@
         "source_location": "cpp",
         "*.ipp": "cpp",
         "cerrno": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "text_encoding": "cpp"
     },
     "cmake.configureOnOpen": true,
     "cmake.sourceDirectory": "/home/matthijs/Documents/repos/register_simulation/src",
