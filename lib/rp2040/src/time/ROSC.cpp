@@ -28,11 +28,11 @@ ROSC::~ROSC() {}
 
 ROSC::ROSC() : CTRL() {}
 
-std::expected<uint32_t, error::code> ROSC::get_frequency_Hz() const noexcept {
-  std::expected<uint32_t, error::code> ret;
+uint32_t ROSC::get_frequency_Hz(error::code& ec) const noexcept {
 
   if (CTRL.ENABLE == reg::ROSC::CTRL::ENABLE_states::disabled) {
-    return std::unexpected(clock_control::errc::disabled);
+    ec = clock_control::errc::disabled;
+    return {};
   }
 
   return frequencies.at(get_power_stage()) * table_divisor /
@@ -118,11 +118,11 @@ inline void find_closest_match(uint32_t desired_frequency,
   }
 }
 
-std::expected<uint32_t, error::code>
-ROSC::set_frequency_Hz(std::uint32_t desired_frequency) noexcept {
+uint32_t
+ROSC::set_frequency_Hz(std::uint32_t desired_frequency,  error::code& ec) noexcept {
   if (CTRL.ENABLE == reg::ROSC::CTRL::ENABLE_states::disabled) {
-    auto ret = std::unexpected(clock_control::errc::disabled);
-    return ret;
+    ec = clock_control::errc::disabled;
+    return {};
   }
   const unsigned int *result = nullptr;
   uint32_t used_divisor;

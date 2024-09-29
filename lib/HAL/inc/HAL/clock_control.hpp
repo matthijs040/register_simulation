@@ -4,7 +4,6 @@
 #include "system/error_code.hpp"
 #include <chrono>
 #include <cstdint>
-#include <expected>
 #include <ranges>
 #include <ratio>
 
@@ -26,10 +25,9 @@ public:
 
   static std::span<clock_name> get_clock_names() noexcept;
 
-  std::expected<kiloHertz, error::code> get_current_frequency() const noexcept;
+  kiloHertz get_current_frequency(error::code &ec) const noexcept;
 
-  std::expected<kiloHertz, error::code>
-  set_current_frequency(kiloHertz value) noexcept;
+  kiloHertz set_current_frequency(kiloHertz value, error::code &ec) noexcept;
 
   error::code sleep_for(std::chrono::nanoseconds) const noexcept;
 

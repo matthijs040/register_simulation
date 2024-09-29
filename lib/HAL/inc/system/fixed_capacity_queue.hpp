@@ -2,7 +2,6 @@
 
 #include <array>
 #include <cstdlib>
-#include <expected>
 
 template <typename elem_type, std::size_t capacity_>
 class fixed_capacity_queue {
@@ -25,16 +24,9 @@ public:
     return true;
   }
 
-  std::expected<std::reference_wrapper<elem_type>, bool> front() noexcept {
-    if (empty())
-      return std::unexpected{false};
-    return storage.front();
-  }
+  std::reference_wrapper<elem_type> front() noexcept { return storage.front(); }
 
-  std::expected<std::reference_wrapper<const elem_type>, bool>
-  front() const noexcept {
-    if (empty())
-      return std::unexpected{false};
+  std::reference_wrapper<const elem_type> front() const noexcept {
     return storage.front();
   }
 

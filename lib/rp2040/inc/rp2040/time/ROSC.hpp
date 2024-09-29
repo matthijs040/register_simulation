@@ -2,7 +2,6 @@
 
 #include "registers/ROSC.hpp"
 #include <HAL/simulatable_peripheral.hpp>
-#include <expected>
 #include <span>
 #include <type_traits>
 
@@ -15,8 +14,8 @@ public:
   static std::span<const unsigned int>
   get_frequencies_by_power_stage() noexcept;
 
-  std::expected<uint32_t, error::code> get_frequency_Hz() const noexcept;
-  std::expected<uint32_t, error::code> set_frequency_Hz(std::uint32_t) noexcept;
+  uint32_t get_frequency_Hz(error::code& ec) const noexcept;
+  uint32_t set_frequency_Hz(std::uint32_t, error::code& ec) noexcept;
 
   reg::ROSC::CTRL CTRL;
   reg::ROSC::FREQA FREQA;

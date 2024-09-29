@@ -8,6 +8,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 project(unit_tests)
 include(CTest)
 

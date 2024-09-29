@@ -197,13 +197,13 @@ error::code rp2040_SPI::initialize(SPI::pins pins_to_use, SPI::mode mode_to_use,
   clock_handle.CLK_PERI_CTRL.ENABLE = reg::state::enabled;
 
   // Obtain the frequency or abort if that fails.
-  auto frequency = ROSC_handle.get_frequency_Hz();
-  if (!frequency.has_value())
-    return frequency.error();
+  error::code ec;
+  auto frequency = ROSC_handle.get_frequency_Hz(ec);
+  if (ec)
+    return ec;
 
   std::optional<uint8_t> prescaler, post_divisor;
-  if (!calculate_divisors(bitrate_to_use, frequency.value(), prescaler,
-                          post_divisor))
+  if (!calculate_divisors(bitrate_to_use, frequency, prescaler, post_divisor))
     return error::standard_value::invalid_argument;
 
   periph.SSPCR0.SCR = prescaler.value();

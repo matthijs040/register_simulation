@@ -64,7 +64,7 @@ private:
         // Should it be cleared or is the clearing of "RNE" enough?
         return;
 
-      auto &RX_data = buffer.RX_FIFO.front().value().get();
+      auto &RX_data = buffer.RX_FIFO.front().get();
       // Replace the data in the transfer register.
       acquire_field(SSPDR.DATA) = RX_data;
       // Then shift the active index in the static FIFO.

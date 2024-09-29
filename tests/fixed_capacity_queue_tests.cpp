@@ -35,7 +35,7 @@ TEST(fixed_capacity_queue_tests, elements_are_popped_in_order_of_insertion) {
     queue.push(ind);
 
   for (std::size_t ind = 0; ind < capacity; ind++) {
-    EXPECT_EQ(queue.front().value(), ind);
+    EXPECT_EQ(queue.front(), ind);
     queue.pop();
   }
 }
@@ -49,10 +49,10 @@ TEST(fixed_capacity_queue_tests, push_after_pop_still_is_last_element) {
   queue.push(3);
 
   queue.pop();
-  EXPECT_EQ(queue.front().value(), 2);
+  EXPECT_EQ(queue.front(), 2);
   queue.push(4);
   queue.pop();
-  EXPECT_EQ(queue.front().value(), 3);
+  EXPECT_EQ(queue.front(), 3);
   queue.pop();
-  EXPECT_EQ(queue.front().value(), 4);
+  EXPECT_EQ(queue.front(), 4);
 }

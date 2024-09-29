@@ -80,10 +80,10 @@ TEST(UART_tests, a_transmitted_character_is_put_in_the_right_transmit_FIFO) {
       HAL::UART(default_pins, default_baudrate, default_format, false);
 
   uint8_t data = 42;
-  auto result = instance.send({&data, sizeof(data)});
+  error::code ec;
+  auto result = instance.send({&data, sizeof(data)}, ec);
 
-  ASSERT_TRUE(result.has_value());
-  EXPECT_EQ(result.value(), 1);
+  EXPECT_EQ(result, 1);
 }
 
 TEST(UART_tests, transmitting_more_than_TX_FIFO_size_bytes_returns_FIFO_size) {
@@ -94,24 +94,23 @@ TEST(UART_tests, transmitting_more_than_TX_FIFO_size_bytes_returns_FIFO_size) {
   HAL::UART instance =
       HAL::UART(default_pins, default_baudrate, default_format, false);
 
-  auto result = instance.send(data);
-  ASSERT_TRUE(result.has_value());
-  EXPECT_EQ(result.value(), rp2040_UART_FIFO_size);
+  error::code ec;
+  auto result = instance.send(data, ec);
+  EXPECT_EQ(result, rp2040_UART_FIFO_size);
 }
 
 TEST(UART_tests, single_byte_loopback_transfer_succeeds) {
   std::array<uint8_t, 1> sent_data{69U};
   HAL::UART instance =
       HAL::UART(default_pins, default_baudrate, default_format, true);
+  error::code ec;
 
-  auto result = instance.send(sent_data);
-  ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(result.value(), sent_data.size());
+  auto result = instance.send(sent_data, ec);
+  ASSERT_EQ(result, sent_data.size());
 
   std::array<uint8_t, rp2040_UART_FIFO_size> received_data;
-  result = instance.receive(received_data);
-  ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(result.value(), sent_data.size());
+  result = instance.receive(received_data, ec);
+  ASSERT_EQ(result, sent_data.size());
 
   for (const auto &byte : sent_data)
     EXPECT_EQ(byte, received_data.at(&byte - &sent_data.front()));
@@ -124,14 +123,14 @@ TEST(UART_tests, multi_byte_loopback_transfer_succeeds) {
   HAL::UART instance =
       HAL::UART(default_pins, default_baudrate, default_format, true);
 
-  auto result = instance.send(sent_data_view);
-  ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(result.value(), sent_data_view.size());
+  error::code ec;
+
+  auto result = instance.send(sent_data_view, ec);
+  ASSERT_EQ(result, sent_data_view.size());
 
   std::array<uint8_t, rp2040_UART_FIFO_size> received_data;
-  result = instance.receive(received_data);
-  ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(result.value(), sent_data_view.size());
+  result = instance.receive(received_data, ec);
+  ASSERT_EQ(result, sent_data_view.size());
 
   EXPECT_EQ(std::strncmp(sent_data,
                          std::bit_cast<const char *>(received_data.data()),

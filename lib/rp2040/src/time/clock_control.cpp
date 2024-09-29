@@ -64,22 +64,28 @@ error::code clock_control::sleep_for(std::chrono::nanoseconds) const noexcept {
   return {};
 }
 
-std::expected<clock_control::kiloHertz, error::code>
-clock_control::get_current_frequency() const noexcept {
+clock_control::kiloHertz
+clock_control::get_current_frequency(error::code &ec) const noexcept {
   auto ret = std::expected<clock_control::kiloHertz, error::code>();
-  if (initialization_result)
-    return ret =
-               std::unexpected(error::standard_value::operation_not_permitted);
+  if (initialization_result) {
+    ec = error::standard_value::operation_not_permitted;
+    return {};
+  }
 
   auto &periph = clocks::get();
 
   if (periph.CLK_REF_CTRL.SRC != reg::CLK_REF_CTRL::SRC_states::rosc_clksrc_ph)
     periph.CLK_REF_CTRL.SRC = reg::CLK_REF_CTRL::SRC_states::rosc_clksrc_ph;
 
-  if (periph.FC0_STATUS.RUNNING == reg::state::set)
-    return std::unexpected(error::standard_value::operation_in_progress);
-  if (periph.FC0_STATUS.DIED == reg::state::set)
-    return std::unexpected(error::standard_value::operation_canceled);
+  if (periph.FC0_STATUS.RUNNING == reg::state::set) {
+    ec = error::standard_value::operation_in_progress;
+    return {};
+  }
+  if (periph.FC0_STATUS.DIED == reg::state::set) {
+    ec = error::standard_value::operation_canceled;
+    return {};
+  }
+
   if (periph.FC0_STATUS.DONE == reg::state::set)
     return periph.FC0_RESULT.KHZ / periph.FC0_RESULT.FRAC;
 
@@ -96,11 +102,13 @@ clock_control::get_current_frequency() const noexcept {
       periph.FC0_MAX_KHZ.maximum_pass_frequency.max;
   periph.FC0_SRC.clock_to_frequency_count = clock;
 
-  return std::unexpected(error::standard_value::operation_in_progress);
+  ec = error::standard_value::operation_in_progress;
+  return {};
 }
 
-std::expected<clock_control::kiloHertz, error::code>
-clock_control::set_current_frequency(kiloHertz /* value */) noexcept {
+clock_control::kiloHertz
+clock_control::set_current_frequency(kiloHertz /* value */,
+                                     error::code &) noexcept {
   //   auto &periph = clocks::get();
 
   return {};

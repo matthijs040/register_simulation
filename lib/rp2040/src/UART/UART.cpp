@@ -262,10 +262,13 @@ HAL::UART::~UART() {
                          has_additional_control_flow(used_pins) ? 4 : 2);
 }
 
-std::expected<std::size_t, error::code>
-HAL::UART::send(const std::span<const uint8_t> data) {
-  if (initialization_result)
-    return std::unexpected(initialization_result);
+std::size_t HAL::UART::send(const std::span<const uint8_t> data,
+                            error::code &ec) {
+  if (initialization_result) {
+    ec = initialization_result;
+    return {};
+  }
+
   if (data.empty())
     return 0U;
 
@@ -280,10 +283,11 @@ HAL::UART::send(const std::span<const uint8_t> data) {
   return data.size();
 }
 
-std::expected<std::size_t, error::code>
-HAL::UART::receive(std::span<uint8_t> data) {
-  if (initialization_result)
-    return std::unexpected(initialization_result);
+std::size_t HAL::UART::receive(std::span<uint8_t> data, error::code &ec) {
+  if (initialization_result) {
+    ec = initialization_result;
+    return {};
+  }
 
   if (data.empty())
     return 0U;
@@ -310,7 +314,8 @@ HAL::UART::receive(std::span<uint8_t> data) {
     if (handle.UARTFR.receive_FIFO_empty == reg::state::set) {
       if (transfer_error) {
         handle.UARTRSR.overrun_error = reg::state::cleared;
-        return std::unexpected(transfer_error);
+        ec = transfer_error;
+        return &byte - &data.front() + 1;
       }
 
       // Change the caller's buffer to data that actually changed.
@@ -320,8 +325,10 @@ HAL::UART::receive(std::span<uint8_t> data) {
 
   if (transfer_error) {
     handle.UARTRSR.overrun_error = reg::state::cleared;
-    return std::unexpected(transfer_error);
+    ec = transfer_error;
+    return {};
   }
+  
   return data.size();
 }
 

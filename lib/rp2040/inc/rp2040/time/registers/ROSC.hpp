@@ -21,7 +21,7 @@ union CTRL {
   reg::field<FREQ_RANGE_states, 0, 12> FREQ_RANGE;
 
   CTRL() : ENABLE{ENABLE_states::enabled} {
-    FREQ_RANGE = {FREQ_RANGE_states::low};
+    FREQ_RANGE = FREQ_RANGE_states::low;
   }
 };
 

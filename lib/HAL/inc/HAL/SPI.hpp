@@ -70,7 +70,10 @@ template <> inline code make_code<SPI::error_code>(SPI::error_code e) noexcept {
         return "Success";
       case SPI::error_code::transmit_buffer_full:
         return "Transmit buffer full";
+      case SPI::error_code::receive_buffer_empty:
+        return "Receive buffer empty";
       }
+
       return "Unknown";
     }
   } instance;

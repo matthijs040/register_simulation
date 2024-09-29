@@ -14,7 +14,11 @@ struct bitfield {
       : value(std::bit_cast<storage_type>(initial_value)) {}
 
   static constexpr auto offset = offset_;
-  static constexpr auto max = (0b1 << num_bits) - 1;
+
+  static constexpr uint32_t max = (num_bits == sizeof(storage_type) * 8
+                                  ? std::numeric_limits<uint32_t>::max()
+                                  : static_cast<uint32_t>((0b1 << num_bits) - 1));
+
   static constexpr auto bitrange = max << offset;
 
   constexpr operator bitstate() const noexcept {

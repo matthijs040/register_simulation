@@ -47,10 +47,10 @@ public:
        bool enable_loopback);
   ~UART();
 
-  std::expected<std::size_t, error::code>
-  send(const std::span<const uint8_t> data);
+  std::size_t
+  send(const std::span<const uint8_t> data, error::code& ec);
 
-  std::expected<std::size_t, error::code> receive(std::span<uint8_t> data);
+  std::size_t receive(std::span<uint8_t> data, error::code& ec);
 
   format get_active_format() const noexcept;
 };
